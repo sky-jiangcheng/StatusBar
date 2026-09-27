@@ -7,7 +7,7 @@
 - 不请求屏幕录制、输入监控、文件访问、网络访问或自动化权限
 - **不请求辅助功能（Accessibility）权限**：仅在界面上只读展示 `AXIsProcessTrusted()` 的结果，未授权不影响任何功能
 - 包含最小 App Sandbox 授权文件 `Sources/StatusBar/Resources/StatusBar.entitlements`
-- App 图标为正式设计稿（`design/leaf-icon` 为源文件），`Contents.json` 的 `size` 字段已修正为合法的 `WxH` 形式
+- App 图标源文件在 `design/leaf-icon`
 - 发布流程不依赖 Xcode 工程：`script/release.sh` 直接编译 SPM 产物并组装 `.app`
 
 ## 提交前必要步骤
@@ -34,18 +34,9 @@
 
 本地开发用 `script/build_and_run.sh`，它采用 devid 渠道的 Bundle ID 与 entitlements（沙盒关闭）。
 
-> `ExportOptions.plist` / `ExportOptionsUpload.plist` 是早期 Xcode 归档流程的遗留文件，当前流水线不再读取它们。
-
 ## 重要约束
 
-此版本有意避免全局热键，因为 App Store 安全的全局快捷键处理可能需要额外权限或额外的审查说明。
-
-当前可用的快捷键（随菜单/菜单项生效）：
-
-- `Command Q`：退出 StatusBar（菜单栏图标右键菜单）
-- `Command ,`：打开设置（菜单栏图标右键菜单）
-
-> 注：应用没有全局热键；主窗口内也未注册额外的键盘快捷键。
+此版本有意避免全局热键。菜单栏图标右键菜单提供 `Command Q`（退出）和 `Command ,`（打开设置）。
 
 ## 已知限制
 
@@ -56,9 +47,3 @@
 - 暗色 App 图标变体（`Assets.xcassets/AppIcon.appiconset/dark/`）只在 Xcode 资产目录（`Assets.car`）流程下生效；`script/release.sh` 用 `iconutil` 生成 `.icns`，该格式只包含浅色图标
 - MAS 沙盒下 `NSRunningApplication.terminate()` 被系统拦截，因此 mas 渠道用 `-D MAC_APP_STORE` 编译期剔除退出功能
 
-## 构建环境验证记录
-
-- `swift build` 可在本机通过（Swift 6.4 / macOS SDK）：
-  - 首选：`sudo xcodebuild -license accept && sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
-  - 未切换 Xcode 时的等价命令见 `README.md` 的「构建环境要求」（显式指定 `-plugin-path`）
-- Status Bar 应用唤起已迁移至 `NSWorkspace.openApplication(at:configuration:)`，不再使用已弃用的 `launchApplication(withBundleIdentifier:)`

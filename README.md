@@ -2,8 +2,7 @@
 
 macOS 菜单栏管理工具：自动检测并管理状态栏与 Dock 应用。
 
-- 官网自分发：https://github.com/sky-jiangcheng/StatusBar/releases/latest
-- 最新 DMG：https://github.com/sky-jiangcheng/StatusBar/releases/download/v1.18.0/StatusBar-1.18.0.dmg
+- 下载：https://github.com/sky-jiangcheng/StatusBar/releases/latest
 - 源码与 Issue：https://github.com/sky-jiangcheng/StatusBar
 
 官网版（Developer ID）含 Quit / Force Quit；Mac App Store 版受沙盒限制，这两项在编译期移除。两版 Bundle ID 不同，可同时安装，设置互不共享。
@@ -13,8 +12,6 @@ macOS 菜单栏管理工具：自动检测并管理状态栏与 Dock 应用。
 1. 从 [GitHub Releases](https://github.com/sky-jiangcheng/StatusBar/releases/latest) 下载 `StatusBar-<version>.dmg`
 2. 打开 DMG，把 `StatusBar.app` 拖到 Applications
 3. 首次打开若出现 Gatekeeper 提示：系统设置 → 隐私与安全性 → 仍要打开
-
-推送 `v*` 标签后，`notarize.yml` 会把公证并装订后的 DMG 挂到对应 Release 的 Assets。
 
 ## 功能特性
 
@@ -44,10 +41,9 @@ macOS 菜单栏管理工具：自动检测并管理状态栏与 Dock 应用。
 ## 技术栈
 
 - **语言**：Swift 6.0
-- **最低系统**：macOS 14+
 - **框架**：SwiftUI + AppKit
 - **架构**：`@Observable`（Observation framework）
-- **构建**：Swift Package Manager（无 `.xcodeproj`）
+- **构建**：Swift Package Manager
 
 ## 本地运行
 
@@ -85,7 +81,6 @@ swift build --build-system native \
 
 ```
 StatusBar/
-├── LICENSE
 ├── Package.swift
 ├── Sources/StatusBar/
 │   ├── App/                    # 入口、设置窗口、状态栏调度
@@ -107,7 +102,6 @@ StatusBar/
 - 部分 accessory app（如 Macs Fan Control）无法被其他 app 激活
 - App 类型基于 `activationPolicy`，无法读取真实的状态栏图标归属
 - 聚合面板不隐藏系统菜单栏图标（v1.6.0 起），仅在菜单栏下方浮动显示
-- `openApplication` 与旧 `launchApplication` 的激活时序不同，个别 accessory 应用若唤起异常请反馈
 - MAS 沙盒拦截 `NSRunningApplication.terminate()`，故 mas 渠道用 `-D MAC_APP_STORE` 编译期剔除退出功能
 
 ## CI/CD 发布（双轨）
@@ -185,7 +179,3 @@ git tag v1.18.0 && git push origin v1.18.0
 | v1.3.0 | P0/P1 code review 修复 |
 | v1.2.0 | Window + status bar 支持 |
 | v1.1.0 | Phase 1-5 完整实现 |
-
-## License
-
-MIT。完整文本见仓库根目录 `LICENSE`。
