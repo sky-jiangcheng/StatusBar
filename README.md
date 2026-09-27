@@ -144,7 +144,7 @@ swift build
 | 渠道 | Workflow | Bundle ID | 沙盒 | Quit / Force Quit | 产物 |
 |------|----------|-----------|------|-------------------|------|
 | Mac App Store | `release.yml` | `com.jiangcheng.MacStatusApp` | 开（MAS 强制） | 编译期移除 | `.pkg` → altool 上传 |
-| 官网自分发 | `notarize.yml` | `com.jiangcheng.EasyBar` | 关（Hardened Runtime） | 完整可用 | `.dmg` → 公证 + 装订 |
+| 官网自分发 | `notarize.yml` | `com.jiangcheng.EasyBar` | 关（Hardened Runtime） | 完整可用 | `.dmg` → 公证 + 装订 → GitHub Release Assets |
 
 单元测试由独立的 `test.yml` 在 push/PR 时运行（macOS runner + 完整 Xcode，`swift test`）。
 
@@ -190,7 +190,7 @@ swift build
 git tag v1.15.0 && git push origin v1.15.0
 ```
 
-DMG 从 Actions 的 artifact 下载后放官网。公证后用户首次打开仍会看到 Gatekeeper 提示，指引「系统设置 → 隐私与安全性 → 仍要打开」即可。
+推送 `v*` 标签后，`notarize.yml` 会把公证并装订后的 `StatusBar-<version>.dmg` 挂到对应 GitHub Release 的 Assets。Actions artifact 仍会保留一份备份。公证后用户首次打开仍会看到 Gatekeeper 提示，指引「系统设置 → 隐私与安全性 → 仍要打开」即可。
 
 ## License
 

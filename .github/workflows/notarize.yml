@@ -12,7 +12,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: devid-${{ github.ref }}
@@ -36,6 +36,10 @@ jobs:
           if [ -z "$V" ]; then
             V="${GITHUB_REF_NAME#v}"
           fi
+          case "$V" in
+            [0-9]*) ;;
+            *) echo "invalid version: $V" >&2; exit 1 ;;
+          esac
           echo "version=$V" >> "$GITHUB_OUTPUT"
           echo "build=${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
@@ -81,27 +85,38 @@ jobs:
           mkdir -p "$DMG_DIR"
           cp -R "dist/StatusBar.app" "$DMG_DIR/"
           ln -s /Applications "$DMG_DIR/Applications"
-          hdiutil create -volname "StatusBar" -srcfolder "$DMG_DIR" -ov -format UDZO "dist/StatusBar.dmg"
-          codesign --sign "$SIGNING_IDENTITY" --timestamp "dist/StatusBar.dmg"
+          DMG_PATH="dist/StatusBar-${{ steps.version.outputs.version }}.dmg"
+          hdiutil create -volname "StatusBar" -srcfolder "$DMG_DIR" -ov -format UDZO "$DMG_PATH"
+          codesign --sign "$SIGNING_IDENTITY" --timestamp "$DMG_PATH"
+          echo "DMG_PATH=$DMG_PATH" >> "$GITHUB_ENV"
 
       - name: Notarize and staple
         env:
           API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
-          xcrun notarytool submit "dist/StatusBar.dmg" \
+          xcrun notarytool submit "$DMG_PATH" \
             --key "$HOME/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8" \
             --key-id "$API_KEY_ID" \
             --issuer "$API_ISSUER_ID" \
             --wait
-          xcrun stapler staple "dist/StatusBar.dmg"
-          xcrun stapler validate "dist/StatusBar.dmg"
-          spctl -a -vv -t install "dist/StatusBar.dmg"
+          xcrun stapler staple "$DMG_PATH"
+          xcrun stapler validate "$DMG_PATH"
+          spctl -a -vv -t install "$DMG_PATH"
 
       - name: Upload DMG artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: StatusBar-devid-${{ steps.version.outputs.version }}
-          path: dist/StatusBar.dmg
+          path: dist/StatusBar-${{ steps.version.outputs.version }}.dmg
           if-no-files-found: error
+
+      - name: Attach DMG to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          files: dist/StatusBar-${{ steps.version.outputs.version }}.dmg
+          fail_on_unmatched_files: true
+          generate_release_notes: true
