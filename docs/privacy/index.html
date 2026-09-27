@@ -20,7 +20,7 @@
 
       <section data-lang-block="zh-CN">
         <h1>StatusBar 隐私政策</h1>
-        <p class="muted">最后更新：2026年9月4日</p>
+        <p class="muted">最后更新：2026年9月27日</p>
 
         <p>StatusBar 不收集、存储、共享或出售任何个人数据。</p>
 
@@ -28,24 +28,27 @@
         <p>StatusBar 不收集分析数据、跟踪数据、账户信息、联系信息、位置数据或标识符。</p>
 
         <h2>本地设备信息</h2>
-        <p>StatusBar 使用公共 macOS API 来显示当前时间和 Mac 上正在运行的应用程序列表。这些信息在您的设备上本地处理，不会传输到任何服务器。</p>
+        <p>StatusBar 使用公共 macOS API（<code>NSWorkspace.shared.runningApplications</code>）列出本机正在运行的应用程序。这些信息只在设备上本地处理，不会传输到任何服务器。</p>
 
         <h2>权限</h2>
-        <p>StatusBar 请求 Accessibility 权限以检测应用状态（运行中/隐藏）。此权限仅用于读取应用状态，不访问您的文件、屏幕录制、键盘输入、网络流量、联系人、位置、摄像头或麦克风。</p>
+        <p>StatusBar <strong>不请求</strong>辅助功能（Accessibility）权限，也不请求屏幕录制、输入监控、文件访问、网络访问或自动化权限。界面仅只读展示 <code>AXIsProcessTrusted()</code> 的结果，未授权不影响任何功能。</p>
 
         <h2>数据共享</h2>
         <p>由于 StatusBar 不收集个人数据，因此不与第三方共享个人数据。</p>
+
+        <h2>开源许可</h2>
+        <p>StatusBar 以 <a href="https://github.com/sky-jiangcheng/StatusBar/blob/main/LICENSE">MIT License</a> 发布。</p>
 
         <h2>联系</h2>
         <p>如果您对本隐私政策有任何疑问，请联系：<a href="mailto:jiangcheng1806@gmail.com">jiangcheng1806@gmail.com</a></p>
 
         <h2>支持</h2>
-        <p>访问 <a href="./support/">StatusBar 支持</a> 获取帮助、错误报告或反馈。</p>
+        <p>访问 <a href="../support/">StatusBar 支持</a> 获取帮助、错误报告或反馈。</p>
       </section>
 
       <section data-lang-block="en" hidden>
         <h1>StatusBar Privacy Policy</h1>
-        <p class="muted">Last updated: September 4, 2026</p>
+        <p class="muted">Last updated: September 27, 2026</p>
 
         <p>StatusBar does not collect, store, share, or sell any personal data.</p>
 
@@ -53,13 +56,16 @@
         <p>StatusBar collects no analytics, tracking data, account information, contact information, location data, or identifiers.</p>
 
         <h2>On-device information</h2>
-        <p>StatusBar uses public macOS APIs to display the current time and the list of apps running on your Mac. This information is processed locally on your device and is never transmitted to any server.</p>
+        <p>StatusBar uses public macOS APIs (<code>NSWorkspace.shared.runningApplications</code>) to list apps running on your Mac. This information is processed locally and is never transmitted to any server.</p>
 
         <h2>Permissions</h2>
-        <p>StatusBar requests the Accessibility permission to detect app state (running/hidden). It is used solely to read app state and does not access your files, screen recording, keyboard input, network traffic, contacts, location, camera, or microphone.</p>
+        <p>StatusBar <strong>does not request</strong> Accessibility permission, nor screen recording, input monitoring, file access, network access, or automation. The UI only displays the result of <code>AXIsProcessTrusted()</code>; the app works fully without it.</p>
 
         <h2>Data sharing</h2>
         <p>Because StatusBar collects no personal data, no personal data is shared with third parties.</p>
+
+        <h2>License</h2>
+        <p>StatusBar is released under the <a href="https://github.com/sky-jiangcheng/StatusBar/blob/main/LICENSE">MIT License</a>.</p>
 
         <h2>Contact</h2>
         <p>If you have questions about this policy, contact: <a href="mailto:jiangcheng1806@gmail.com">jiangcheng1806@gmail.com</a></p>

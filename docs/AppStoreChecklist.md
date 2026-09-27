@@ -28,7 +28,7 @@
 | 渠道 | 命令 | Bundle ID | 沙盒 | 产物 |
 |------|------|-----------|------|------|
 | Mac App Store | `CHANNEL=mas bash script/release.sh` | `com.jiangcheng.MacStatusApp` | 开 | `dist/StatusBar.pkg` → altool |
-| 官网自分发 | `CHANNEL=devid bash script/release.sh` | `com.jiangcheng.EasyBar` | 关 | `dist/StatusBar.app` → DMG → 公证 |
+| 官网自分发 | `CHANNEL=devid bash script/release.sh` | `com.jiangcheng.EasyBar` | 关 | `dist/StatusBar.app` → DMG → 公证 → GitHub Release Assets |
 
 必需环境变量：`SIGNING_IDENTITY`（mas：`Apple Distribution: …`；devid：`Developer ID Application: …`），其余可选变量见 `script/release.sh` 头部注释。
 
@@ -49,7 +49,7 @@
 
 ## 已知限制
 
-- Status Bar 应用无法通过 `NSRunningApplication.activate()` 激活（macOS 安全限制），本应用对 accessory 应用使用 `launchApplication` 唤起
+- Status Bar 应用无法通过 `NSRunningApplication.activate()` 激活（macOS 安全限制），本应用对 accessory 应用使用 `NSWorkspace.openApplication(at:configuration:)` 唤起
 - 部分 accessory app（如 Macs Fan Control）无法被其他 app 激活
 - App 类型检测基于 `activationPolicy`，无法读取真实的状态栏图标归属
 - 聚合面板不会隐藏系统菜单栏图标（v1.6.0 起移除 AX 隐藏方案），仅在菜单栏下方浮动显示
@@ -61,4 +61,4 @@
 - `swift build` 可在本机通过（Swift 6.4 / macOS SDK）：
   - 首选：`sudo xcodebuild -license accept && sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
   - 未切换 Xcode 时的等价命令见 `README.md` 的「构建环境要求」（显式指定 `-plugin-path`）
-- 编译告警：仅 `NSWorkspace.launchApplication(withBundleIdentifier:)` 的弃用告警（有意保留，见 README「已知限制」）
+- Status Bar 应用唤起已迁移至 `NSWorkspace.openApplication(at:configuration:)`，不再使用已弃用的 `launchApplication(withBundleIdentifier:)`
