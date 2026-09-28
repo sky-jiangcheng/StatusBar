@@ -9,7 +9,6 @@ final class StatusBarManager {
     private var eventMonitor: Any?
     private var localMonitor: Any?
     private var aggregationAutoHideTimer: Timer?
-    private var manualHideDate: Date?
     private var observers: [NSObjectProtocol] = []
 
     /// Grace window for the button-click double-toggle: a re-show within this
@@ -177,28 +176,6 @@ final class StatusBarManager {
     }
 
     private func setupNotifications() {
-        let showObserver = NotificationCenter.default.addObserver(
-            forName: .aggregationShouldShow,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                guard let self,
-                      self.settingsStore.aggregationMode.showsAggregationPanelAutomatically
-                else { return }
-                // Respect a recent manual hide (grace = two scan intervals).
-                if let hiddenAt = self.manualHideDate,
-                   Date().timeIntervalSince(hiddenAt) < max(self.settingsStore.refreshInterval * 2, 4) {
-                    return
-                }
-                if !self.aggregationPanel.isShown {
-                    self.aggregationPanel.show()
-                }
-                self.scheduleAggregationAutoHide()
-            }
-        }
-        observers.append(showObserver)
-
         let layoutObserver = NotificationCenter.default.addObserver(
             forName: .menuBarItemsChanged,
             object: nil,
@@ -332,16 +309,16 @@ final class StatusBarManager {
 
     @objc private func toggleAggregationPanel() {
         if aggregationPanel.isShown {
-            // Suppress the next automatic show so a manually hidden panel does
-            // not pop right back up on the following scan cycle.
-            manualHideDate = Date()
             aggregationAutoHideTimer?.invalidate()
             aggregationAutoHideTimer = nil
             remainingAutoHideDelay = 0
             aggregationPanel.hide()
         } else {
-            manualHideDate = nil
             aggregationPanel.show()
+            // The panel no longer auto-opens on new apps (manual-only), so a
+            // manual summon must also arm the auto-hide countdown itself;
+            // otherwise it would linger until the user dismisses it.
+            scheduleAggregationAutoHide()
         }
     }
 

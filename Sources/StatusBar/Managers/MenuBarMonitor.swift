@@ -10,7 +10,6 @@ final class MenuBarMonitor {
     private var timer: Timer?
     private var refreshObserver: Any?
     private let settingsStore: SettingsStore
-    private var showGate = AggregationShowGate()
 
     enum AppType: String {
         case statusbarOnly = "Status Bar"
@@ -47,11 +46,7 @@ final class MenuBarMonitor {
         guard !isMonitoring else { return }
         isMonitoring = true
 
-        // The first scan only inventories what is already running.
-        // AggregationShowGate seeds its baseline from it, so nothing that
-        // was running at launch can count as "a new app appeared" — the
-        // panel used to pop up on every launch before the user interacted
-        // with anything.
+        // Initial inventory so the icon list is populated immediately.
         refreshMenuItems()
         startTimer()
 
@@ -91,30 +86,13 @@ final class MenuBarMonitor {
         startTimer()
     }
 
-    /// Refresh the item list and broadcast the auto-show signal when a *new*
-    /// Status Bar app appeared while StatusBar was already running.
-    ///
-    /// The signal itself is gated by `showGate`: an app must persist across
-    /// two consecutive scans (quit-residue helpers usually do not) and must
-    /// not belong to an app the user just opened or quit from our own UI.
-    /// The first call after `startMonitoring` seeds the gate's baseline, so
-    /// icons already running at launch never look "new".
+    /// Rebuilds the item list from the running apps. The aggregation panel is
+    /// manual-only (summoned by the user), so a changed list only fans out a
+    /// layout-changed notice so a visible panel can re-fit its frame.
     func refreshMenuItems() {
         let newItems = getMenuItemsFromRunningApps()
-        let oldItems = menuBarItems
+        guard newItems != menuBarItems else { return }
         menuBarItems = newItems
-
-        let oldStatusApps = Set(oldItems.filter { $0.appType == .statusbarOnly }.map(\.id))
-        let newStatusApps = Set(newItems.filter { $0.appType == .statusbarOnly }.map(\.id))
-        let membershipChanged = oldStatusApps != newStatusApps
-        let presentationChanged = oldItems != newItems
-        guard membershipChanged || presentationChanged else { return }
-
-        let appeared = showGate.evaluate(newIDs: newStatusApps)
-        if !appeared.isEmpty {
-            NotificationCenter.default.post(name: .aggregationShouldShow, object: nil)
-        }
-        // Lets visible panels re-fit their frame when the app list changes.
         NotificationCenter.default.post(name: .menuBarItemsChanged, object: nil)
     }
 
@@ -241,10 +219,6 @@ final class MenuBarMonitor {
 
 #if !MAC_APP_STORE
     func quitApp(_ item: MenuBarItem) {
-        // A deliberately quit app — and any accessory helper that outlives
-        // its parent while it winds down — must not pop the aggregation
-        // panel as if a surprise icon had appeared.
-        showGate.noteUserAction(bundleID: item.bundleIdentifier)
         guard let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == item.bundleIdentifier }) else { return }
         app.terminate()
     }
@@ -261,18 +235,11 @@ final class MenuBarMonitor {
         alert.addButton(withTitle: l10n.forceQuit)
         alert.addButton(withTitle: l10n.cancel)
         guard alert.runModal() == .alertFirstButtonReturn else { return }
-        showGate.noteUserAction(bundleID: item.bundleIdentifier)
         app.forceTerminate()
     }
 #endif
 
     func activateApp(_ item: MenuBarItem) {
-        // The user deliberately opened this app from our own UI: neither the
-        // app nor the accessory helpers it brings along may trigger the
-        // aggregation auto-show. Without this, clicking 打开 in the main
-        // window popped the panel seconds later — and again when the app
-        // was quit and its helper wound down.
-        showGate.noteUserAction(bundleID: item.bundleIdentifier)
         guard let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == item.bundleIdentifier }) else { return }
         app.unhide()
         if item.appType == .statusbarOnly {
@@ -297,72 +264,8 @@ final class MenuBarMonitor {
     }
 }
 
-/// Gate for the "a Status Bar app just appeared" auto-show signal.
-///
-/// Two rules keep the signal honest:
-///
-/// 1. **Persistence** — an ID must be present in two consecutive scans
-///    before it may fire. Quitting apps routinely leave accessory / XPC
-///    helper processes behind for a few seconds (once the parent regular
-///    app has exited it no longer "dominates" them, so they surface as new
-///    Status Bar items); a one-scan sighting is churn, not a new icon.
-/// 2. **User-initiated families** — apps the user opened or quit from our
-///    own UI are deliberately caused by the user: neither the app itself
-///    nor its accessory-helper family (same base bundle ID) may fire for
-///    the rest of the session.
-///
-/// The first `evaluate` call seeds the baseline with the running set, so
-/// icons present at launch never fire. Pure state machine — unit-testable
-/// without AppKit.
-struct AggregationShowGate {
-    private var establishedIDs: Set<String> = []
-    private var establishedFamilies: Set<String> = []
-    private var previousIDs: Set<String> = []
-    private var isPrimed = false
-
-    /// Seeds the baseline with the IDs running at launch; these IDs can
-    /// never fire afterwards.
-    mutating func establishBaseline(_ ids: Set<String>) {
-        establishedIDs.formUnion(ids)
-        previousIDs = ids
-        isPrimed = true
-    }
-
-    /// Records a deliberate user action (open / quit / force quit). The
-    /// bundle ID and its helper family stop being eligible for auto-show.
-    mutating func noteUserAction(bundleID: String) {
-        establishedFamilies.insert(bundleID)
-        if let base = MenuBarMonitor.baseBundleID(of: bundleID) {
-            establishedFamilies.insert(base)
-        }
-    }
-
-    /// Feeds one scan snapshot and returns the IDs that may fire the
-    /// auto-show signal (empty when only churn or suppressed IDs appeared).
-    mutating func evaluate(newIDs: Set<String>) -> Set<String> {
-        guard isPrimed else {
-            establishBaseline(newIDs)
-            return []
-        }
-        let eligible = newIDs.filter { id in
-            !establishedIDs.contains(id)
-                && !isFamilyEstablished(id)
-                && previousIDs.contains(id)
-        }
-        establishedIDs.formUnion(eligible)
-        previousIDs = newIDs
-        return eligible
-    }
-
-    private func isFamilyEstablished(_ id: String) -> Bool {
-        establishedFamilies.contains(id)
-            || establishedFamilies.contains(MenuBarMonitor.baseBundleID(of: id) ?? id)
-    }
-}
-
 extension Notification.Name {
     static let refreshIntervalChanged = Notification.Name("refreshIntervalChanged")
-    static let aggregationShouldShow = Notification.Name("aggregationShouldShow")
     static let menuBarItemsChanged = Notification.Name("menuBarItemsChanged")
     static let toggleAggregationPanel = Notification.Name("toggleAggregationPanel")
 }

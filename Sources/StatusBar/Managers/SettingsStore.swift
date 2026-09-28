@@ -27,10 +27,11 @@ final class SettingsStore {
         case disabled = "Disabled"
 
         /// Whether a newly detected Status Bar app may open the floating panel
-        /// automatically. Normal mode remains click-driven; Disabled mode
-        /// requires an explicit action from the status item or context menu.
+        /// automatically. For Aggregation mode this is `false`: the panel is
+        /// summoned only by an explicit action (clicking the status item or the
+        /// context menu). Disabled mode likewise requires an explicit action.
         var showsAggregationPanelAutomatically: Bool {
-            self == .aggregation
+            false
         }
 
         /// Whether a manually shown panel should auto-hide. Normal mode has no
