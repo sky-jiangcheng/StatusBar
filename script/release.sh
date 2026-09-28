@@ -122,6 +122,8 @@ cat > "$APP_CONTENTS/Info.plist" <<PLIST
   <string>AppIcon</string>
   <key>LSMinimumSystemVersion</key>
   <string>$MIN_SYSTEM_VERSION</string>
+  <key>LSUIElement</key>
+  <true/>
   <key>LSApplicationCategoryType</key>
   <string>public.app-category.utilities</string>
   <key>NSPrincipalClass</key>

@@ -56,6 +56,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         accessibilityManager.refresh()
     }
 
+    /// Background agent (LSUIElement): closing the last window must never quit
+    /// the app, or the resident status-bar icons would vanish with it.
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         // Release menu bar resources in a deterministic order before teardown.
         menuBarMonitor.stopMonitoring()
