@@ -4,6 +4,7 @@ import SwiftUI
 struct PopoverView: View {
     @Environment(MenuBarMonitor.self) private var menuBarMonitor
     @Environment(SettingsStore.self) private var settings
+    @Environment(\.openWindow) private var openWindow
 
     @State private var searchText = ""
 
@@ -124,36 +125,46 @@ struct PopoverView: View {
     }
 
     private var footerSection: some View {
-        HStack {
-            Text("StatusBar")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+        HStack(spacing: 6) {
+            Spacer(minLength: 0)
 
-            Spacer()
-
-            Button(l10n.panel) {
+            // Icon-only keeps the row inside the 360pt popover across all five
+            // languages; the state lives in the tooltip / accessibility label.
+            Button {
                 NotificationCenter.default.post(name: .toggleAggregationPanel, object: nil)
+            } label: {
+                Image(systemName: settings.isAggregationPanelVisible ? "rectangle.stack.fill" : "rectangle.stack")
+                    .foregroundStyle(settings.isAggregationPanelVisible ? Color.accentColor : Color.secondary)
             }
             .buttonStyle(.plain)
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            .help(panelToggleTooltip)
+            .accessibilityLabel(panelToggleTooltip)
+
+            // The main window is closable and has no other re-entry point, so
+            // the popover — the surface users reach first — carries it.
+            Button(l10n.openMainWindow) {
+                openWindow(id: "main")
+            }
+            .buttonStyle(.plain)
 
             Button(l10n.settingsDots) {
                 AppSettingsOpener.open()
             }
             .buttonStyle(.plain)
-            .font(.caption)
-            .foregroundStyle(.secondary)
 
             Button(l10n.quit) {
                 NSApp.terminate(nil)
             }
             .buttonStyle(.plain)
-            .font(.caption)
-            .foregroundStyle(.secondary)
         }
+        .font(.caption)
+        .foregroundStyle(.secondary)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+    }
+
+    private var panelToggleTooltip: String {
+        settings.isAggregationPanelVisible ? l10n.hideAggregationPanel : l10n.showAggregationPanel
     }
 }
 

@@ -4,17 +4,59 @@ struct AggregationView: View {
     @Environment(MenuBarMonitor.self) private var menuBarMonitor
     @Environment(SettingsStore.self) private var settings
 
+    private var l10n: L10nTable { settings.l10n }
+
     var body: some View {
-        Group {
-            if statusbarItems.isEmpty {
-                emptyState
-            } else {
-                grid
-            }
+        VStack(spacing: 0) {
+            header
+            Divider()
+            content
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Escape dismisses the panel through the same path as the context menu,
+        // so the manual-hide grace window keeps suppressing the next auto-show.
+        .onExitCommand {
+            NotificationCenter.default.post(name: .toggleAggregationPanel, object: nil)
+        }
+    }
+
+    /// Without a title row the panel is a bare grid of icons that floats over
+    /// the user's work, and the only way to get rid of it is to wait for the
+    /// auto-hide countdown.
+    private var header: some View {
+        HStack(spacing: 8) {
+            Text(l10n.statusBar)
+                .font(.headline)
+
+            Text(String(format: l10n.appsCount, statusbarItems.count))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Spacer(minLength: 4)
+
+            Button {
+                NotificationCenter.default.post(name: .toggleAggregationPanel, object: nil)
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help(l10n.hideAggregationPanel)
+            .accessibilityLabel(l10n.hideAggregationPanel)
+        }
+        .frame(height: AggregationPanel.Layout.headerHeight)
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if statusbarItems.isEmpty {
+            emptyState
+        } else {
+            grid
+        }
     }
 
     // Aggregation semantics: only Status Bar (accessory) apps belong in the panel.

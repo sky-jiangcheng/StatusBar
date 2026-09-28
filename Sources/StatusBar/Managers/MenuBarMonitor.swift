@@ -46,7 +46,10 @@ final class MenuBarMonitor {
         guard !isMonitoring else { return }
         isMonitoring = true
 
-        refreshMenuItems()
+        // The first scan only inventories what is already running. It must not
+        // count as "new apps appeared", otherwise the aggregation panel pops up
+        // on every launch before the user has interacted with anything.
+        refreshMenuItems(emitAggregationShow: false)
         startTimer()
 
         refreshObserver = NotificationCenter.default.addObserver(
@@ -85,7 +88,12 @@ final class MenuBarMonitor {
         startTimer()
     }
 
-    func refreshMenuItems() {
+    /// Refresh the item list and broadcast the auto-show signal when a *new*
+    /// Status Bar app appeared while StatusBar was already running.
+    ///
+    /// `emitAggregationShow` is disabled for the initial inventory scan so the
+    /// app does not flash a panel at the user on launch.
+    func refreshMenuItems(emitAggregationShow: Bool = true) {
         let newItems = getMenuItemsFromRunningApps()
         let oldItems = menuBarItems
         menuBarItems = newItems
@@ -99,7 +107,9 @@ final class MenuBarMonitor {
         let presentationChanged = oldItems != newItems
         guard membershipChanged || presentationChanged else { return }
 
-        if !newStatusApps.isEmpty && !oldStatusApps.isSuperset(of: newStatusApps) {
+        if emitAggregationShow,
+           !newStatusApps.isEmpty,
+           !oldStatusApps.isSuperset(of: newStatusApps) {
             NotificationCenter.default.post(name: .aggregationShouldShow, object: nil)
         }
         // Lets visible panels re-fit their frame when the app list changes.

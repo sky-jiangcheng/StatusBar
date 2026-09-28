@@ -29,25 +29,46 @@ final class LogicTests: XCTestCase {
     // MARK: - AggregationPanel.heightFor
 
     func testHeightForEmptyListUsesFixedMinimum() {
-        XCTAssertEqual(AggregationPanel.heightFor(statusbarCount: 0, spacing: 8), 80)
+        XCTAssertEqual(
+            AggregationPanel.heightFor(statusbarCount: 0, spacing: 8),
+            AggregationPanel.Layout.verticalPadding
+                + AggregationPanel.Layout.headerHeight
+                + AggregationPanel.Layout.emptyStateHeight
+        )
     }
 
     func testHeightForGrowsPerRowThenCaps() {
         let layout = AggregationPanel.Layout.self
         XCTAssertEqual(
             AggregationPanel.heightFor(statusbarCount: 1, spacing: 8),
-            layout.verticalPadding + layout.rowHeight
+            layout.verticalPadding + layout.headerHeight + layout.rowHeight
         )
         // 10 apps / 5 columns = 2 rows: exactly one inter-row spacing gap.
         XCTAssertEqual(
             AggregationPanel.heightFor(statusbarCount: 10, spacing: 4),
-            layout.verticalPadding + 2 * layout.rowHeight + 4
+            layout.verticalPadding + layout.headerHeight + 2 * layout.rowHeight + 4
         )
         // 15 apps = 3 rows, but the panel caps at maxVisibleRows.
         XCTAssertEqual(
             AggregationPanel.heightFor(statusbarCount: 15, spacing: 4),
-            layout.verticalPadding + CGFloat(layout.maxVisibleRows) * layout.rowHeight + 4
+            layout.verticalPadding + layout.headerHeight
+                + CGFloat(layout.maxVisibleRows) * layout.rowHeight + 4
         )
+    }
+
+    // MARK: - Aggregation auto-show policy
+
+    /// The priming scan inventories what is already running and must never be
+    /// mistaken for "a Status Bar app just appeared": emitting the signal there
+    /// popped the panel over the user on every single launch.
+    func testStartMonitoringDoesNotEmitAggregationShow() {
+        let monitor = MenuBarMonitor(settingsStore: SettingsStore())
+        let show = expectation(forNotification: .aggregationShouldShow, object: nil)
+        show.isInverted = true
+
+        monitor.startMonitoring()
+        wait(for: [show], timeout: 0.5)
+        monitor.stopMonitoring()
     }
 
     // MARK: - MenuBarMonitor.sortedByCustomOrder

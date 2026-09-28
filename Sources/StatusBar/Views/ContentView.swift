@@ -6,6 +6,8 @@ struct ContentView: View {
     @Environment(AccessibilityManager.self) private var accessibilityManager
 
     @State private var selectedFilter: AppFilter = .all
+    @State private var searchText = ""
+    @State private var selectedItemID: String?
 
     enum AppFilter: String, CaseIterable {
         case all, statusbar, dock
@@ -13,16 +15,33 @@ struct ContentView: View {
 
     private var l10n: L10nTable { settings.l10n }
 
+    /// Type filter first, then the search query over name and bundle ID.
+    /// Mirrors PopoverView so both surfaces find the same apps.
     private var filteredItems: [MenuBarMonitor.MenuBarItem] {
         let base = menuBarMonitor.sortedByCustomOrder(menuBarMonitor.menuBarItems)
+        let scoped: [MenuBarMonitor.MenuBarItem]
         switch selectedFilter {
         case .all:
-            return base
+            scoped = base
         case .statusbar:
-            return base.filter { $0.appType == .statusbarOnly }
+            scoped = base.filter { $0.appType == .statusbarOnly }
         case .dock:
-            return base.filter { $0.appType == .dockOnly }
+            scoped = base.filter { $0.appType == .dockOnly }
         }
+
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return scoped }
+        return scoped.filter {
+            $0.processName.localizedCaseInsensitiveContains(query)
+                || $0.bundleIdentifier.localizedCaseInsensitiveContains(query)
+        }
+    }
+
+    /// Resolved from the full item list, so a selection survives filtering:
+    /// clearing a search never blanks the detail pane.
+    private var selectedItem: MenuBarMonitor.MenuBarItem? {
+        guard let selectedItemID else { return nil }
+        return menuBarMonitor.menuBarItems.first { $0.id == selectedItemID }
     }
 
     var body: some View {
@@ -49,6 +68,25 @@ struct ContentView: View {
 
     private var sidebarHeader: some View {
         VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                TextField(l10n.searchPlaceholder, text: $searchText)
+                    .textFieldStyle(.plain)
+                if !searchText.isEmpty {
+                    Button {
+                        searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 8))
+
             Picker(l10n.all, selection: $selectedFilter) {
                 Text(l10n.all).tag(AppFilter.all)
                 Text(l10n.statusBar).tag(AppFilter.statusbar)
@@ -66,16 +104,22 @@ struct ContentView: View {
     }
 
     private var sidebarList: some View {
-        List {
+        List(selection: $selectedItemID) {
             if filteredItems.isEmpty {
                 ContentUnavailableView(
                     l10n.noApps,
                     systemImage: "app.badge",
-                    description: Text(selectedFilter == .all ? l10n.noAppsFound : l10n.noAppsInCategory)
+                    description: Text(searchText.isEmpty ? (selectedFilter == .all ? l10n.noAppsFound : l10n.noAppsInCategory) : l10n.noAppsFound)
                 )
             } else {
                 ForEach(filteredItems) { item in
-                    SidebarRow(item: item, l10n: l10n)
+                    SidebarRow(
+                        item: item,
+                        l10n: l10n,
+                        isSelected: selectedItemID == item.id,
+                        onSelect: { selectedItemID = item.id }
+                    )
+                    .tag(item.id)
                 }
             }
         }
@@ -87,7 +131,16 @@ struct ContentView: View {
             headerView
             Divider()
             statsView
-            Spacer()
+            Divider()
+
+            // The detail pane used to end here, leaving an empty half of the
+            // window; it now carries the selected app (or a prompt for it).
+            if let selectedItem {
+                AppDetailView(item: selectedItem, l10n: l10n)
+            } else {
+                ContentUnavailableView(l10n.selectAppPrompt, systemImage: "cursorarrow.click.2")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
     }
 
@@ -173,6 +226,10 @@ private struct SidebarRow: View {
 
     let item: MenuBarMonitor.MenuBarItem
     let l10n: L10nTable
+    let isSelected: Bool
+    let onSelect: () -> Void
+
+    @State private var isHovering = false
 
     var body: some View {
         HStack(spacing: 10) {
@@ -201,42 +258,139 @@ private struct SidebarRow: View {
 
             Spacer()
 
-            HStack(spacing: 8) {
-                Button {
-                    menuBarMonitor.activateApp(item)
-                } label: {
-                    Image(systemName: "arrow.up.forward.app")
-                        .font(.body)
-                        .foregroundStyle(.blue)
-                }
-                .buttonStyle(.plain)
-                .help(l10n.open)
-
-#if !MAC_APP_STORE
-                Button {
-                    menuBarMonitor.quitApp(item)
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.body)
-                        .foregroundStyle(.red)
-                }
-                .buttonStyle(.plain)
-                .help(l10n.quit)
-
-                Button {
-                    menuBarMonitor.forceQuitApp(item)
-                } label: {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                }
-                .buttonStyle(.plain)
-                .help(l10n.forceQuit)
-#endif
-            }
+            actionCluster
         }
         .padding(.vertical, 6)
         .contentShape(Rectangle())
+        .onTapGesture { onSelect() }
+        .onHover { isHovering = $0 }
+    }
+
+    /// Kept constant-width so revealing it never shifts the row text, and
+    /// hit-tested away while hidden so those pixels fall through to row
+    /// selection instead of swallowing the click.
+    @ViewBuilder
+    private var actionCluster: some View {
+        HStack(spacing: 8) {
+            Button {
+                menuBarMonitor.activateApp(item)
+            } label: {
+                Image(systemName: "arrow.up.forward.app")
+                    .font(.body)
+                    .foregroundStyle(.blue)
+            }
+            .buttonStyle(.plain)
+            .help(l10n.open)
+
+#if !MAC_APP_STORE
+            Button {
+                menuBarMonitor.quitApp(item)
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.body)
+                    .foregroundStyle(.red)
+            }
+            .buttonStyle(.plain)
+            .help(l10n.quit)
+
+            Button {
+                menuBarMonitor.forceQuitApp(item)
+            } label: {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
+            .buttonStyle(.plain)
+            .help(l10n.forceQuit)
+#endif
+        }
+        .opacity(isHovering || isSelected ? 1 : 0)
+        .allowsHitTesting(isHovering || isSelected)
+    }
+}
+
+private struct AppDetailView: View {
+    @Environment(MenuBarMonitor.self) private var menuBarMonitor
+
+    let item: MenuBarMonitor.MenuBarItem
+    let l10n: L10nTable
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                appIcon
+
+                Text(item.processName)
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.center)
+
+                Text(item.bundleIdentifier)
+                    .font(.callout.monospaced())
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+                    .multilineTextAlignment(.center)
+
+                Text(item.appType == .statusbarOnly ? l10n.statusBar : l10n.dock)
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        (item.appType == .statusbarOnly ? Color.purple : Color.green).opacity(0.15),
+                        in: Capsule()
+                    )
+                    .foregroundStyle(item.appType == .statusbarOnly ? .purple : .green)
+
+                actions
+            }
+            .frame(maxWidth: .infinity)
+            .padding(24)
+        }
+    }
+
+    @ViewBuilder
+    private var appIcon: some View {
+        if let icon = item.icon {
+            Image(nsImage: icon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else {
+            Image(systemName: "app.fill")
+                .font(.system(size: 52))
+                .foregroundStyle(.secondary)
+                .frame(width: 64, height: 64)
+        }
+    }
+
+    @ViewBuilder
+    private var actions: some View {
+        HStack(spacing: 12) {
+            Button {
+                menuBarMonitor.activateApp(item)
+            } label: {
+                Label(l10n.open, systemImage: "arrow.up.forward.app")
+            }
+            .buttonStyle(.borderedProminent)
+
+#if !MAC_APP_STORE
+            Button {
+                menuBarMonitor.quitApp(item)
+            } label: {
+                Label(l10n.quit, systemImage: "xmark.circle")
+            }
+            .buttonStyle(.bordered)
+
+            Button(role: .destructive) {
+                menuBarMonitor.forceQuitApp(item)
+            } label: {
+                Label(l10n.forceQuit, systemImage: "exclamationmark.triangle")
+            }
+            .buttonStyle(.bordered)
+#endif
+        }
+        .padding(.top, 4)
     }
 }
 

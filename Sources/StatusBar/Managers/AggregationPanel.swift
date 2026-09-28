@@ -13,6 +13,12 @@ final class AggregationPanel: NSObject, NSWindowDelegate {
         static let verticalPadding: CGFloat = 16
         static let maxVisibleRows = 2
 
+        /// Title row above the grid ("Status Bar · N apps" + close button).
+        static let headerHeight: CGFloat = 26
+
+        /// Height used by the empty state instead of a grid row.
+        static let emptyStateHeight: CGFloat = 44
+
         /// One grid cell is a square icon tile.
         static let rowHeight: CGFloat = iconSize
     }
@@ -41,6 +47,7 @@ final class AggregationPanel: NSObject, NSWindowDelegate {
             updatePosition()
             panel?.orderFront(nil)
             isOrderedIn = true
+            settingsStore.isAggregationPanelVisible = true
             return
         }
 
@@ -56,7 +63,9 @@ final class AggregationPanel: NSObject, NSWindowDelegate {
         panel.isFloatingPanel = true
         panel.hidesOnDeactivate = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        panel.isMovableByWindowBackground = true
+        // Deliberately not `isMovableByWindowBackground`: the panel is a
+        // transient popup, so an accidental drag would strand it away from the
+        // menu bar while the next scan re-centered it anyway.
         panel.titlebarAppearsTransparent = true
         panel.titleVisibility = .hidden
         panel.backgroundColor = NSColor.windowBackgroundColor.withAlphaComponent(0.95)
@@ -92,15 +101,18 @@ final class AggregationPanel: NSObject, NSWindowDelegate {
         panel.orderFront(nil)
         self.panel = panel
         isOrderedIn = true
+        settingsStore.isAggregationPanelVisible = true
     }
 
     func hide() {
         panel?.orderOut(nil)
         isOrderedIn = false
+        settingsStore.isAggregationPanelVisible = false
     }
 
     func windowWillClose(_ notification: Notification) {
         isOrderedIn = false
+        settingsStore.isAggregationPanelVisible = false
     }
 
     func toggle() {
@@ -121,14 +133,20 @@ final class AggregationPanel: NSObject, NSWindowDelegate {
         menuBarMonitor.menuBarItems.filter { $0.appType == .statusbarOnly }.count
     }
 
+    /// Total panel height: vertical padding (top + bottom combined) + title row
+    /// + grid block.
+    ///
     /// Height for a grid of `Layout.columnsPerRow` fixed-size columns; rows
     /// beyond `Layout.maxVisibleRows` scroll inside the panel instead of
     /// growing it.
     static func heightFor(statusbarCount count: Int, spacing: CGFloat) -> CGFloat {
-        guard count > 0 else { return 80 }
-        let rows = Int(ceil(Double(count) / Double(Layout.columnsPerRow)))
-        let visibleRows = min(rows, Layout.maxVisibleRows)
-        return Layout.verticalPadding + CGFloat(visibleRows) * Layout.rowHeight + CGFloat(visibleRows - 1) * spacing
+        let rows = count > 0
+            ? min(Int(ceil(Double(count) / Double(Layout.columnsPerRow))), Layout.maxVisibleRows)
+            : 0
+        let gridHeight = rows > 0
+            ? CGFloat(rows) * Layout.rowHeight + CGFloat(rows - 1) * spacing
+            : Layout.emptyStateHeight
+        return Layout.verticalPadding + Layout.headerHeight + gridHeight
     }
 
     private func positionPanel(_ panel: NSPanel) {

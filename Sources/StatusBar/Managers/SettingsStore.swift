@@ -14,6 +14,13 @@ final class SettingsStore {
     var appearance: AppearanceMode = .system
     var language: AppLanguage = .system
 
+    /// Whether the floating aggregation panel is currently on screen.
+    /// UI state only — deliberately not persisted, and not part of `save()` /
+    /// `load()`. Every visibility change funnels through
+    /// `AggregationPanel.show()` / `hide()`, so the popover button label can
+    /// never disagree with the panel.
+    var isAggregationPanelVisible = false
+
     enum AggregationMode: String, CaseIterable {
         case aggregation = "Aggregation"
         case normal = "Normal"

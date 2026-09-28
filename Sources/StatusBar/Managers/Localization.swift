@@ -74,11 +74,12 @@ struct L10nTable {
     var forceQuitConfirmBody: String
     var cancel: String
     var searchPlaceholder: String
-    var panel: String
     var settingsDots: String
     var quitStatusBar: String
     var showAggregationPanel: String
     var hideAggregationPanel: String
+    var openMainWindow: String
+    var selectAppPrompt: String
     // Settings — tabs & General
     var tabGeneral: String
     var tabAggregation: String
@@ -151,7 +152,6 @@ enum L10n {
         forceQuitConfirmBody: "The app will be terminated immediately. Unsaved changes may be lost.",
         cancel: "Cancel",
         searchPlaceholder: "Search...",
-        panel: "Panel",
         settingsDots: "Settings...",
         quitStatusBar: "Quit StatusBar",
         showAggregationPanel: "Show Aggregation Panel",
@@ -201,7 +201,9 @@ enum L10n {
         sectionUnordered: "Unordered",
         noIcons: "No Icons",
         noIconsDetected: "No menu bar icons detected.",
-        noStatusApps: "No Status Bar apps running"
+        noStatusApps: "No Status Bar apps running",
+        openMainWindow: "Open Main Window",
+        selectAppPrompt: "Select an app to see its details."
     )
 
     static let zhHans = L10nTable(
@@ -223,7 +225,6 @@ enum L10n {
         forceQuitConfirmBody: "应用将被立即终止，未保存的更改可能丢失。",
         cancel: "取消",
         searchPlaceholder: "搜索…",
-        panel: "面板",
         settingsDots: "设置…",
         quitStatusBar: "退出 StatusBar",
         showAggregationPanel: "显示聚合面板",
@@ -273,7 +274,9 @@ enum L10n {
         sectionUnordered: "未排序",
         noIcons: "无图标",
         noIconsDetected: "未检测到菜单栏图标。",
-        noStatusApps: "没有运行中的菜单栏应用"
+        noStatusApps: "没有运行中的菜单栏应用",
+        openMainWindow: "打开主窗口",
+        selectAppPrompt: "在左侧选择应用以查看详情。"
     )
 
     static let ja = L10nTable(
@@ -295,7 +298,6 @@ enum L10n {
         forceQuitConfirmBody: "アプリは直ちに終了します。未保存の変更は失われる可能性があります。",
         cancel: "キャンセル",
         searchPlaceholder: "検索…",
-        panel: "パネル",
         settingsDots: "設定…",
         quitStatusBar: "StatusBar を終了",
         showAggregationPanel: "集約パネルを表示",
@@ -345,7 +347,9 @@ enum L10n {
         sectionUnordered: "未整列",
         noIcons: "アイコンなし",
         noIconsDetected: "メニューバーのアイコンが検出されません。",
-        noStatusApps: "実行中のステータスバーアプリはありません"
+        noStatusApps: "実行中のステータスバーアプリはありません",
+        openMainWindow: "メインウィンドウを開く",
+        selectAppPrompt: "左のアプリを選択すると詳細が表示されます。"
     )
 
     static let de = L10nTable(
@@ -367,7 +371,6 @@ enum L10n {
         forceQuitConfirmBody: "Die App wird sofort beendet. Ungespeicherte Änderungen können verloren gehen.",
         cancel: "Abbrechen",
         searchPlaceholder: "Suchen…",
-        panel: "Panel",
         settingsDots: "Einstellungen…",
         quitStatusBar: "StatusBar beenden",
         showAggregationPanel: "Aggregations-Panel anzeigen",
@@ -417,7 +420,9 @@ enum L10n {
         sectionUnordered: "Nicht sortiert",
         noIcons: "Keine Symbole",
         noIconsDetected: "Keine Menüleisten-Symbole erkannt.",
-        noStatusApps: "Keine Statusleisten-Apps aktiv"
+        noStatusApps: "Keine Statusleisten-Apps aktiv",
+        openMainWindow: "Hauptfenster öffnen",
+        selectAppPrompt: "Wähle links eine App aus, um Details zu sehen."
     )
 
     static let es = L10nTable(
@@ -439,7 +444,6 @@ enum L10n {
         forceQuitConfirmBody: "La aplicación se cerrará de inmediato. Los cambios sin guardar pueden perderse.",
         cancel: "Cancelar",
         searchPlaceholder: "Buscar…",
-        panel: "Panel",
         settingsDots: "Ajustes…",
         quitStatusBar: "Salir de StatusBar",
         showAggregationPanel: "Mostrar panel de agregación",
@@ -489,7 +493,9 @@ enum L10n {
         sectionUnordered: "Sin ordenar",
         noIcons: "Sin iconos",
         noIconsDetected: "No se detectaron iconos de la barra de menú.",
-        noStatusApps: "No hay aplicaciones de barra de estado en ejecución"
+        noStatusApps: "No hay aplicaciones de barra de estado en ejecución",
+        openMainWindow: "Abrir ventana principal",
+        selectAppPrompt: "Selecciona una app a la izquierda para ver los detalles."
     )
 
     // Memoized: Locale.preferredLanguages is stable within a launch session,
