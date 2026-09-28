@@ -29,8 +29,8 @@ struct AggregationView: View {
             aggregationIconView
                 .frame(width: 20, height: 20)
             Text(settings.l10n.noStatusApps)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.callout)
+                .foregroundStyle(.primary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

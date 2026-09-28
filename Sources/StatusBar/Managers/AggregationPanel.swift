@@ -60,6 +60,12 @@ final class AggregationPanel: NSObject, NSWindowDelegate {
         panel.titlebarAppearsTransparent = true
         panel.titleVisibility = .hidden
         panel.backgroundColor = NSColor.windowBackgroundColor.withAlphaComponent(0.95)
+        // .hudWindow gives the panel a dark background but does not set
+        // NSAppearance, so SwiftUI semantic colors (.primary, .secondary) resolve
+        // against the *system* appearance. In light mode that produces dark text
+        // on the dark HUD background — invisible. Pin the panel to a dark
+        // appearance so the content always renders with light-on-dark colours.
+        panel.appearance = NSAppearance(named: .vibrantDark)
         panel.isReleasedWhenClosed = false
         panel.delegate = self
 
