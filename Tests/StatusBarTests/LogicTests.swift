@@ -74,7 +74,7 @@ final class LogicTests: XCTestCase {
     // MARK: - AggregationShowGate
 
     func testGateBaselineNeverFiresButPersistentNewAppsDo() {
-        var gate = MenuBarMonitor.AggregationShowGate()
+        var gate = AggregationShowGate()
 
         // Priming scan inventories the running app; it never fires, no
         // matter how many scans it survives.
@@ -92,7 +92,7 @@ final class LogicTests: XCTestCase {
     }
 
     func testGateRequiresTwoConsecutiveScansBeforeFiring() {
-        var gate = MenuBarMonitor.AggregationShowGate()
+        var gate = AggregationShowGate()
         gate.establishBaseline([])
 
         // First sighting: too young to tell a real icon from launch churn.
@@ -104,7 +104,7 @@ final class LogicTests: XCTestCase {
     }
 
     func testGateIgnoresHelperSeenForASingleScan() {
-        var gate = MenuBarMonitor.AggregationShowGate()
+        var gate = AggregationShowGate()
         gate.establishBaseline(["com.parent.app"])
 
         // Quit residue: the helper surfaces for one scan, then disappears.
@@ -120,7 +120,7 @@ final class LogicTests: XCTestCase {
     /// aggregation panel seconds later (the app and its helpers looked like
     /// "new icons"), and again after the app was quit.
     func testGateSuppressesAppsTheUserOpenedFromOurUI() {
-        var gate = MenuBarMonitor.AggregationShowGate()
+        var gate = AggregationShowGate()
         gate.establishBaseline([])
         gate.noteUserAction(bundleID: "com.vendor.app")
 
@@ -133,7 +133,7 @@ final class LogicTests: XCTestCase {
     }
 
     func testGateSuppressesHelperOutlivingAUserQuit() {
-        var gate = MenuBarMonitor.AggregationShowGate()
+        var gate = AggregationShowGate()
         gate.establishBaseline(["com.vendor.app", "com.vendor.app.helper"])
         // The user quits the app from our UI; its accessory helper may
         // linger for seconds after the parent is gone.
@@ -144,7 +144,7 @@ final class LogicTests: XCTestCase {
     }
 
     func testGateStillFiresForUnrelatedNewApps() {
-        var gate = MenuBarMonitor.AggregationShowGate()
+        var gate = AggregationShowGate()
         gate.establishBaseline(["com.vendor.app"])
         gate.noteUserAction(bundleID: "com.vendor.app")
 
