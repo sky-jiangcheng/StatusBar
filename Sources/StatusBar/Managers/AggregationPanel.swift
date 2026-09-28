@@ -91,6 +91,13 @@ final class AggregationPanel: NSObject, NSWindowDelegate {
                 .environment(menuBarMonitor)
                 .environment(settingsStore)
         )
+        // NSHostingView(rootView:) starts with a zero frame, and an
+        // autoresizingMask only stretches a frame that already exists — it
+        // cannot grow one back from zero. Without this explicit bounds-sized
+        // frame the entire SwiftUI content is invisible and the panel is an
+        // empty dark rectangle (the "black box" over the user's work). Once
+        // sized, autoresizing keeps it glued to the container on every re-fit.
+        hostingView.frame = container.bounds
         hostingView.autoresizingMask = [.width, .height]
         container.addSubview(hostingView)
 
