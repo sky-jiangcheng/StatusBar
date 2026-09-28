@@ -58,8 +58,8 @@ final class LogicTests: XCTestCase {
 
     // MARK: - Aggregation auto-show policy
 
-    /// The priming scan inventories what is already running and must never be
-    /// mistaken for "a Status Bar app just appeared": emitting the signal there
+    /// The priming scan inventories what is already running and must never
+    /// be mistaken for "a Status Bar app just appeared": emitting the signal there
     /// popped the panel over the user on every single launch.
     func testStartMonitoringDoesNotEmitAggregationShow() {
         let monitor = MenuBarMonitor(settingsStore: SettingsStore())
@@ -69,6 +69,91 @@ final class LogicTests: XCTestCase {
         monitor.startMonitoring()
         wait(for: [show], timeout: 0.5)
         monitor.stopMonitoring()
+    }
+
+    // MARK: - AggregationShowGate
+
+    func testGateBaselineNeverFiresButPersistentNewAppsDo() {
+        var gate = MenuBarMonitor.AggregationShowGate()
+
+        // Priming scan inventories the running app; it never fires, no
+        // matter how many scans it survives.
+        XCTAssertTrue(gate.evaluate(newIDs: ["com.running.app"]).isEmpty)
+        XCTAssertTrue(gate.evaluate(newIDs: ["com.running.app"]).isEmpty)
+
+        // A genuinely new app fires on its SECOND consecutive scan...
+        _ = gate.evaluate(newIDs: ["com.running.app", "com.downloaded.app"])
+        XCTAssertEqual(
+            gate.evaluate(newIDs: ["com.running.app", "com.downloaded.app"]),
+            ["com.downloaded.app"]
+        )
+        // ...then stays silent, and the baseline app never fires at all.
+        XCTAssertTrue(gate.evaluate(newIDs: ["com.running.app", "com.downloaded.app"]).isEmpty)
+    }
+
+    func testGateRequiresTwoConsecutiveScansBeforeFiring() {
+        var gate = MenuBarMonitor.AggregationShowGate()
+        gate.establishBaseline([])
+
+        // First sighting: too young to tell a real icon from launch churn.
+        XCTAssertTrue(gate.evaluate(newIDs: ["com.new.app"]).isEmpty)
+        // Second consecutive scan: the app is real — fire.
+        XCTAssertEqual(gate.evaluate(newIDs: ["com.new.app"]), ["com.new.app"])
+        // Already fired: silent for the rest of the session.
+        XCTAssertTrue(gate.evaluate(newIDs: ["com.new.app"]).isEmpty)
+    }
+
+    func testGateIgnoresHelperSeenForASingleScan() {
+        var gate = MenuBarMonitor.AggregationShowGate()
+        gate.establishBaseline(["com.parent.app"])
+
+        // Quit residue: the helper surfaces for one scan, then disappears.
+        _ = gate.evaluate(newIDs: ["com.parent.helper"])
+        XCTAssertTrue(gate.evaluate(newIDs: ["com.parent.app"]).isEmpty)
+
+        // A helper that returns must again persist two consecutive scans.
+        _ = gate.evaluate(newIDs: ["com.parent.helper"])
+        XCTAssertEqual(gate.evaluate(newIDs: ["com.parent.helper"]), ["com.parent.helper"])
+    }
+
+    /// Regression: clicking 打开 on an app in the main window popped the
+    /// aggregation panel seconds later (the app and its helpers looked like
+    /// "new icons"), and again after the app was quit.
+    func testGateSuppressesAppsTheUserOpenedFromOurUI() {
+        var gate = MenuBarMonitor.AggregationShowGate()
+        gate.establishBaseline([])
+        gate.noteUserAction(bundleID: "com.vendor.app")
+
+        // The app itself, then its persistent helper: both would otherwise
+        // fire on their second consecutive scan.
+        _ = gate.evaluate(newIDs: ["com.vendor.app"])
+        XCTAssertTrue(gate.evaluate(newIDs: ["com.vendor.app"]).isEmpty)
+        _ = gate.evaluate(newIDs: ["com.vendor.app.launcher"])
+        XCTAssertTrue(gate.evaluate(newIDs: ["com.vendor.app.launcher"]).isEmpty)
+    }
+
+    func testGateSuppressesHelperOutlivingAUserQuit() {
+        var gate = MenuBarMonitor.AggregationShowGate()
+        gate.establishBaseline(["com.vendor.app", "com.vendor.app.helper"])
+        // The user quits the app from our UI; its accessory helper may
+        // linger for seconds after the parent is gone.
+        gate.noteUserAction(bundleID: "com.vendor.app")
+
+        _ = gate.evaluate(newIDs: ["com.vendor.app.helper"])
+        XCTAssertTrue(gate.evaluate(newIDs: ["com.vendor.app.helper"]).isEmpty)
+    }
+
+    func testGateStillFiresForUnrelatedNewApps() {
+        var gate = MenuBarMonitor.AggregationShowGate()
+        gate.establishBaseline(["com.vendor.app"])
+        gate.noteUserAction(bundleID: "com.vendor.app")
+
+        // Suppression is family-scoped: an unrelated app still notifies.
+        _ = gate.evaluate(newIDs: ["com.vendor.app", "com.unrelated.app"])
+        XCTAssertEqual(
+            gate.evaluate(newIDs: ["com.vendor.app", "com.unrelated.app"]),
+            ["com.unrelated.app"]
+        )
     }
 
     // MARK: - MenuBarMonitor.sortedByCustomOrder
