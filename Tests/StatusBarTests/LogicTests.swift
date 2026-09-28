@@ -111,16 +111,6 @@ final class LogicTests: XCTestCase {
         XCTAssertEqual(sorted.map(\.id), ["a", "b"])
     }
 
-    // MARK: - Mode policy
-
-    func testAggregationModeManualShowPolicy() {
-        // The resident panel is manual-only: it is summoned by an explicit
-        // action, never by a background change in the app set.
-        XCTAssertFalse(SettingsStore.AggregationMode.aggregation.showsAggregationPanelAutomatically)
-        XCTAssertFalse(SettingsStore.AggregationMode.normal.showsAggregationPanelAutomatically)
-        XCTAssertFalse(SettingsStore.AggregationMode.disabled.showsAggregationPanelAutomatically)
-    }
-
     // MARK: - Pin management
 
     func testTogglePinAddsOnesInOrderAndRemoves() {

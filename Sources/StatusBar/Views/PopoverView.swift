@@ -53,30 +53,9 @@ struct PopoverView: View {
             }
 
             Spacer()
-
-            HStack(spacing: 6) {
-                Image(systemName: "lock.shield")
-                    .foregroundStyle(settings.aggregationMode == .aggregation ? .orange : .secondary)
-                Text(modeBadgeText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(.quaternary.opacity(0.6), in: Capsule())
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-    }
-
-    /// All three aggregation modes render their own badge label; a two-way
-    /// ternary previously showed "Normal" in Disabled mode.
-    private var modeBadgeText: String {
-        switch settings.aggregationMode {
-        case .aggregation: return l10n.modeAggregation
-        case .normal: return l10n.modeNormal
-        case .disabled: return l10n.modeDisabled
-        }
     }
 
     private var searchSection: some View {

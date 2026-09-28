@@ -85,14 +85,6 @@ struct L10nTable {
     var tabAggregation: String
     var tabIcons: String
     var tabOrder: String
-    var sectionMode: String
-    var operatingMode: String
-    var modeAggregation: String
-    var modeNormal: String
-    var modeDisabled: String
-    var modeDescAggregation: String
-    var modeDescNormal: String
-    var modeDescDisabled: String
     var sectionAppearance: String
     var appearanceSystem: String
     var appearanceLight: String
@@ -163,14 +155,6 @@ enum L10n {
         tabAggregation: "Aggregation",
         tabIcons: "Icons",
         tabOrder: "Order",
-        sectionMode: "Mode",
-        operatingMode: "Operating Mode",
-        modeAggregation: "Aggregation",
-        modeNormal: "Normal",
-        modeDisabled: "Disabled",
-        modeDescAggregation: "Show a floating panel below the menu bar listing running Status Bar apps. It appears when you summon it (menu bar icon or context menu) and auto-hides after the configured delay.",
-        modeDescNormal: "Show the popover only when clicking the menu bar icon. No automatic panel.",
-        modeDescDisabled: "The aggregation panel will not appear automatically. The main window and popover stay available.",
         sectionAppearance: "Appearance",
         appearanceSystem: "System",
         appearanceLight: "Light",
@@ -237,14 +221,6 @@ enum L10n {
         tabAggregation: "聚合",
         tabIcons: "图标",
         tabOrder: "排序",
-        sectionMode: "模式",
-        operatingMode: "工作模式",
-        modeAggregation: "聚合",
-        modeNormal: "普通",
-        modeDisabled: "禁用",
-        modeDescAggregation: "在菜单栏下方显示浮动面板，列出运行中的菜单栏应用。点击菜单栏图标或右键菜单唤起时出现，并按设定的延迟自动隐藏。",
-        modeDescNormal: "仅在点击菜单栏图标时显示弹窗，不自动出现面板。",
-        modeDescDisabled: "聚合面板不会自动出现。主窗口和弹窗仍可正常使用。",
         sectionAppearance: "外观",
         appearanceSystem: "跟随系统",
         appearanceLight: "浅色",
@@ -311,14 +287,6 @@ enum L10n {
         tabAggregation: "集約",
         tabIcons: "アイコン",
         tabOrder: "順序",
-        sectionMode: "モード",
-        operatingMode: "動作モード",
-        modeAggregation: "集約",
-        modeNormal: "通常",
-        modeDisabled: "無効",
-        modeDescAggregation: "メニューバーの下にフローティングパネルを表示し、実行中のステータスバーアプリを一覧表示します。メニューバーアイコンまたはコンテキストメニューで呼び出すと表示され、設定した時間が経つと自動的に隠れます。",
-        modeDescNormal: "メニューバーのアイコンをクリックしたときのみポップオーバーを表示します。パネルの自動表示はありません。",
-        modeDescDisabled: "集約パネルは自動的に表示されません。メインウィンドウとポップオーバーは引き続き利用できます。",
         sectionAppearance: "外観",
         appearanceSystem: "システムに従う",
         appearanceLight: "ライト",
@@ -385,14 +353,6 @@ enum L10n {
         tabAggregation: "Aggregation",
         tabIcons: "Symbole",
         tabOrder: "Reihenfolge",
-        sectionMode: "Modus",
-        operatingMode: "Betriebsmodus",
-        modeAggregation: "Aggregation",
-        modeNormal: "Normal",
-        modeDisabled: "Deaktiviert",
-        modeDescAggregation: "Zeigt ein schwebendes Panel unter der Menüleiste mit laufenden Statusleisten-Apps. Es erscheint, wenn Sie es aufrufen (Menüleistensymbol oder Kontextmenü), und blendet sich nach der konfigurierten Verzögerung automatisch aus.",
-        modeDescNormal: "Zeigt das Popover nur beim Klick auf das Menüleisten-Symbol. Kein automatisches Panel.",
-        modeDescDisabled: "Das Aggregations-Panel erscheint nicht automatisch. Hauptfenster und Popover bleiben verfügbar.",
         sectionAppearance: "Erscheinungsbild",
         appearanceSystem: "System",
         appearanceLight: "Hell",
@@ -459,14 +419,6 @@ enum L10n {
         tabAggregation: "Agregación",
         tabIcons: "Iconos",
         tabOrder: "Orden",
-        sectionMode: "Modo",
-        operatingMode: "Modo de funcionamiento",
-        modeAggregation: "Agregación",
-        modeNormal: "Normal",
-        modeDisabled: "Desactivado",
-        modeDescAggregation: "Muestra un panel flotante bajo la barra de menú con las aplicaciones de barra de estado en ejecución. Aparece cuando lo invocas (icono de la barra de menú o menú contextual) y se oculta automáticamente tras el retardo configurado.",
-        modeDescNormal: "Muestra la ventana emergente solo al hacer clic en el icono de la barra de menú. Sin panel automático.",
-        modeDescDisabled: "El panel de agregación no aparecerá automáticamente. La ventana principal y la emergente siguen disponibles.",
         sectionAppearance: "Apariencia",
         appearanceSystem: "Sistema",
         appearanceLight: "Claro",

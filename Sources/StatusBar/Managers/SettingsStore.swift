@@ -5,7 +5,6 @@ import Observation
 @Observable
 @MainActor
 final class SettingsStore {
-    var aggregationMode: AggregationMode = .aggregation
     var aggregationIcon: AggregationIconType = .dots
     var refreshInterval: TimeInterval = 2.0
     var iconSpacing: IconSpacing = .default
@@ -23,20 +22,6 @@ final class SettingsStore {
     /// `AggregationPanel.show()` / `hide()`, so the popover button label can
     /// never disagree with the panel.
     var isAggregationPanelVisible = false
-
-    enum AggregationMode: String, CaseIterable {
-        case aggregation = "Aggregation"
-        case normal = "Normal"
-        case disabled = "Disabled"
-
-        /// Whether a newly detected Status Bar app may open the floating panel
-        /// automatically. The resident panel is manual-only: it is summoned by
-        /// an explicit action (startup auto-show, clicking the status item or
-        /// the context menu), never by a background change in app set.
-        var showsAggregationPanelAutomatically: Bool {
-            false
-        }
-    }
 
     enum AggregationIconType: String, CaseIterable, Identifiable {
         case dots = "Three Dots"
@@ -97,7 +82,6 @@ final class SettingsStore {
     }
 
     func load() {
-        aggregationMode = AggregationMode(rawValue: defaults.string(forKey: "aggregationMode") ?? "") ?? .aggregation
         aggregationIcon = AggregationIconType(rawValue: defaults.string(forKey: "aggregationIcon") ?? "") ?? .dots
         iconSpacing = IconSpacing(rawValue: defaults.string(forKey: "iconSpacing") ?? "") ?? .default
         customOrder = defaults.stringArray(forKey: "customOrder") ?? []
@@ -111,7 +95,6 @@ final class SettingsStore {
     }
 
     func save() {
-        defaults.set(aggregationMode.rawValue, forKey: "aggregationMode")
         defaults.set(aggregationIcon.rawValue, forKey: "aggregationIcon")
         defaults.set(refreshInterval, forKey: "refreshInterval")
         defaults.set(iconSpacing.rawValue, forKey: "iconSpacing")

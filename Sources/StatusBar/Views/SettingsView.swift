@@ -8,10 +8,6 @@ struct SettingsView: View {
         TabView {
             GeneralSettingsTab(
                 l10n: settings.l10n,
-                aggregationMode: Binding(
-                    get: { settings.aggregationMode },
-                    set: { settings.aggregationMode = $0; settings.save() }
-                ),
                 appearance: Binding(
                     get: { settings.appearance },
                     set: {
@@ -73,26 +69,12 @@ struct SettingsView: View {
 
 struct GeneralSettingsTab: View {
     let l10n: L10nTable
-    @Binding var aggregationMode: SettingsStore.AggregationMode
     @Binding var appearance: AppearanceMode
     @Binding var language: AppLanguage
     @Binding var refreshInterval: TimeInterval
 
     var body: some View {
         Form {
-            Section(l10n.sectionMode) {
-                Picker(l10n.operatingMode, selection: $aggregationMode) {
-                    Text(l10n.modeAggregation).tag(SettingsStore.AggregationMode.aggregation)
-                    Text(l10n.modeNormal).tag(SettingsStore.AggregationMode.normal)
-                    Text(l10n.modeDisabled).tag(SettingsStore.AggregationMode.disabled)
-                }
-                .pickerStyle(.segmented)
-
-                Text(modeDescription)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
             Section(l10n.sectionAppearance) {
                 Picker("", selection: $appearance) {
                     Text(l10n.appearanceSystem).tag(AppearanceMode.system)
@@ -126,14 +108,6 @@ struct GeneralSettingsTab: View {
                     .frame(width: 160)
                 }
             }
-        }
-    }
-
-    private var modeDescription: String {
-        switch aggregationMode {
-        case .aggregation: return l10n.modeDescAggregation
-        case .normal: return l10n.modeDescNormal
-        case .disabled: return l10n.modeDescDisabled
         }
     }
 }
