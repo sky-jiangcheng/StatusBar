@@ -83,13 +83,20 @@ final class ResidentBarManager {
             uniquingKeysWith: { first, _ in first }
         )
 
+        // Collect then remove: mutating the dictionary while iterating it in a
+        // for-in would trap ("collection was mutated while being enumerated").
+        var toRemove: [String] = []
         for (id, item) in statusItems {
-            guard pinned.contains(id), let menuItem = byID[id] else {
-                NSStatusBar.system.removeStatusItem(item)
-                statusItems.removeValue(forKey: id)
-                continue
+            if pinned.contains(id), let menuItem = byID[id] {
+                refresh(menuItem, on: item)
+            } else {
+                toRemove.append(id)
             }
-            refresh(menuItem, on: item)
+        }
+        for id in toRemove {
+            if let item = statusItems.removeValue(forKey: id) {
+                NSStatusBar.system.removeStatusItem(item)
+            }
         }
 
         for id in settingsStore.pinnedAppIDs {
@@ -199,18 +206,18 @@ final class ResidentBarManager {
     }
 
     @objc private func openApp(_ sender: AnyObject?) {
-        guard let menuItem = sender.representedObject as? MenuBarMonitor.MenuBarItem else { return }
+        guard let menuItem = (sender as? NSMenuItem)?.representedObject as? MenuBarMonitor.MenuBarItem else { return }
         menuBarMonitor.activateApp(menuItem)
     }
 
     @objc private func removeFromPanel(_ sender: AnyObject?) {
-        guard let menuItem = sender.representedObject as? MenuBarMonitor.MenuBarItem else { return }
+        guard let menuItem = (sender as? NSMenuItem)?.representedObject as? MenuBarMonitor.MenuBarItem else { return }
         settingsStore.togglePin(menuItem.id)
     }
 
 #if !MAC_APP_STORE
     @objc private func quitApp(_ sender: AnyObject?) {
-        guard let menuItem = sender.representedObject as? MenuBarMonitor.MenuBarItem else { return }
+        guard let menuItem = (sender as? NSMenuItem)?.representedObject as? MenuBarMonitor.MenuBarItem else { return }
         menuBarMonitor.quitApp(menuItem)
     }
 #endif
