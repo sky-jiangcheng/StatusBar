@@ -137,7 +137,8 @@ final class AggregationPanel: NSObject, NSWindowDelegate {
     }
 
     private func statusbarCount() -> Int {
-        menuBarMonitor.menuBarItems.filter { $0.appType == .statusbarOnly }.count
+        let byID = Set(menuBarMonitor.menuBarItems.map(\.id))
+        return settingsStore.pinnedAppIDs.filter { byID.contains($0) }.count
     }
 
     /// Total panel height: vertical padding (top + bottom combined) + title row

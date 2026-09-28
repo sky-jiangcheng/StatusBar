@@ -109,10 +109,6 @@ struct L10nTable {
     var spacingCompact: String
     var spacingSmall: String
     var spacingNone: String
-    var sectionAutoHide: String
-    var delayBeforeHiding: String
-    var never: String
-    var autoHideCaption: String
     var iconTypeDots: String
     var iconTypeGrid: String
     var iconTypeChevron: String
@@ -130,6 +126,11 @@ struct L10nTable {
     var noIconsDetected: String
     // Aggregation panel
     var noStatusApps: String
+    var noPinnedApps: String
+    var noPinnedAppsCaption: String
+    var addAppToPanel: String
+    var removeFromPanel: String
+    var noAppsToPin: String
 }
 
 enum L10n {
@@ -185,10 +186,6 @@ enum L10n {
         spacingCompact: "Compact",
         spacingSmall: "Small",
         spacingNone: "None",
-        sectionAutoHide: "Auto Hide",
-        delayBeforeHiding: "Delay before hiding",
-        never: "Never",
-        autoHideCaption: "How long the aggregation panel stays visible before hiding itself again. Applies to automatically shown panels.",
         iconTypeDots: "Three Dots",
         iconTypeGrid: "Grid",
         iconTypeChevron: "Chevron",
@@ -203,7 +200,12 @@ enum L10n {
         sectionUnordered: "Unordered",
         noIcons: "No Icons",
         noIconsDetected: "No menu bar icons detected.",
-        noStatusApps: "No Status Bar apps running"
+        noStatusApps: "No Status Bar apps running",
+        noPinnedApps: "No apps pinned to the panel",
+        noPinnedAppsCaption: "Click + in the title bar to pin apps here.",
+        addAppToPanel: "Add app to panel",
+        removeFromPanel: "Remove from panel",
+        noAppsToPin: "No more apps to add"
     )
 
     static let zhHans = L10nTable(
@@ -258,10 +260,6 @@ enum L10n {
         spacingCompact: "紧凑",
         spacingSmall: "小",
         spacingNone: "无",
-        sectionAutoHide: "自动隐藏",
-        delayBeforeHiding: "隐藏前延迟",
-        never: "从不",
-        autoHideCaption: "聚合面板再次自动隐藏前保持可见的时长。仅对自动弹出的面板生效。",
         iconTypeDots: "三个点",
         iconTypeGrid: "网格",
         iconTypeChevron: "箭头",
@@ -276,7 +274,12 @@ enum L10n {
         sectionUnordered: "未排序",
         noIcons: "无图标",
         noIconsDetected: "未检测到菜单栏图标。",
-        noStatusApps: "没有运行中的菜单栏应用"
+        noStatusApps: "没有运行中的菜单栏应用",
+        noPinnedApps: "尚未将应用固定到面板",
+        noPinnedAppsCaption: "点击标题栏 + 可在此固定应用。",
+        addAppToPanel: "添加应用到面板",
+        removeFromPanel: "从面板移除",
+        noAppsToPin: "没有更多可添加的应用"
     )
 
     static let ja = L10nTable(
@@ -331,10 +334,6 @@ enum L10n {
         spacingCompact: "コンパクト",
         spacingSmall: "小",
         spacingNone: "なし",
-        sectionAutoHide: "自動的に隠す",
-        delayBeforeHiding: "隠すまでの時間",
-        never: "しない",
-        autoHideCaption: "集約パネルが再び自動的に隠れるまで表示しておく時間です。自動表示されたパネルにのみ適用されます。",
         iconTypeDots: "3 つのドット",
         iconTypeGrid: "グリッド",
         iconTypeChevron: "シェブロン",
@@ -349,7 +348,12 @@ enum L10n {
         sectionUnordered: "未整列",
         noIcons: "アイコンなし",
         noIconsDetected: "メニューバーのアイコンが検出されません。",
-        noStatusApps: "実行中のステータスバーアプリはありません"
+        noStatusApps: "実行中のステータスバーアプリはありません",
+        noPinnedApps: "パネルに固定されたアプリはありません",
+        noPinnedAppsCaption: "タイトルバーの + をクリックして、ここにアプリを固定します。",
+        addAppToPanel: "パネルにアプリを追加",
+        removeFromPanel: "パネルから削除",
+        noAppsToPin: "追加できるアプリはありません"
     )
 
     static let de = L10nTable(
@@ -404,10 +408,6 @@ enum L10n {
         spacingCompact: "Kompakt",
         spacingSmall: "Klein",
         spacingNone: "Keine",
-        sectionAutoHide: "Auto-Ausblenden",
-        delayBeforeHiding: "Verzögerung vor dem Ausblenden",
-        never: "Nie",
-        autoHideCaption: "Wie lange das Aggregations-Panel sichtbar bleibt, bevor es sich erneut ausblendet. Gilt für automatisch eingeblendete Panels.",
         iconTypeDots: "Drei Punkte",
         iconTypeGrid: "Raster",
         iconTypeChevron: "Chevron",
@@ -422,7 +422,12 @@ enum L10n {
         sectionUnordered: "Nicht sortiert",
         noIcons: "Keine Symbole",
         noIconsDetected: "Keine Menüleisten-Symbole erkannt.",
-        noStatusApps: "Keine Statusleisten-Apps aktiv"
+        noStatusApps: "Keine Statusleisten-Apps aktiv",
+        noPinnedApps: "Keine Apps aus dem Panel angeheftet",
+        noPinnedAppsCaption: "Klicken Sie im Titel auf +, um hier Apps anzupinnen.",
+        addAppToPanel: "App zum Panel hinzufügen",
+        removeFromPanel: "Aus dem Panel entfernen",
+        noAppsToPin: "Keine weiteren Apps zum Hinzufügen"
     )
 
     static let es = L10nTable(
@@ -477,10 +482,6 @@ enum L10n {
         spacingCompact: "Compacto",
         spacingSmall: "Pequeño",
         spacingNone: "Ninguno",
-        sectionAutoHide: "Ocultar automáticamente",
-        delayBeforeHiding: "Retardo antes de ocultar",
-        never: "Nunca",
-        autoHideCaption: "Cuánto tiempo permanece visible el panel de agregación antes de ocultarse de nuevo. Se aplica a los paneles mostrados automáticamente.",
         iconTypeDots: "Tres puntos",
         iconTypeGrid: "Cuadrícula",
         iconTypeChevron: "Cheurón",
@@ -495,7 +496,12 @@ enum L10n {
         sectionUnordered: "Sin ordenar",
         noIcons: "Sin iconos",
         noIconsDetected: "No se detectaron iconos de la barra de menú.",
-        noStatusApps: "No hay aplicaciones de barra de estado en ejecución"
+        noStatusApps: "No hay aplicaciones de barra de estado en ejecución",
+        noPinnedApps: "No hay apps fijadas al panel",
+        noPinnedAppsCaption: "Haz clic en + de la barra de título para fijar apps aquí.",
+        addAppToPanel: "Añadir app al panel",
+        removeFromPanel: "Quitar del panel",
+        noAppsToPin: "No hay más apps para añadir"
     )
 
     // Memoized: Locale.preferredLanguages is stable within a launch session,

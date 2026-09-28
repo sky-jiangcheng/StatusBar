@@ -46,10 +46,6 @@ struct SettingsView: View {
                 iconSpacing: Binding(
                     get: { settings.iconSpacing },
                     set: { settings.iconSpacing = $0; settings.save() }
-                ),
-                autoHideDelay: Binding(
-                    get: { settings.autoHideDelay },
-                    set: { settings.autoHideDelay = $0; settings.save() }
                 )
             )
             .tabItem {
@@ -146,7 +142,6 @@ struct AggregationSettingsTab: View {
     let l10n: L10nTable
     @Binding var aggregationIcon: SettingsStore.AggregationIconType
     @Binding var iconSpacing: SettingsStore.IconSpacing
-    @Binding var autoHideDelay: TimeInterval?
 
     var body: some View {
         Form {
@@ -161,26 +156,6 @@ struct AggregationSettingsTab: View {
                     Text(l10n.spacingSmall).tag(SettingsStore.IconSpacing.small)
                     Text(l10n.spacingNone).tag(SettingsStore.IconSpacing.none)
                 }
-            }
-
-            Section(l10n.sectionAutoHide) {
-                HStack {
-                    Text(l10n.delayBeforeHiding)
-                    Spacer()
-                    Picker("", selection: $autoHideDelay) {
-                        Text("2s").tag(TimeInterval?(2.0))
-                        Text("5s").tag(TimeInterval?(5.0))
-                        Text("10s").tag(TimeInterval?(10.0))
-                        Text("30s").tag(TimeInterval?(30.0))
-                        Text(l10n.never).tag(TimeInterval?(nil) as TimeInterval?)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 280)
-                }
-
-                Text(l10n.autoHideCaption)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
         }
     }

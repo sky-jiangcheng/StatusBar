@@ -7,10 +7,13 @@ import Observation
 final class SettingsStore {
     var aggregationMode: AggregationMode = .aggregation
     var aggregationIcon: AggregationIconType = .dots
-    var autoHideDelay: TimeInterval? = 5.0
     var refreshInterval: TimeInterval = 2.0
     var iconSpacing: IconSpacing = .default
     var customOrder: [String] = []
+    /// Bundle IDs the user chose to keep visibly resident in the aggregation
+    /// panel, in the order they were pinned. Panel content is driven by this
+    /// list rather than "every Status Bar app currently running".
+    var pinnedAppIDs: [String] = []
     var appearance: AppearanceMode = .system
     var language: AppLanguage = .system
 
@@ -27,18 +30,11 @@ final class SettingsStore {
         case disabled = "Disabled"
 
         /// Whether a newly detected Status Bar app may open the floating panel
-        /// automatically. For Aggregation mode this is `false`: the panel is
-        /// summoned only by an explicit action (clicking the status item or the
-        /// context menu). Disabled mode likewise requires an explicit action.
+        /// automatically. The resident panel is manual-only: it is summoned by
+        /// an explicit action (startup auto-show, clicking the status item or
+        /// the context menu), never by a background change in app set.
         var showsAggregationPanelAutomatically: Bool {
             false
-        }
-
-        /// Whether a manually shown panel should auto-hide. Normal mode has no
-        /// automatic show lifecycle, so the countdown belongs only to
-        /// Aggregation mode.
-        var usesAggregationAutoHide: Bool {
-            self == .aggregation
         }
     }
 
@@ -105,13 +101,7 @@ final class SettingsStore {
         aggregationIcon = AggregationIconType(rawValue: defaults.string(forKey: "aggregationIcon") ?? "") ?? .dots
         iconSpacing = IconSpacing(rawValue: defaults.string(forKey: "iconSpacing") ?? "") ?? .default
         customOrder = defaults.stringArray(forKey: "customOrder") ?? []
-
-        if defaults.bool(forKey: "autoHideDelay_never") {
-            autoHideDelay = nil
-        } else {
-            let stored = defaults.double(forKey: "autoHideDelay")
-            autoHideDelay = stored > 0 ? stored : 5.0
-        }
+        pinnedAppIDs = defaults.stringArray(forKey: "pinnedAppIDs") ?? []
 
         let storedRefresh = defaults.double(forKey: "refreshInterval")
         refreshInterval = storedRefresh > 0 ? storedRefresh : 2.0
@@ -126,16 +116,33 @@ final class SettingsStore {
         defaults.set(refreshInterval, forKey: "refreshInterval")
         defaults.set(iconSpacing.rawValue, forKey: "iconSpacing")
         defaults.set(customOrder, forKey: "customOrder")
+        defaults.set(pinnedAppIDs, forKey: "pinnedAppIDs")
         defaults.set(appearance.rawValue, forKey: "appearance")
         defaults.set(language.rawValue, forKey: "language")
+    }
 
-        if let delay = autoHideDelay {
-            defaults.set(delay, forKey: "autoHideDelay")
-            defaults.set(false, forKey: "autoHideDelay_never")
+    /// Whether `bundleID` is currently pinned into the resident panel.
+    func isPinned(_ bundleID: String) -> Bool {
+        pinnedAppIDs.contains(bundleID)
+    }
+
+    /// Pins or unpins `bundleID`; newly pinned IDs go to the end of the list.
+    func togglePin(_ bundleID: String) {
+        if let index = pinnedAppIDs.firstIndex(of: bundleID) {
+            pinnedAppIDs.remove(at: index)
         } else {
-            defaults.removeObject(forKey: "autoHideDelay")
-            defaults.set(true, forKey: "autoHideDelay_never")
+            pinnedAppIDs.append(bundleID)
         }
+        save()
+    }
+
+    /// Drops the persisted pin of IDs that have quit or are no longer installed.
+    func prunePins(keeping detected: [String]) {
+        let keep = Set(detected)
+        let pruned = pinnedAppIDs.filter { keep.contains($0) }
+        guard pruned.count != pinnedAppIDs.count else { return }
+        pinnedAppIDs = pruned
+        save()
     }
 
     /// Drops custom-order entries whose IDs are absent from `detectedIDs`.

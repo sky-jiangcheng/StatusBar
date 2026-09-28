@@ -114,17 +114,43 @@ final class LogicTests: XCTestCase {
     // MARK: - Mode policy
 
     func testAggregationModeManualShowPolicy() {
-        // The aggregation panel is manual-only: it is summoned only by an
-        // explicit action (clicking the status item or its context menu).
+        // The resident panel is manual-only: it is summoned by an explicit
+        // action, never by a background change in the app set.
         XCTAssertFalse(SettingsStore.AggregationMode.aggregation.showsAggregationPanelAutomatically)
         XCTAssertFalse(SettingsStore.AggregationMode.normal.showsAggregationPanelAutomatically)
         XCTAssertFalse(SettingsStore.AggregationMode.disabled.showsAggregationPanelAutomatically)
     }
 
-    func testAggregationModeAutoHidePolicy() {
-        XCTAssertTrue(SettingsStore.AggregationMode.aggregation.usesAggregationAutoHide)
-        XCTAssertFalse(SettingsStore.AggregationMode.normal.usesAggregationAutoHide)
-        XCTAssertFalse(SettingsStore.AggregationMode.disabled.usesAggregationAutoHide)
+    // MARK: - Pin management
+
+    func testTogglePinAddsOnesInOrderAndRemoves() {
+        let store = SettingsStore()
+        store.pinnedAppIDs = []
+
+        store.togglePin("com.b")
+        store.togglePin("com.a")
+        XCTAssertEqual(store.pinnedAppIDs, ["com.b", "com.a"])
+        XCTAssertTrue(store.isPinned("com.a"))
+
+        store.togglePin("com.a")
+        XCTAssertFalse(store.isPinned("com.a"))
+        XCTAssertEqual(store.pinnedAppIDs, ["com.b"])
+    }
+
+    func testPrunePinsDropsQuitApps() {
+        let store = SettingsStore()
+        store.pinnedAppIDs = ["com.running", "com.quit"]
+        store.prunePins(keeping: ["com.running"])
+        // Run again (no-op) to assert idempotence.
+        store.prunePins(keeping: ["com.running"])
+        XCTAssertEqual(store.pinnedAppIDs, ["com.running"])
+    }
+
+    func testPrunePinsKeepsEverythingUnalteredWhenNothingPruned() {
+        let store = SettingsStore()
+        store.pinnedAppIDs = ["com.running"]
+        store.prunePins(keeping: ["com.running"])
+        XCTAssertEqual(store.pinnedAppIDs, ["com.running"])
     }
 
     // MARK: - Custom order ownership

@@ -65,5 +65,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         // Drop custom-order entries of apps that are no longer running, so the
         // persisted order does not grow without bound across sessions.
         settingsStore.pruneOrder(keeping: menuBarMonitor.menuBarItems.map(\.id))
+        settingsStore.prunePins(keeping: menuBarMonitor.menuBarItems.map(\.id))
     }
 }
