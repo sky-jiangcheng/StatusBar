@@ -156,6 +156,8 @@ enum L10n {
         quitStatusBar: "Quit StatusBar",
         showAggregationPanel: "Show Aggregation Panel",
         hideAggregationPanel: "Hide Aggregation Panel",
+        openMainWindow: "Open Main Window",
+        selectAppPrompt: "Select an app to see its details.",
         tabGeneral: "General",
         tabAggregation: "Aggregation",
         tabIcons: "Icons",
@@ -201,9 +203,7 @@ enum L10n {
         sectionUnordered: "Unordered",
         noIcons: "No Icons",
         noIconsDetected: "No menu bar icons detected.",
-        noStatusApps: "No Status Bar apps running",
-        openMainWindow: "Open Main Window",
-        selectAppPrompt: "Select an app to see its details."
+        noStatusApps: "No Status Bar apps running"
     )
 
     static let zhHans = L10nTable(
@@ -229,6 +229,8 @@ enum L10n {
         quitStatusBar: "退出 StatusBar",
         showAggregationPanel: "显示聚合面板",
         hideAggregationPanel: "隐藏聚合面板",
+        openMainWindow: "打开主窗口",
+        selectAppPrompt: "在左侧选择应用以查看详情。",
         tabGeneral: "通用",
         tabAggregation: "聚合",
         tabIcons: "图标",
@@ -274,9 +276,7 @@ enum L10n {
         sectionUnordered: "未排序",
         noIcons: "无图标",
         noIconsDetected: "未检测到菜单栏图标。",
-        noStatusApps: "没有运行中的菜单栏应用",
-        openMainWindow: "打开主窗口",
-        selectAppPrompt: "在左侧选择应用以查看详情。"
+        noStatusApps: "没有运行中的菜单栏应用"
     )
 
     static let ja = L10nTable(
@@ -302,6 +302,8 @@ enum L10n {
         quitStatusBar: "StatusBar を終了",
         showAggregationPanel: "集約パネルを表示",
         hideAggregationPanel: "集約パネルを隠す",
+        openMainWindow: "メインウィンドウを開く",
+        selectAppPrompt: "左のアプリを選択すると詳細が表示されます。",
         tabGeneral: "一般",
         tabAggregation: "集約",
         tabIcons: "アイコン",
@@ -347,9 +349,7 @@ enum L10n {
         sectionUnordered: "未整列",
         noIcons: "アイコンなし",
         noIconsDetected: "メニューバーのアイコンが検出されません。",
-        noStatusApps: "実行中のステータスバーアプリはありません",
-        openMainWindow: "メインウィンドウを開く",
-        selectAppPrompt: "左のアプリを選択すると詳細が表示されます。"
+        noStatusApps: "実行中のステータスバーアプリはありません"
     )
 
     static let de = L10nTable(
@@ -375,6 +375,8 @@ enum L10n {
         quitStatusBar: "StatusBar beenden",
         showAggregationPanel: "Aggregations-Panel anzeigen",
         hideAggregationPanel: "Aggregations-Panel ausblenden",
+        openMainWindow: "Hauptfenster öffnen",
+        selectAppPrompt: "Wähle links eine App aus, um Details zu sehen.",
         tabGeneral: "Allgemein",
         tabAggregation: "Aggregation",
         tabIcons: "Symbole",
@@ -420,9 +422,7 @@ enum L10n {
         sectionUnordered: "Nicht sortiert",
         noIcons: "Keine Symbole",
         noIconsDetected: "Keine Menüleisten-Symbole erkannt.",
-        noStatusApps: "Keine Statusleisten-Apps aktiv",
-        openMainWindow: "Hauptfenster öffnen",
-        selectAppPrompt: "Wähle links eine App aus, um Details zu sehen."
+        noStatusApps: "Keine Statusleisten-Apps aktiv"
     )
 
     static let es = L10nTable(
@@ -448,6 +448,8 @@ enum L10n {
         quitStatusBar: "Salir de StatusBar",
         showAggregationPanel: "Mostrar panel de agregación",
         hideAggregationPanel: "Ocultar panel de agregación",
+        openMainWindow: "Abrir ventana principal",
+        selectAppPrompt: "Selecciona una app a la izquierda para ver los detalles.",
         tabGeneral: "General",
         tabAggregation: "Agregación",
         tabIcons: "Iconos",
@@ -493,9 +495,7 @@ enum L10n {
         sectionUnordered: "Sin ordenar",
         noIcons: "Sin iconos",
         noIconsDetected: "No se detectaron iconos de la barra de menú.",
-        noStatusApps: "No hay aplicaciones de barra de estado en ejecución",
-        openMainWindow: "Abrir ventana principal",
-        selectAppPrompt: "Selecciona una app a la izquierda para ver los detalles."
+        noStatusApps: "No hay aplicaciones de barra de estado en ejecución"
     )
 
     // Memoized: Locale.preferredLanguages is stable within a launch session,
