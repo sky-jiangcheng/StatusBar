@@ -233,7 +233,7 @@ final class MenuBarMonitor {
     /// First two segments of a bundle identifier ("com.docker" from
     /// "com.docker.helper"); nil when the identifier has fewer than two segments.
     /// `nonisolated` (pure string logic) and internal for unit tests.
-    static func baseBundleID(of identifier: String) -> String? {
+    static nonisolated func baseBundleID(of identifier: String) -> String? {
         let parts = identifier.split(separator: ".").map(String.init)
         guard parts.count >= 2 else { return nil }
         return parts.prefix(2).joined(separator: ".")
