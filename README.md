@@ -2,14 +2,14 @@
 
 macOS 菜单栏管理工具：自动检测并管理状态栏与 Dock 应用。
 
-- 下载：https://github.com/sky-jiangcheng/StatusBar/releases/latest
-- 源码与 Issue：https://github.com/sky-jiangcheng/StatusBar
+- 下载：https://github.com/sky-jiangcheng/status-bar/releases/latest
+- 源码与 Issue：https://github.com/sky-jiangcheng/status-bar
 
 官网版（Developer ID）含 Quit / Force Quit；Mac App Store 版受沙盒限制，这两项在编译期移除。两版 Bundle ID 不同，可同时安装，设置互不共享。
 
 ## 安装
 
-1. 从 [GitHub Releases](https://github.com/sky-jiangcheng/StatusBar/releases/latest) 下载 `StatusBar-<version>.dmg`
+1. 从 [GitHub Releases](https://github.com/sky-jiangcheng/status-bar/releases/latest) 下载 `StatusBar-<version>.dmg`
 2. 打开 DMG，把 `StatusBar.app` 拖到 Applications
 3. 首次打开若出现 Gatekeeper 提示：系统设置 → 隐私与安全性 → 仍要打开
 
@@ -27,9 +27,9 @@ macOS 菜单栏管理工具：自动检测并管理状态栏与 Dock 应用。
 - **多语言**：简体中文 / English / 日本語 / Deutsch / Español，可跟随系统或手动切换
 
 ### 界面
-- **主窗口**：HSplitView，左侧 sidebar（搜索 + 类型筛选 + 应用列表） + 右侧详情（概览统计 + 所选应用详情与操作）
-- **Stat Cards**：Total / Status Bar / Dock，点击联动过滤
-- **Popover**：菜单栏聚合入口（搜索 + 应用列表 + 面板开关 / 主窗口 / 设置）
+- **主窗口**：HSplitView，左侧 sidebar（搜索 + 类型筛选 + 分组应用列表，小节头带数量）+ 右侧详情（未选中显示品牌概览与紧凑统计，选中显示应用详情与操作）
+- **应用详情**：大图标、Bundle ID（可复制）、类型徽章、打开 / 常驻 / 退出 / 强制退出；菜单栏类应用附一键唤起提示
+- **Popover**：菜单栏入口（按类型分组的应用列表 + 搜索 + 面板开关 / 主窗口 / 设置），行操作按钮悬停显现
 - **状态栏常驻**：你勾选的应用图标会直接入住 macOS 顶部菜单栏，每个应用一个常驻图标，始终可见、无需弹出任何窗口。左键点击唤起对应应用，右键菜单可打开 / 从常驻栏移除 / 退出。桌面不再浮动黑框（v1.19.0 的聚合面板不再自动弹出）。
 - **常驻管理**：点状态栏图标（/ 右键菜单）唤出管理面板，用「+」把应用加入常驻栏、悬停图标「×」移除；常驻图标本身也可右键移除。勾选结果持久保存，重启仍生效。
 - **排序页**：拖拽自定义菜单栏图标顺序；「未排序」可插入到指定行之前，顺序内可用删除手势移出
@@ -83,14 +83,14 @@ swift build --build-system native \
 ## 项目结构
 
 ```
-StatusBar/
+status-bar/
 ├── Package.swift
-├── Sources/StatusBar/
+├── Sources/status-bar/
 │   ├── App/                    # 入口、设置窗口、状态栏调度
 │   ├── Managers/               # 监控、设置、本地化、聚合面板
 │   ├── Views/                  # 主窗口 / Popover / 设置 / 排序
 │   └── Resources/              # entitlements、Assets.xcassets
-├── Tests/StatusBarTests/       # swift test（纯逻辑）
+├── Tests/status-bar-tests/     # swift test（纯逻辑）
 ├── script/
 │   ├── build_and_run.sh        # 本地：构建 + 签名 + 运行
 │   └── release.sh              # 发布：mas / devid
@@ -164,6 +164,7 @@ git tag v1.18.0 && git push origin v1.18.0
 
 | 版本 | 内容 |
 |------|------|
+| v1.20.0 | UI 重设计 + 品牌命名分层：新增设计系统组件（AppIconView / AppTypeBadge / RowActionButton / StatChip）；主窗口分组列表 + 概览页 + 应用详情页（新增常驻开关与唤起提示）；弹窗按类型分组、行按钮悬停显现；聚合面板改 HUD 毛玻璃材质、图标块升级；紫/绿类型配色改为中性徽章；仓库 / 包 / 目录迁移 kebab-case（`status-bar`），App 显示名保持 StatusBar |
 | v1.19.8 | 移除设置页无实际作用的「聚合/标准/禁用」三种运行模式（历史遗留的空选项），连同弹出页模式徽标一并清理 |
 | v1.19.7 | 修复 ResidentBarManager 编译错误与遍历时改字典崩溃 |
 | v1.19.6 | 后台代理化：`LSUIElement` 无程序坞图标，关任何窗口不退出，常驻图标持续保留（真正常驻）；菜单栏类应用点击无界面属 macOS 限制 |

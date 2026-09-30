@@ -6,7 +6,7 @@
 - 通过 `NSWorkspace.shared.runningApplications` 列出运行中的应用
 - 不请求屏幕录制、输入监控、文件访问、网络访问或自动化权限
 - **不请求辅助功能（Accessibility）权限**：仅在界面上只读展示 `AXIsProcessTrusted()` 的结果，未授权不影响任何功能
-- 包含最小 App Sandbox 授权文件 `Sources/StatusBar/Resources/StatusBar.entitlements`
+- 包含最小 App Sandbox 授权文件 `Sources/status-bar/Resources/status-bar.entitlements`
 - App 图标源文件在 `design/leaf-icon`
 - 发布流程不依赖 Xcode 工程：`script/release.sh` 直接编译 SPM 产物并组装 `.app`
 
@@ -16,7 +16,7 @@
 2. 本地跑通一次发布构建：`CHANNEL=mas SIGNING_IDENTITY="Apple Distribution: …" bash script/release.sh`
 3. 在 Apple Developer 后台确认 / 创建 `com.jiangcheng.MacStatusApp` 的 App ID
 4. 创建并下载 Mac App Store 类型的 provisioning profile
-5. 确认 App Sandbox 由 `Sources/StatusBar/Resources/StatusBar.entitlements` 启用（MAS 渠道的 `-D MAC_APP_STORE` 会编译期移除 Quit / Force Quit）
+5. 确认 App Sandbox 由 `Sources/status-bar/Resources/status-bar.entitlements` 启用（MAS 渠道的 `-D MAC_APP_STORE` 会编译期移除 Quit / Force Quit）
 6. 核对 `script/release.sh` 中内嵌的 `Info.plist`：Bundle ID、版本号（`APP_VERSION` / `BUILD_NUMBER`）、`LSMinimumSystemVersion`、分类
 7. 隐私营养标签：**不收集任何数据**
 8. 重新截取 App Store 截图。`AppStoreScreenshots/` 里的文件仍是改版前的旧品牌命名（`macstatus-*`），与当前 UI 不符
