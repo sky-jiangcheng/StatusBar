@@ -1,76 +1,97 @@
-# StatusBar
+# StatusBar: macOS Menu Bar Manager
 
-macOS 菜单栏管理工具：自动检测并管理状态栏与 Dock 应用。
+See, launch, quit, and pin every menu bar app running on your Mac. **No permissions requested, no analytics, nothing leaves your device** — distributed as a notarized Developer ID build and on the Mac App Store.
 
-- 下载：https://github.com/sky-jiangcheng/status-bar/releases/latest
-- 源码与 Issue：https://github.com/sky-jiangcheng/status-bar
+> 🌐 **English** · [简体中文](README.zh-CN.md)
 
-官网版（Developer ID）含 Quit / Force Quit；Mac App Store 版受沙盒限制，这两项在编译期移除。两版 Bundle ID 不同，可同时安装，设置互不共享。
+> **Official site** → [sky-jiangcheng.github.io/status-bar](https://sky-jiangcheng.github.io/status-bar/)
 
-## 安装
+[![Release](https://img.shields.io/github/v/release/sky-jiangcheng/status-bar?label=release&color=blue)](https://github.com/sky-jiangcheng/status-bar/releases)
+[![Test](https://github.com/sky-jiangcheng/status-bar/actions/workflows/test.yml/badge.svg)](https://github.com/sky-jiangcheng/status-bar/actions/workflows/test.yml)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Swift](https://img.shields.io/badge/Swift-6.0-orange?logo=swift&logoColor=white)](https://swift.org)
+[![macOS](https://img.shields.io/badge/macOS-14%2B-black?logo=apple&logoColor=white)](https://www.apple.com/macos/)
 
-1. 从 [GitHub Releases](https://github.com/sky-jiangcheng/status-bar/releases/latest) 下载 `StatusBar-<version>.dmg`
-2. 打开 DMG，把 `StatusBar.app` 拖到 Applications
-3. 首次打开若出现 Gatekeeper 提示：系统设置 → 隐私与安全性 → 仍要打开
+---
 
-## 功能特性
+## Table of Contents
 
-### 核心功能
-- **App 类型自动检测**：基于 `activationPolicy` 区分 Status Bar 与 Dock 应用
-- **状态栏常驻（后台代理）**：以 `LSUIElement` 后台代理方式运行（无程序坞图标），关闭任何窗口都不会退出应用，因此常驻图标持续保留；退出需从状态栏右键菜单操作
-- **操作按钮**：打开、退出、强制退出（官网版）
-- **实时监控**：按设置间隔刷新运行中的应用列表
-- **搜索过滤**：按名称或 Bundle ID 搜索
+- [Core Features](#core-features)
+- [App Types](#app-types)
+- [Install](#install)
+- [Build from Source](#build-from-source)
+- [Release Pipeline (CI/CD)](#release-pipeline-cicd)
+- [Known Limitations](#known-limitations)
+- [Privacy](#privacy)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Documentation Index](#documentation-index)
+- [Changelog](#changelog)
+- [License](#license)
 
-### 个性化
-- **外观主题**：跟随系统 / 浅色 / 深色，全局即时生效
-- **多语言**：简体中文 / English / 日本語 / Deutsch / Español，可跟随系统或手动切换
+---
 
-### 界面
-- **主窗口**：HSplitView，左侧 sidebar（搜索 + 类型筛选 + 分组应用列表，小节头带数量）+ 右侧详情（未选中显示品牌概览与紧凑统计，选中显示应用详情与操作）
-- **应用详情**：大图标、Bundle ID（可复制）、类型徽章、打开 / 常驻 / 退出 / 强制退出；菜单栏类应用附一键唤起提示
-- **Popover**：菜单栏入口（按类型分组的应用列表 + 搜索 + 面板开关 / 主窗口 / 设置），行操作按钮悬停显现
-- **状态栏常驻**：你勾选的应用图标会直接入住 macOS 顶部菜单栏，每个应用一个常驻图标，始终可见、无需弹出任何窗口。左键点击唤起对应应用，右键菜单可打开 / 从常驻栏移除 / 退出。桌面不再浮动黑框（v1.19.0 的聚合面板不再自动弹出）。
-- **常驻管理**：点状态栏图标（/ 右键菜单）唤出管理面板，用「+」把应用加入常驻栏、悬停图标「×」移除；常驻图标本身也可右键移除。勾选结果持久保存，重启仍生效。
-- **排序页**：拖拽自定义菜单栏图标顺序；「未排序」可插入到指定行之前，顺序内可用删除手势移出
+## Core Features
 
-### App 类型
+### 📌 Menu Bar Residency
 
-| 类型 | 说明 | 激活方式 |
-|------|------|----------|
-| Status Bar | 仅有状态栏图标，无 Dock 图标 | `openApplication(at:configuration:)`（`activates = true`） |
-| Dock | 有 Dock 图标 | `activate` |
+| Feature | Description |
+|---------|-------------|
+| **Pin to menu bar** | Pinned app icons live directly in the macOS menu bar — one resident status item per app, always visible, no window or panel needed. Left-click activates the app; right-click offers open / unpin / quit |
+| **Aggregation panel** | A manual management panel under the menu bar: add apps with `+`, hover an icon and click `×` to unpin (v1.19.5: the panel no longer auto-pops, so no floating box over your desktop) |
+| **Persistence** | Pins and custom order survive relaunch (stored per distribution channel in `UserDefaults`) |
 
-## 技术栈
+### 🚦 App Management
 
-- **语言**：Swift 6.0
-- **框架**：SwiftUI + AppKit
-- **架构**：`@Observable`（Observation framework）
-- **构建**：Swift Package Manager
+| Feature | Description |
+|---------|-------------|
+| **Auto detection** | Classifies running apps as Status Bar (accessory) vs. Dock (regular) via `activationPolicy` |
+| **One-click actions** | Open, quit, and force quit (quit/force quit compiled out of the sandboxed Mac App Store build) |
+| **Accessory wake-up** | macOS refuses to foreground accessory apps via `NSRunningApplication.activate()`; StatusBar re-launches them with `NSWorkspace.openApplication(at:configuration:)` (`activates = true`) |
+| **Live monitoring** | Running-app list refreshes on a 1/2/5 s interval |
+| **Search & filter** | By name or bundle ID, in both the main window and the popover |
 
-## 本地运行
+### 🎨 Interface
+
+| Feature | Description |
+|---------|-------------|
+| **Main window** | Sidebar (search + type filter + grouped app list with per-section counts) and a detail pane: brand overview with compact stats when nothing is selected, full app details with a pin toggle when an app is |
+| **Menu bar popover** | Type-grouped app list with search; panel toggle / main window / settings in the footer; row actions reveal on hover |
+| **Aggregation panel** | HUD vibrancy material, 5-column icon grid, hover feedback, auto-dismiss |
+| **Themes** | System / light / dark, applied instantly app-wide |
+| **Localization** | English, 简体中文, 日本語, Deutsch, Español — follow the system or pick manually |
+| **Custom order** | Drag to reorder; unordered apps can be dropped into a specific position |
+
+## App Types
+
+| Type | Description | Activation |
+|------|-------------|------------|
+| Status Bar | Menu bar icon only, no Dock icon | `openApplication(at:configuration:)` (`activates = true`) |
+| Dock | Has a Dock icon | `activate` |
+
+## Install
+
+1. Download `StatusBar-<version>.dmg` from [GitHub Releases](https://github.com/sky-jiangcheng/status-bar/releases/latest)
+2. Open the DMG and drag `StatusBar.app` into Applications
+3. On first launch, if Gatekeeper asks: System Settings → Privacy & Security → Open Anyway
+
+The Developer ID build (notarized DMG) includes Quit / Force Quit. The Mac App Store build is sandboxed and ships without them. Both can be installed side by side (different bundle IDs, isolated settings).
+
+## Build from Source
 
 ```bash
-./script/build_and_run.sh
-swift build
+./script/build_and_run.sh   # build, sign (ad-hoc), and launch dist/StatusBar.app
+swift build                 # build only
 ./script/build_and_run.sh run
 ```
 
-`script/build_and_run.sh` 产出 `dist/StatusBar.app`，使用官网 Bundle ID（`com.jiangcheng.EasyBar`）与 Developer ID entitlements（沙盒关闭）。MAS 渠道由 `script/release.sh` 的 `mas` 分支负责。
+Extra modes: `--debug` (lldb) / `--logs` (log stream) / `--verify` (launch self-check).
 
-额外模式：`--debug`（lldb）/ `--logs`（日志流）/ `--verify`（启动自检）。
+Requirements:
 
-## 系统要求
-
-- macOS 14.0+
-- 不请求任何权限。界面只读展示 `AXIsProcessTrusted()` 的结果，未开启不影响功能
-
-### 构建环境
-
-- Swift 6.0+，macOS 14+ SDK
-- 需要完整 Xcode：`xcode-select -p` 必须指向 `Xcode.app`，并已执行 `sudo xcodebuild -license accept`
-- 仅装 Command Line Tools 时，SwiftUI 宏插件缺失（`plugin for module 'SwiftUIMacros' not found`）；Swift 6.4 起 `swift build` 默认 `swiftbuild`，CLT-only 会以 `Unknown error parsing property list` 失败
-- 临时绕过（未能切换 Xcode 时）：
+- Swift 6.0+, macOS 14+ SDK
+- **Full Xcode required**: `xcode-select -p` must point to `Xcode.app` (accept the license with `sudo xcodebuild -license accept`). SwiftUI macro plugins ship with Xcode; with only Command Line Tools the build fails with `plugin for module 'SwiftUIMacros' not found`, and since Swift 6.4 the default `swiftbuild` build system fails outright with `Unknown error parsing property list`
+- Workaround when Xcode selection isn't possible:
 
 ```bash
 swift build --build-system native \
@@ -78,115 +99,80 @@ swift build --build-system native \
   -Xswiftc /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins
 ```
 
-- `swift test` 需要完整 Xcode 的 `XCTest` 与 `xctest` runner；CI（`test.yml`）在切换到 Xcode 后执行
+- `swift test` needs full Xcode's `XCTest` and runner; CI (`test.yml`) runs it after selecting Xcode
 
-## 项目结构
+## Release Pipeline (CI/CD)
+
+Pushing a `v*` tag triggers two pipelines at once:
+
+| Channel | Workflow | Bundle ID | Sandbox | Quit / Force Quit | Artifact |
+|---------|----------|-----------|---------|-------------------|----------|
+| Mac App Store | `release.yml` | `com.jiangcheng.MacStatusApp` | On (MAS enforced) | Compiled out | `.pkg` → uploaded via altool |
+| Developer ID | `notarize.yml` | `com.jiangcheng.EasyBar` | Off (Hardened Runtime) | Fully available | `.dmg` → notarized + stapled → attached to the GitHub Release |
+
+Unit tests run on every push/PR via `test.yml` (macOS runner + full Xcode, `swift test`).
+
+Both pipelines drive `script/release.sh`: compile the SPM product and assemble the `.app`; the MAS channel additionally wraps it into a `.pkg` with `productbuild`.
+
+> The MAS `.pkg` must be signed with a **3rd Party Mac Developer Installer** certificate. `release.yml` also imports the Apple WWDR G3 intermediate certificate. Required secrets live in Repo → Settings → Secrets and variables → Actions (cert `.p12` + passwords, provisioning profile, App Store Connect API key/issuer); optional `BUNDLE_ID` / `BUNDLE_ID_DIRECT` variables override the bundle IDs. Never commit `.p12` / `.cer` / `.provisionprofile` / `.p8` files.
+
+> `xcrun altool --upload-app` is on Apple's deprecation path; if a runner image drops it, switch that step to Transporter or the App Store Connect API.
+
+To cut a release:
+
+```bash
+git tag v1.20.1 && git push origin v1.20.1
+```
+
+## Known Limitations
+
+- Status Bar (accessory) apps cannot be foregrounded with `NSRunningApplication.activate()` — a macOS security restriction. StatusBar re-launches them via `NSWorkspace.openApplication` (`activates = true`); activation timing differs slightly from the deprecated `launchApplication(withBundleIdentifier:)`, and a few accessory apps (e.g. Macs Fan Control) can't be raised by other apps at all
+- App typing is based on `activationPolicy`, so the real owner of a menu bar icon cannot be read
+- The aggregation panel does not hide real system menu bar icons (the AX-based hiding was removed in v1.6.0); it is a manual management surface only
+- Dark app icon variants (`Assets.xcassets/AppIcon.appiconset/dark/`) only apply via the Xcode asset-catalog (`Assets.car`) flow; `script/release.sh` generates a light-only `.icns` via `iconutil`
+- Under MAS sandbox, `NSRunningApplication.terminate()` is blocked with no user-facing toggle, so the MAS build strips Quit / Force Quit at compile time via `-D MAC_APP_STORE`
+
+## Privacy
+
+No permissions requested. The app lists running applications via public APIs, reads the `AXIsProcessTrusted()` state for a read-only indicator, and processes everything locally — **no analytics, no network access, no data collection**. See the [Privacy Policy](https://sky-jiangcheng.github.io/status-bar/privacy/).
+
+## Tech Stack
+
+- **Language**: Swift 6.0
+- **Frameworks**: SwiftUI + AppKit
+- **Architecture**: `@Observable` (Observation framework)
+- **Build**: Swift Package Manager (no `.xcodeproj`; release scripts assemble the `.app`)
+- **Background agent**: `LSUIElement` — closing every window keeps the resident menu bar icons alive
+
+## Project Structure
 
 ```
 status-bar/
 ├── Package.swift
 ├── Sources/status-bar/
-│   ├── App/                    # 入口、设置窗口、状态栏调度
-│   ├── Managers/               # 监控、设置、本地化、聚合面板
-│   ├── Views/                  # 主窗口 / Popover / 设置 / 排序
-│   └── Resources/              # entitlements、Assets.xcassets
-├── Tests/status-bar-tests/     # swift test（纯逻辑）
+│   ├── App/                    # Entry point, settings window, status bar controller
+│   ├── Managers/               # Monitoring, resident bar, settings, localization, panel
+│   ├── Views/                  # Main window / popover / panel / settings / theme components
+│   └── Resources/              # entitlements, Assets.xcassets
+├── Tests/status-bar-tests/     # Unit tests (swift test, logic only)
 ├── script/
-│   ├── build_and_run.sh        # 本地：构建 + 签名 + 运行
-│   └── release.sh              # 发布：mas / devid
-├── tools/                      # 图标与截图生成
-├── design/leaf-icon/           # App 图标设计稿
-└── docs/                       # GitHub Pages（中英双语）
+│   ├── build_and_run.sh        # Local: build + sign + run
+│   └── release.sh              # Release: mas / devid channels
+├── tools/                      # Icon & screenshot tooling
+├── design/leaf-icon/           # App icon design sources
+└── docs/                       # GitHub Pages (EN / zh-CN)
 ```
 
-## 已知限制
+## Documentation Index
 
-- Status Bar 应用无法通过 `NSRunningApplication.activate()` 激活；本应用对 accessory 应用使用 `NSWorkspace.openApplication(at:configuration:)`（`activates = true`）唤起
-- 部分 accessory app（如 Macs Fan Control）无法被其他 app 激活
-- App 类型基于 `activationPolicy`，无法读取真实的状态栏图标归属
-- 聚合面板不再自动弹出；勾选应用改为直接常驻系统菜单栏（v1.19.5 起）。面板仅作为手动「+」添加应用的管理界面保留
-- MAS 沙盒拦截 `NSRunningApplication.terminate()`，故 mas 渠道用 `-D MAC_APP_STORE` 编译期剔除退出功能
+- [docs/AppStoreChecklist.md](docs/AppStoreChecklist.md) — Mac App Store submission checklist (Chinese)
+- [CHANGELOG.md](CHANGELOG.md) — version history
+- [Official site](https://sky-jiangcheng.github.io/status-bar/) · [Support](https://sky-jiangcheng.github.io/status-bar/support/) · [Privacy Policy](https://sky-jiangcheng.github.io/status-bar/privacy/)
 
-## CI/CD 发布（双轨）
+## Changelog
 
-推送 `v*` 标签会同时触发 App Store 与官网 Developer ID 两条流水线。
+See [CHANGELOG.md](CHANGELOG.md); releases and artifacts are on [GitHub Releases](https://github.com/sky-jiangcheng/status-bar/releases).
 
-| 渠道 | Workflow | Bundle ID | 沙盒 | Quit / Force Quit | 产物 |
-|------|----------|-----------|------|-------------------|------|
-| Mac App Store | `release.yml` | `com.jiangcheng.MacStatusApp` | 开（MAS 强制） | 编译期移除 | `.pkg` → altool 上传 |
-| 官网自分发 | `notarize.yml` | `com.jiangcheng.EasyBar` | 关（Hardened Runtime） | 完整可用 | `.dmg` → 公证 + 装订 → GitHub Release Assets |
+## License
 
-单元测试由 `test.yml` 在 push/PR 时运行（macOS runner + 完整 Xcode，`swift test`）。
-
-`release.yml` 中的 `xcrun altool --upload-app` 已列入 Apple 弃用计划。若 runner 镜像移除 altool，改为 Transporter 或 App Store Connect API。
-
-MAS 的 Bundle ID 已在 App Store 注册，不可更改。Developer ID 签名无需 provisioning profile 或预先注册 App ID。设置随 Bundle ID 隔离。
-
-两条流水线都走 `script/release.sh`：编译 SPM 产物再组装 `.app`；MAS 再用 `productbuild` 打成 `.pkg`。
-
-### Secrets
-
-Repo → Settings → Secrets and variables → Actions：
-
-| Secret | 用途 |
-|--------|------|
-| `APPLE_DISTRIBUTION_CERT_P12` | Apple Distribution 证书 `.p12`（base64）— MAS 应用签名 |
-| `APPLE_DISTRIBUTION_CERT_PASSWORD` | 该证书密码 |
-| `APPLE_INSTALLER_CERT_P12` | 3rd Party Mac Developer Installer 证书 `.p12`（base64）— MAS `.pkg` 签名 |
-| `APPLE_INSTALLER_CERT_PASSWORD` | 该证书密码 |
-| `APPLE_PROVISIONING_PROFILE` | Mac App Store `.mobileprovision`（base64） |
-| `DEVELOPER_ID_CERT_P12` | Developer ID Application 证书 `.p12`（base64）— 官网版 |
-| `DEVELOPER_ID_CERT_PASSWORD` | 该证书密码 |
-| `APP_STORE_CONNECT_API_KEY_ID` | API Key ID（两条流水线共用） |
-| `APP_STORE_CONNECT_ISSUER_ID` | Issuer ID |
-| `APP_STORE_CONNECT_API_KEY` | `.p8` 私钥内容（base64） |
-
-MAS 的 `.pkg` 必须用 **3rd Party Mac Developer Installer** 证书签名，用应用签名证书会被 `altool` 以 409 拒绝。`release.yml` 会下载并导入 Apple WWDR G3 中间证书。
-
-不要把 `.p12` / `.cer` / `.provisionprofile` / `.p8` 或 `.uploads/` 提交进仓库。
-
-可选变量（Actions → Variables）：
-
-| Variable | 默认值 | 作用 |
-|----------|--------|------|
-| `BUNDLE_ID` | `com.jiangcheng.MacStatusApp` | MAS 版 Bundle ID |
-| `BUNDLE_ID_DIRECT` | `com.jiangcheng.EasyBar` | 官网版 Bundle ID |
-
-### 发布
-
-```bash
-git tag v1.18.0 && git push origin v1.18.0
-```
-
-标签推送后，`notarize.yml` 把 `StatusBar-<version>.dmg` 挂到该 GitHub Release；Actions artifact 另留一份备份。
-
-## 版本历史
-
-| 版本 | 内容 |
-|------|------|
-| v1.20.0 | UI 重设计 + 品牌命名分层：新增设计系统组件（AppIconView / AppTypeBadge / RowActionButton / StatChip）；主窗口分组列表 + 概览页 + 应用详情页（新增常驻开关与唤起提示）；弹窗按类型分组、行按钮悬停显现；聚合面板改 HUD 毛玻璃材质、图标块升级；紫/绿类型配色改为中性徽章；仓库 / 包 / 目录迁移 kebab-case（`status-bar`），App 显示名保持 StatusBar |
-| v1.19.8 | 移除设置页无实际作用的「聚合/标准/禁用」三种运行模式（历史遗留的空选项），连同弹出页模式徽标一并清理 |
-| v1.19.7 | 修复 ResidentBarManager 编译错误与遍历时改字典崩溃 |
-| v1.19.6 | 后台代理化：`LSUIElement` 无程序坞图标，关任何窗口不退出，常驻图标持续保留（真正常驻）；菜单栏类应用点击无界面属 macOS 限制 |
-| v1.19.5 | 状态栏常驻：勾选应用图标直接入住系统菜单栏（每应用一个常驻图标，左键唤起 / 右键管理），启动不再自动弹出浮动面板，解决桌面黑框干扰 |
-| v1.19.4 | 常驻面板管理：+ 添加 / 悬停 × 移除 / 持久化 pinnedAppIDs |
-| v1.19.3 | 修复聚合面板自动弹出 / 自动收起逻辑 |
-| v1.19.0 | 使用体验修复：启动不再自动弹出聚合面板（仅响应运行期间新出现的菜单栏应用）；面板补标题栏计数与 × 关闭按钮、支持 Esc、固定深色外观、禁止误拖；主窗口补搜索框、行选中与右侧应用详情、操作按钮改为 hover 显隐；popover 底部补主窗口入口与面板开关（带状态） |
-| v1.18.0 | 应用图标更换为滑块玻璃面板：按 1024 满幅 + 烘焙圆角重新生成，兼容 macOS 12+ 与 macOS 26/27 新图标网格；补深色外观；`tools/generate_app_icon.py` 可复现生成 |
-| v1.17.0 | 发布链路修复：MAS `.pkg` 改用 3rd Party Mac Developer Installer 签名并导入 WWDR G3；描述文件 UUID 改用 grep；停止跟踪证书 / 描述文件等上传产物 |
-| v1.16.0 | 品牌统一：StatusBar Pro → StatusBar；仓库与 Pages 从 EasyBar 迁至 StatusBar |
-| v1.15.0 | 修复排序页自动写入导致「未排序」失效；区分 Normal/Disabled 模式；完善测试与构建验证 |
-| v1.14.0 | 代码 review（P0×3 / P1×7 / P2×3）：聚合面板点击激活、Popover 双 toggle 竞态、hover 暂停自动隐藏、Force Quit 二次确认、`Bundle.main` 自排除、`openApplication` 迁移、Layout 常量收敛、单元测试 + CI；外观主题；多语言 |
-| v1.13.0 | Status Bar app 跳转修复 |
-| v1.12.0 | App 类型检测 + 移除 hide 功能 |
-| v1.11.0 | 移除 hasStatusBar 自动检测 |
-| v1.10.0 | accessory app 检测 + eye icon 手势修复 |
-| v1.9.0 | HSplitView 布局 + stat card 联动 |
-| v1.8.0 | UI 重新设计 + Sidebar 修复 |
-| v1.7.0 | Quit/force-quit + App 状态检测 |
-| v1.6.0 | 移除 AX 隐藏，纯 UI 聚合方案 |
-| v1.5.0 | AX API 兼容性 + debug 工具 |
-| v1.4.0 | AggregationPanel 可达 + iconSpacing |
-| v1.3.0 | P0/P1 code review 修复 |
-| v1.2.0 | Window + status bar 支持 |
-| v1.1.0 | Phase 1-5 完整实现 |
+[MIT](LICENSE)
