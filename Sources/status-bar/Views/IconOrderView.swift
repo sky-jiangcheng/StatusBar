@@ -98,35 +98,24 @@ private struct IconRow: View {
     let l10n: L10nTable
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "line.3.horizontal")
-                .foregroundStyle(.secondary)
-
-            if let icon = item.icon {
-                Image(nsImage: icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-            } else {
-                Image(systemName: "app.fill")
+            HStack(spacing: 12) {
+                Image(systemName: "line.3.horizontal")
                     .foregroundStyle(.secondary)
-                    .frame(width: 20, height: 20)
+
+                AppIconView(icon: item.icon, size: 20)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(item.processName)
+                        .font(.body)
+                    Text(item.bundleIdentifier)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                AppTypeBadge(type: item.appType, l10n: l10n)
             }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.processName)
-                    .font(.body)
-                Text(item.bundleIdentifier)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            Text(item.appType == .statusbarOnly ? l10n.statusBar : l10n.dock)
-                .font(.caption)
-                .foregroundStyle(item.appType == .statusbarOnly ? .purple : .green)
-        }
         .padding(.vertical, 4)
     }
 }

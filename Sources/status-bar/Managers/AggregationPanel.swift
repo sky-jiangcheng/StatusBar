@@ -68,7 +68,9 @@ final class AggregationPanel: NSObject, NSWindowDelegate {
         // menu bar while the next scan re-centered it anyway.
         panel.titlebarAppearsTransparent = true
         panel.titleVisibility = .hidden
-        panel.backgroundColor = NSColor.windowBackgroundColor.withAlphaComponent(0.95)
+        // The backdrop is a vibrancy material (added below), so the window
+        // background itself stays transparent.
+        panel.backgroundColor = .clear
         // .hudWindow gives the panel a dark background but does not set
         // NSAppearance, so SwiftUI semantic colors (.primary, .secondary) resolve
         // against the *system* appearance. In light mode that produces dark text
@@ -85,6 +87,17 @@ final class AggregationPanel: NSObject, NSWindowDelegate {
         container.onHoverChange = { [weak self] hovering in
             self?.onHoverChange?(hovering)
         }
+
+        // Vibrancy instead of a flat translucent fill: the panel picks up
+        // what is behind it (windows, wallpaper) like a native menu-bar
+        // popup. The container owns hover tracking; the material view is a
+        // pure backdrop below the SwiftUI content.
+        let materialView = NSVisualEffectView(frame: container.bounds)
+        materialView.material = .hudWindow
+        materialView.blendingMode = .behindWindow
+        materialView.state = .active
+        materialView.autoresizingMask = [.width, .height]
+        container.addSubview(materialView)
 
         let hostingView = NSHostingView(
             rootView: AggregationView()

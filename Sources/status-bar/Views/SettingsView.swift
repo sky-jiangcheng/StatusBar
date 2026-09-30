@@ -148,15 +148,7 @@ struct IconManagementTab: View {
 
                 List(menuBarMonitor.menuBarItems) { item in
                     HStack {
-                        if let icon = item.icon {
-                            Image(nsImage: icon)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
-                        } else {
-                            Image(systemName: "app.fill")
-                                .frame(width: 20, height: 20)
-                        }
+                        AppIconView(icon: item.icon, size: 20)
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(item.processName)
@@ -168,9 +160,7 @@ struct IconManagementTab: View {
 
                         Spacer()
 
-                        Text(item.appType == .statusbarOnly ? settings.l10n.statusBar : settings.l10n.dock)
-                            .font(.caption)
-                            .foregroundStyle(item.appType == .statusbarOnly ? .purple : .green)
+                        AppTypeBadge(type: item.appType, l10n: settings.l10n)
                     }
                 }
                 .listStyle(.inset(alternatesRowBackgrounds: true))

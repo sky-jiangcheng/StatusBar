@@ -146,29 +146,25 @@ private struct AggregationIcon: View {
 
     var body: some View {
         VStack(spacing: 4) {
-            if let icon = item.icon {
-                Image(nsImage: icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-            } else {
-                Image(systemName: "app.fill")
-                    .font(.title3)
-                    .frame(width: 24, height: 24)
-            }
+            AppIconView(icon: item.icon, size: 30)
 
             Text(item.processName)
-                .font(.system(size: 9))
+                .font(.system(size: 10, weight: .medium))
                 .lineLimit(1)
         }
         .frame(width: AggregationPanel.Layout.iconSize, height: AggregationPanel.Layout.iconSize)
-        .background(.quaternary.opacity(0.6), in: RoundedRectangle(cornerRadius: 8))
+        .background(
+            Color.white.opacity(isHovering ? 0.14 : 0.07),
+            in: RoundedRectangle(cornerRadius: Theme.Radius.tile)
+        )
         .overlay {
             if isHovering {
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(.secondary, lineWidth: 1)
+                RoundedRectangle(cornerRadius: Theme.Radius.tile)
+                    .stroke(Color.accentColor.opacity(0.6), lineWidth: 1)
             }
         }
+        .scaleEffect(isHovering ? 1.04 : 1.0)
+        .animation(.easeOut(duration: 0.12), value: isHovering)
         .overlay(alignment: .topTrailing) {
             if isHovering {
                 Button {

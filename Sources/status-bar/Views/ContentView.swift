@@ -37,6 +37,15 @@ struct ContentView: View {
         }
     }
 
+    /// Status Bar apps lead: they are the reason this app exists.
+    private var statusbarItems: [MenuBarMonitor.MenuBarItem] {
+        filteredItems.filter { $0.appType == .statusbarOnly }
+    }
+
+    private var dockItems: [MenuBarMonitor.MenuBarItem] {
+        filteredItems.filter { $0.appType == .dockOnly }
+    }
+
     /// Resolved from the full item list, so a selection survives filtering:
     /// clearing a search never blanks the detail pane.
     private var selectedItem: MenuBarMonitor.MenuBarItem? {
@@ -57,6 +66,8 @@ struct ContentView: View {
             accessibilityManager.refresh()
         }
     }
+
+    // MARK: - Sidebar
 
     private var sidebar: some View {
         VStack(spacing: 0) {
@@ -85,7 +96,7 @@ struct ContentView: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 8))
+            .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: Theme.Radius.control))
 
             Picker(l10n.all, selection: $selectedFilter) {
                 Text(l10n.all).tag(AppFilter.all)
@@ -94,10 +105,14 @@ struct ContentView: View {
             }
             .pickerStyle(.segmented)
 
-            Text(String(format: l10n.appsCount, filteredItems.count))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            // Section headers carry the per-type counts; only a live search
+            // needs the extra "N apps" result line.
+            if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text(String(format: l10n.appsCount, filteredItems.count))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -112,114 +127,61 @@ struct ContentView: View {
                     description: Text(searchText.isEmpty ? (selectedFilter == .all ? l10n.noAppsFound : l10n.noAppsInCategory) : l10n.noAppsFound)
                 )
             } else {
-                ForEach(filteredItems) { item in
-                    SidebarRow(
-                        item: item,
-                        l10n: l10n,
-                        isSelected: selectedItemID == item.id,
-                        onSelect: { selectedItemID = item.id }
-                    )
-                    .tag(item.id)
+                if !statusbarItems.isEmpty {
+                    Section {
+                        ForEach(statusbarItems) { row(item: $0) }
+                    } header: {
+                        sectionHeader(l10n.statusBar, systemImage: "menubar.rectangle", count: statusbarItems.count)
+                    }
+                }
+
+                if !dockItems.isEmpty {
+                    Section {
+                        ForEach(dockItems) { row(item: $0) }
+                    } header: {
+                        sectionHeader(l10n.dock, systemImage: "dock.rectangle", count: dockItems.count)
+                    }
                 }
             }
         }
         .listStyle(.sidebar)
     }
 
+    private func row(item: MenuBarMonitor.MenuBarItem) -> some View {
+        SidebarRow(
+            item: item,
+            l10n: l10n,
+            isSelected: selectedItemID == item.id,
+            onSelect: { selectedItemID = item.id }
+        )
+        .tag(item.id)
+    }
+
+    private func sectionHeader(_ title: String, systemImage: String, count: Int) -> some View {
+        Label("\(title) · \(count)", systemImage: systemImage)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    // MARK: - Detail
+
+    @ViewBuilder
     private var detailView: some View {
-        VStack(spacing: 0) {
-            headerView
-            Divider()
-            statsView
-            Divider()
-
-            // The detail pane used to end here, leaving an empty half of the
-            // window; it now carries the selected app (or a prompt for it).
-            if let selectedItem {
-                AppDetailView(item: selectedItem, l10n: l10n)
-            } else {
-                ContentUnavailableView(l10n.selectAppPrompt, systemImage: "cursorarrow.click.2")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
+        if let selectedItem {
+            AppDetailView(item: selectedItem, l10n: l10n)
+        } else {
+            OverviewView(
+                l10n: l10n,
+                total: menuBarMonitor.menuBarItems.count,
+                statusbarCount: menuBarMonitor.menuBarItems.filter { $0.appType == .statusbarOnly }.count,
+                dockCount: menuBarMonitor.menuBarItems.filter { $0.appType == .dockOnly }.count,
+                accessibilityAuthorized: accessibilityManager.isAuthorized
+            )
         }
-    }
-
-    private var headerView: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "menubar.rectangle")
-                .font(.system(size: 36))
-                .foregroundStyle(.blue)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("StatusBar")
-                    .font(.title)
-                    .fontWeight(.semibold)
-
-                Text(l10n.menuBarManager)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            // Diagnostic only — the app never requests Accessibility access, so
-            // this is a passive label instead of a permission prompt.
-            if accessibilityManager.isAuthorized {
-                Label(l10n.granted, systemImage: "checkmark.shield.fill")
-                    .font(.caption)
-                    .foregroundStyle(.green)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.green.opacity(0.1), in: Capsule())
-            } else {
-                Label(l10n.accessibilityOptional, systemImage: "info.circle")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.quaternary.opacity(0.6), in: Capsule())
-            }
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 20)
-    }
-
-    private var statsView: some View {
-        HStack(spacing: 12) {
-            StatCard(
-                title: l10n.total,
-                value: "\(menuBarMonitor.menuBarItems.count)",
-                icon: "list.bullet",
-                color: .blue,
-                isSelected: selectedFilter == .all
-            ) {
-                withAnimation { selectedFilter = .all }
-            }
-
-            StatCard(
-                title: l10n.statusBar,
-                value: "\(menuBarMonitor.menuBarItems.filter { $0.appType == .statusbarOnly }.count)",
-                icon: "menubar.rectangle",
-                color: .purple,
-                isSelected: selectedFilter == .statusbar
-            ) {
-                withAnimation { selectedFilter = .statusbar }
-            }
-
-            StatCard(
-                title: l10n.dock,
-                value: "\(menuBarMonitor.menuBarItems.filter { $0.appType == .dockOnly }.count)",
-                icon: "dock.rectangle",
-                color: .green,
-                isSelected: selectedFilter == .dock
-            ) {
-                withAnimation { selectedFilter = .dock }
-            }
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 16)
     }
 }
+
+// MARK: - Sidebar row
 
 private struct SidebarRow: View {
     @Environment(MenuBarMonitor.self) private var menuBarMonitor
@@ -233,27 +195,14 @@ private struct SidebarRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            if let icon = item.icon {
-                Image(nsImage: icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 28, height: 28)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-            } else {
-                Image(systemName: "app.fill")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 28, height: 28)
-            }
+            AppIconView(icon: item.icon, size: 28)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.processName)
                     .font(.body)
                     .lineLimit(1)
 
-                Text(item.appType == .statusbarOnly ? l10n.statusBar : l10n.dock)
-                    .font(.caption)
-                    .foregroundStyle(item.appType == .statusbarOnly ? .purple : .green)
+                AppTypeBadge(type: item.appType, l10n: l10n)
             }
 
             Spacer()
@@ -271,37 +220,19 @@ private struct SidebarRow: View {
     /// selection instead of swallowing the click.
     @ViewBuilder
     private var actionCluster: some View {
-        HStack(spacing: 8) {
-            Button {
+        HStack(spacing: 4) {
+            RowActionButton(systemImage: "arrow.up.forward.app", tint: .accentColor, help: l10n.open) {
                 menuBarMonitor.activateApp(item)
-            } label: {
-                Image(systemName: "arrow.up.forward.app")
-                    .font(.body)
-                    .foregroundStyle(.blue)
             }
-            .buttonStyle(.plain)
-            .help(l10n.open)
 
 #if !MAC_APP_STORE
-            Button {
+            RowActionButton(systemImage: "xmark.circle.fill", tint: .red, help: l10n.quit) {
                 menuBarMonitor.quitApp(item)
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.body)
-                    .foregroundStyle(.red)
             }
-            .buttonStyle(.plain)
-            .help(l10n.quit)
 
-            Button {
+            RowActionButton(systemImage: "exclamationmark.triangle.fill", tint: .orange, help: l10n.forceQuit) {
                 menuBarMonitor.forceQuitApp(item)
-            } label: {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
             }
-            .buttonStyle(.plain)
-            .help(l10n.forceQuit)
 #endif
         }
         .opacity(isHovering || isSelected ? 1 : 0)
@@ -309,8 +240,80 @@ private struct SidebarRow: View {
     }
 }
 
+// MARK: - Overview (no selection)
+
+/// Landing state shown while no app is selected: brand, a one-glance summary
+/// and the passive Accessibility diagnostic.
+private struct OverviewView: View {
+    let l10n: L10nTable
+    let total: Int
+    let statusbarCount: Int
+    let dockCount: Int
+    let accessibilityAuthorized: Bool
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Spacer()
+
+            Image(systemName: "menubar.rectangle")
+                .font(.system(size: 44, weight: .medium))
+                .foregroundStyle(Color.accentColor)
+
+            VStack(spacing: 4) {
+                Text("StatusBar")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                Text(l10n.menuBarManager)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack(spacing: 12) {
+                StatChip(systemImage: "list.bullet", title: l10n.total, value: total)
+                StatChip(systemImage: "menubar.rectangle", title: l10n.statusBar, value: statusbarCount)
+                StatChip(systemImage: "dock.rectangle", title: l10n.dock, value: dockCount)
+            }
+
+            Text(l10n.selectAppPrompt)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            accessibilityBadge
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(24)
+    }
+
+    // Diagnostic only — the app never requests Accessibility access, so this
+    // is a passive label instead of a permission prompt.
+    @ViewBuilder
+    private var accessibilityBadge: some View {
+        if accessibilityAuthorized {
+            Label(l10n.granted, systemImage: "checkmark.shield.fill")
+                .font(.caption)
+                .foregroundStyle(.green)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(.green.opacity(0.1), in: Capsule())
+        } else {
+            Label(l10n.accessibilityOptional, systemImage: "info.circle")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(.quaternary.opacity(0.6), in: Capsule())
+        }
+    }
+}
+
+// MARK: - App detail (selection)
+
 private struct AppDetailView: View {
     @Environment(MenuBarMonitor.self) private var menuBarMonitor
+    @Environment(SettingsStore.self) private var settings
 
     let item: MenuBarMonitor.MenuBarItem
     let l10n: L10nTable
@@ -318,30 +321,35 @@ private struct AppDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                appIcon
+                AppIconView(icon: item.icon, size: 64)
 
-                Text(item.processName)
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: 4) {
+                    Text(item.processName)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
 
-                Text(item.bundleIdentifier)
-                    .font(.callout.monospaced())
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-                    .multilineTextAlignment(.center)
+                    Text(item.bundleIdentifier)
+                        .font(.callout.monospaced())
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                        .multilineTextAlignment(.center)
+                }
 
-                Text(item.appType == .statusbarOnly ? l10n.statusBar : l10n.dock)
-                    .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(
-                        (item.appType == .statusbarOnly ? Color.purple : Color.green).opacity(0.15),
-                        in: Capsule()
-                    )
-                    .foregroundStyle(item.appType == .statusbarOnly ? .purple : .green)
+                AppTypeBadge(type: item.appType, l10n: l10n)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(.quaternary.opacity(0.6), in: Capsule())
 
                 actions
+
+                if item.appType == .statusbarOnly {
+                    Text(l10n.statusbarActivateHint)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: 360)
+                }
             }
             .frame(maxWidth: .infinity)
             .padding(24)
@@ -349,86 +357,45 @@ private struct AppDetailView: View {
     }
 
     @ViewBuilder
-    private var appIcon: some View {
-        if let icon = item.icon {
-            Image(nsImage: icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 64, height: 64)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-        } else {
-            Image(systemName: "app.fill")
-                .font(.system(size: 52))
-                .foregroundStyle(.secondary)
-                .frame(width: 64, height: 64)
-        }
-    }
-
-    @ViewBuilder
     private var actions: some View {
-        HStack(spacing: 12) {
-            Button {
-                menuBarMonitor.activateApp(item)
-            } label: {
-                Label(l10n.open, systemImage: "arrow.up.forward.app")
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                Button {
+                    menuBarMonitor.activateApp(item)
+                } label: {
+                    Label(l10n.open, systemImage: "arrow.up.forward.app")
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button {
+                    settings.togglePin(item.id)
+                } label: {
+                    Label(
+                        settings.isPinned(item.id) ? l10n.unpinFromMenuBar : l10n.pinToMenuBar,
+                        systemImage: settings.isPinned(item.id) ? "pin.slash.fill" : "pin.fill"
+                    )
+                }
+                .buttonStyle(.bordered)
             }
-            .buttonStyle(.borderedProminent)
 
 #if !MAC_APP_STORE
-            Button {
-                menuBarMonitor.quitApp(item)
-            } label: {
-                Label(l10n.quit, systemImage: "xmark.circle")
-            }
-            .buttonStyle(.bordered)
+            HStack(spacing: 10) {
+                Button {
+                    menuBarMonitor.quitApp(item)
+                } label: {
+                    Label(l10n.quit, systemImage: "xmark.circle")
+                }
+                .buttonStyle(.bordered)
 
-            Button(role: .destructive) {
-                menuBarMonitor.forceQuitApp(item)
-            } label: {
-                Label(l10n.forceQuit, systemImage: "exclamationmark.triangle")
+                Button(role: .destructive) {
+                    menuBarMonitor.forceQuitApp(item)
+                } label: {
+                    Label(l10n.forceQuit, systemImage: "exclamationmark.triangle")
+                }
+                .buttonStyle(.bordered)
             }
-            .buttonStyle(.bordered)
 #endif
         }
         .padding(.top, 4)
-    }
-}
-
-private struct StatCard: View {
-    let title: String
-    let value: String
-    let icon: String
-    let color: Color
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.title3)
-                    .foregroundStyle(isSelected ? .white : color)
-                Text(value)
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(isSelected ? .white : .primary)
-                Text(title)
-                    .font(.caption)
-                    .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? color : color.opacity(0.1))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? color : .clear, lineWidth: 2)
-            )
-        }
-        .buttonStyle(.plain)
-        .scaleEffect(isSelected ? 1.02 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: isSelected)
     }
 }

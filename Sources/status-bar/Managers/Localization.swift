@@ -123,6 +123,10 @@ struct L10nTable {
     var addAppToPanel: String
     var removeFromPanel: String
     var noAppsToPin: String
+    // App detail pane
+    var pinToMenuBar: String
+    var unpinFromMenuBar: String
+    var statusbarActivateHint: String
 }
 
 enum L10n {
@@ -189,7 +193,10 @@ enum L10n {
         noPinnedAppsCaption: "Click + in the title bar to pin apps here.",
         addAppToPanel: "Add app to panel",
         removeFromPanel: "Remove from panel",
-        noAppsToPin: "No more apps to add"
+        noAppsToPin: "No more apps to add",
+        pinToMenuBar: "Pin to Menu Bar",
+        unpinFromMenuBar: "Unpin from Menu Bar",
+        statusbarActivateHint: "This app has no Dock icon. “Open” re-launches it to the front."
     )
 
     static let zhHans = L10nTable(
@@ -255,7 +262,10 @@ enum L10n {
         noPinnedAppsCaption: "点击标题栏 + 可在此固定应用。",
         addAppToPanel: "添加应用到面板",
         removeFromPanel: "从面板移除",
-        noAppsToPin: "没有更多可添加的应用"
+        noAppsToPin: "没有更多可添加的应用",
+        pinToMenuBar: "常驻菜单栏",
+        unpinFromMenuBar: "取消常驻",
+        statusbarActivateHint: "此应用没有程序坞图标，「打开」会重新唤起它的窗口。"
     )
 
     static let ja = L10nTable(
@@ -321,7 +331,10 @@ enum L10n {
         noPinnedAppsCaption: "タイトルバーの + をクリックして、ここにアプリを固定します。",
         addAppToPanel: "パネルにアプリを追加",
         removeFromPanel: "パネルから削除",
-        noAppsToPin: "追加できるアプリはありません"
+        noAppsToPin: "追加できるアプリはありません",
+        pinToMenuBar: "メニューバーに常駐",
+        unpinFromMenuBar: "常駐を解除",
+        statusbarActivateHint: "このアプリにはドックアイコンがありません。「開く」で前面に再表示します。"
     )
 
     static let de = L10nTable(
@@ -387,7 +400,10 @@ enum L10n {
         noPinnedAppsCaption: "Klicken Sie im Titel auf +, um hier Apps anzupinnen.",
         addAppToPanel: "App zum Panel hinzufügen",
         removeFromPanel: "Aus dem Panel entfernen",
-        noAppsToPin: "Keine weiteren Apps zum Hinzufügen"
+        noAppsToPin: "Keine weiteren Apps zum Hinzufügen",
+        pinToMenuBar: "In die Menüleiste pinnen",
+        unpinFromMenuBar: "Nicht mehr pinnen",
+        statusbarActivateHint: "Diese App hat kein Dock-Symbol. „Öffnen“ holt sie erneut nach vorn."
     )
 
     static let es = L10nTable(
@@ -453,7 +469,10 @@ enum L10n {
         noPinnedAppsCaption: "Haz clic en + de la barra de título para fijar apps aquí.",
         addAppToPanel: "Añadir app al panel",
         removeFromPanel: "Quitar del panel",
-        noAppsToPin: "No hay más apps para añadir"
+        noAppsToPin: "No hay más apps para añadir",
+        pinToMenuBar: "Fijar a la barra de menú",
+        unpinFromMenuBar: "Dejar de fijar",
+        statusbarActivateHint: "Esta app no tiene icono en el Dock. «Abrir» la trae de nuevo al frente."
     )
 
     // Memoized: Locale.preferredLanguages is stable within a launch session,

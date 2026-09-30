@@ -23,6 +23,15 @@ struct PopoverView: View {
         }
     }
 
+    /// Status Bar apps lead: they are the reason this app exists.
+    private var statusbarItems: [MenuBarMonitor.MenuBarItem] {
+        filteredItems.filter { $0.appType == .statusbarOnly }
+    }
+
+    private var dockItems: [MenuBarMonitor.MenuBarItem] {
+        filteredItems.filter { $0.appType == .dockOnly }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             headerSection
@@ -77,7 +86,7 @@ struct PopoverView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 8))
+        .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: Theme.Radius.control))
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
     }
@@ -93,14 +102,36 @@ struct PopoverView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(filteredItems) { item in
-                            IconRow(item: item, l10n: l10n)
+                    LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                        if !statusbarItems.isEmpty {
+                            Section {
+                                ForEach(statusbarItems) { IconRow(item: $0, l10n: l10n) }
+                            } header: {
+                                sectionHeader(l10n.statusBar, systemImage: "menubar.rectangle", count: statusbarItems.count)
+                            }
+                        }
+
+                        if !dockItems.isEmpty {
+                            Section {
+                                ForEach(dockItems) { IconRow(item: $0, l10n: l10n) }
+                            } header: {
+                                sectionHeader(l10n.dock, systemImage: "dock.rectangle", count: dockItems.count)
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    private func sectionHeader(_ title: String, systemImage: String, count: Int) -> some View {
+        Label("\(title) · \(count)", systemImage: systemImage)
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 4)
+            .background(.quaternary.opacity(0.3))
     }
 
     private var footerSection: some View {
@@ -153,69 +184,44 @@ private struct IconRow: View {
     let item: MenuBarMonitor.MenuBarItem
     let l10n: L10nTable
 
+    @State private var isHovering = false
+
     var body: some View {
         HStack(spacing: 10) {
-            if let icon = item.icon {
-                Image(nsImage: icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-            } else {
-                Image(systemName: "app.fill")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 24, height: 24)
-            }
+            AppIconView(icon: item.icon, size: 24)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.processName)
                     .font(.system(.body, weight: .medium))
                     .lineLimit(1)
                     .foregroundStyle(.primary)
-                Text(item.appType == .statusbarOnly ? l10n.statusBar : l10n.dock)
-                    .font(.caption2)
-                    .foregroundStyle(item.appType == .statusbarOnly ? .purple : .green)
+                AppTypeBadge(type: item.appType, l10n: l10n)
             }
 
             Spacer()
 
-            HStack(spacing: 8) {
-                Button {
+            // Hidden until hover so ten quiet rows read as one calm list.
+            HStack(spacing: 4) {
+                RowActionButton(systemImage: "arrow.up.forward.app", tint: .accentColor, help: l10n.open) {
                     menuBarMonitor.activateApp(item)
-                } label: {
-                    Image(systemName: "arrow.up.forward.app")
-                        .font(.caption)
-                        .foregroundStyle(.blue)
                 }
-                .buttonStyle(.plain)
-                .help(l10n.open)
 
 #if !MAC_APP_STORE
-                Button {
+                RowActionButton(systemImage: "xmark.circle.fill", tint: .red, help: l10n.quit) {
                     menuBarMonitor.quitApp(item)
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.red)
                 }
-                .buttonStyle(.plain)
-                .help(l10n.quit)
 
-                Button {
+                RowActionButton(systemImage: "exclamationmark.triangle.fill", tint: .orange, help: l10n.forceQuit) {
                     menuBarMonitor.forceQuitApp(item)
-                } label: {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.orange)
                 }
-                .buttonStyle(.plain)
-                .help(l10n.forceQuit)
 #endif
             }
+            .opacity(isHovering ? 1 : 0)
+            .allowsHitTesting(isHovering)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .contentShape(Rectangle())
+        .onHover { isHovering = $0 }
     }
 }
