@@ -2,25 +2,25 @@
 import PackageDescription
 
 let package = Package(
-    name: "StatusBar",
+    name: "status-bar",
     platforms: [
         .macOS(.v14)
     ],
     products: [
-        .executable(name: "StatusBar", targets: ["StatusBar"])
+        .executable(name: "status-bar", targets: ["status-bar"])
     ],
     targets: [
         .executableTarget(
-            name: "StatusBar",
-            path: "Sources/StatusBar",
+            name: "status-bar",
+            path: "Sources/status-bar",
             exclude: [
                 "Resources"
             ]
         ),
         .testTarget(
-            name: "StatusBarTests",
-            dependencies: ["StatusBar"],
-            path: "Tests/StatusBarTests"
+            name: "status-bar-tests",
+            dependencies: ["status-bar"],
+            path: "Tests/status-bar-tests"
         )
     ]
 )

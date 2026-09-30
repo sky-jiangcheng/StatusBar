@@ -7,6 +7,9 @@ set -euo pipefail
 
 MODE="${1:-run}"
 APP_NAME="StatusBar"
+# SwiftPM executable product name (package/target renamed to kebab-case; the
+# .app keeps the StatusBar brand, so binary name and bundle name differ).
+SPM_PRODUCT="status-bar"
 BUNDLE_ID="com.jiangcheng.EasyBar"
 MIN_SYSTEM_VERSION="14.0"
 
@@ -18,7 +21,7 @@ APP_MACOS="$APP_CONTENTS/MacOS"
 APP_RESOURCES="$APP_CONTENTS/Resources"
 APP_BINARY="$APP_MACOS/$APP_NAME"
 INFO_PLIST="$APP_CONTENTS/Info.plist"
-ENTITLEMENTS="$ROOT_DIR/Sources/StatusBar/Resources/DeveloperID.entitlements"
+ENTITLEMENTS="$ROOT_DIR/Sources/status-bar/Resources/DeveloperID.entitlements"
 
 # SwiftPM has no SWIFTPM_HOME variable (it is silently ignored), so its cache,
 # config and security directories are isolated explicitly instead of touching
@@ -45,7 +48,7 @@ esac
 pkill -x "$APP_NAME" >/dev/null 2>&1 || true
 
 swift build --disable-sandbox "${SPM_ISOLATION[@]}" --scratch-path "$ROOT_DIR/.build"
-BUILD_BINARY="$(swift build --disable-sandbox "${SPM_ISOLATION[@]}" --scratch-path "$ROOT_DIR/.build" --show-bin-path)/$APP_NAME"
+BUILD_BINARY="$(swift build --disable-sandbox "${SPM_ISOLATION[@]}" --scratch-path "$ROOT_DIR/.build" --show-bin-path)/$SPM_PRODUCT"
 
 rm -rf "$APP_BUNDLE"
 mkdir -p "$APP_MACOS" "$APP_RESOURCES"

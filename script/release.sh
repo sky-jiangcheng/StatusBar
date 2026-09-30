@@ -23,6 +23,9 @@ set -euo pipefail
 
 CHANNEL="${CHANNEL:-mas}"
 PRODUCT="${PRODUCT:-StatusBar}"
+# SwiftPM executable product name (package/target renamed to kebab-case; the
+# .app keeps the StatusBar brand, so binary name and bundle name differ).
+SPM_PRODUCT="status-bar"
 BUNDLE_ID="${BUNDLE_ID:-com.jiangcheng.MacStatusApp}"
 APP_VERSION="${APP_VERSION:-0.0.0}"
 BUILD_NUMBER="${BUILD_NUMBER:-1}"
@@ -33,7 +36,7 @@ MIN_SYSTEM_VERSION="${MIN_SYSTEM_VERSION:-14.0}"
 
 case "$CHANNEL" in
   mas)
-    ENTITLEMENTS_NAME="StatusBar.entitlements"
+    ENTITLEMENTS_NAME="status-bar.entitlements"
     # Sandboxed MAS build: strip Quit / Force Quit (NSRunningApplication is blocked in sandbox).
     SWIFT_DEFINES=(-Xswiftc -D -Xswiftc MAC_APP_STORE)
     ;;
@@ -74,8 +77,8 @@ APP_CONTENTS="$APP_BUNDLE/Contents"
 APP_MACOS="$APP_CONTENTS/MacOS"
 APP_RESOURCES="$APP_CONTENTS/Resources"
 PKG_PATH="$DIST_DIR/$PRODUCT.pkg"
-ENTITLEMENTS="$ROOT_DIR/Sources/StatusBar/Resources/$ENTITLEMENTS_NAME"
-APPCONSET="$ROOT_DIR/Sources/StatusBar/Resources/Assets.xcassets/AppIcon.appiconset"
+ENTITLEMENTS="$ROOT_DIR/Sources/status-bar/Resources/$ENTITLEMENTS_NAME"
+APPCONSET="$ROOT_DIR/Sources/status-bar/Resources/Assets.xcassets/AppIcon.appiconset"
 
 ARCH_FLAGS=()
 for a in $ARCHS; do ARCH_FLAGS+=(--arch "$a"); done
@@ -86,7 +89,7 @@ DEFINES=(${SWIFT_DEFINES[@]+"${SWIFT_DEFINES[@]}"})
 echo "==> Building release binary (channel: $CHANNEL, archs: $ARCHS)"
 swift build --disable-sandbox "${SPM_ISOLATION[@]}" -c release "${ARCH_FLAGS[@]}" ${DEFINES[@]+"${DEFINES[@]}"} --scratch-path "$ROOT_DIR/.build"
 BIN_DIR="$(swift build --disable-sandbox "${SPM_ISOLATION[@]}" -c release "${ARCH_FLAGS[@]}" ${DEFINES[@]+"${DEFINES[@]}"} --scratch-path "$ROOT_DIR/.build" --show-bin-path)"
-BINARY="$BIN_DIR/$PRODUCT"
+BINARY="$BIN_DIR/$SPM_PRODUCT"
 [ -f "$BINARY" ] || { echo "binary not found: $BINARY" >&2; exit 1; }
 
 echo "==> Assembling $PRODUCT.app"

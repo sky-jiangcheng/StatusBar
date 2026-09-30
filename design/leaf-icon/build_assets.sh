@@ -30,7 +30,7 @@ iconutil -c icns iconset.iconset -o "StatusBar.icns"
 echo "✓ StatusBar.icns"
 
 # --- xcassets: overwrite light PNGs in place, add dark/ subdir ---
-ASSETS="../../Sources/StatusBar/Resources/Assets.xcassets"
+ASSETS="../../Sources/status-bar/Resources/Assets.xcassets"
 APPICON="$ASSETS/AppIcon.appiconset"
 for f in "$OUT"/light/icon_*.png; do cp "$f" "$APPICON/$(basename "$f")"; done
 mkdir -p "$APPICON/dark"
