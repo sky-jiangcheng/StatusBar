@@ -36,7 +36,7 @@
 
 ## 重要约束
 
-此版本有意避免全局热键。菜单栏图标右键菜单提供 `Command Q`（退出）和 `Command ,`（打开设置）。
+全局快捷键使用 Carbon `RegisterEventHotKey`（`Control + Option + M` 唤起主窗口）：事件由系统直接投递给本进程，无需辅助功能权限，沙盒下可用。菜单栏图标右键菜单提供 `Control + Option + M`（打开主窗口）、`Command ,`（打开设置）和 `Command Q`（退出）。
 
 ## 已知限制
 

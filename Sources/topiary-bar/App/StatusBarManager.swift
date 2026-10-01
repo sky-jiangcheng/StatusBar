@@ -108,6 +108,13 @@ final class StatusBarManager {
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
+        // Persist the user's ⌘-dragged position across launches. macOS offers
+        // no API for the initial placement (fresh items land leftmost, next to
+        // the notch), but after one manual drag the system restores the spot
+        // on every subsequent launch. Scoped per distribution channel so the
+        // MAS and Developer ID builds keep independent positions.
+        statusItem?.autosaveName = "statusItem." + (Bundle.main.bundleIdentifier ?? "topiary")
+
         guard let button = statusItem?.button else { return }
 
         button.action = #selector(statusBarButtonClicked(_:))
@@ -204,8 +211,11 @@ final class StatusBarManager {
         let mainItem = NSMenuItem(
             title: l10n.openMainWindow,
             action: #selector(openMainWindow),
-            keyEquivalent: ""
+            keyEquivalent: "m"
         )
+        // Display-only mirror of the Carbon global hotkey (⌃⌥M): the actual
+        // app-wide trigger is registered in GlobalHotKey.
+        mainItem.keyEquivalentModifierMask = [.control, .option]
         mainItem.target = self
         menu.addItem(mainItem)
 

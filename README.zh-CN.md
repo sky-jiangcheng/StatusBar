@@ -57,6 +57,7 @@
 |------|------|
 | **主窗口** | 双标签一窗口——「应用」与「设置」。应用页：侧栏（搜索 + 类型筛选 + 分组应用列表，小节头带数量）+ 详情区（未选中显示品牌概览与紧凑统计，选中显示结构化应用详情与常驻开关） |
 | **菜单栏弹窗** | 按类型分组的应用列表 + 每应用内存 + 系统内存概览卡片；明确关闭按钮；底栏为设置 / 打开主窗口快捷方式 |
+| **全局快捷键** | ⌃⌥M 随时唤起主窗口（Carbon 注册，无需辅助功能权限） |
 | **外观主题** | 跟随系统 / 浅色 / 深色，全局即时生效 |
 | **多语言** | 简体中文 / English / 日本語 / Deutsch / Español，可跟随系统或手动切换 |
 | **自定义顺序** | 拖拽调整顺序；未排序应用可插入到指定位置 |
@@ -127,6 +128,7 @@ git tag v1.20.1 && git push origin v1.20.1
 
 - Status Bar（accessory）应用无法通过 `NSRunningApplication.activate()` 前台化 —— 属 macOS 安全限制。本应用通过 `NSWorkspace.openApplication`（`activates = true`）重新唤起；激活时序与已弃用的 `launchApplication(withBundleIdentifier:)` 存在差异，个别 accessory 应用（如 Macs Fan Control）本就无法被其他应用唤起
 - App 类型基于 `activationPolicy`，无法读取真实的状态栏图标归属
+- 菜单栏图标的初始位置由系统控制——新状态项总是落在最左侧（紧贴刘海）。**⌘-拖动一次**到想要的位置即可，系统会跨启动记住该位置；应用自身也会检测图标被遮挡并自动弹出窗口
 - 应用不会隐藏真实系统菜单栏图标（AX 隐藏方案已于 v1.6.0 移除）；需要该能力请搭配 Hidden Bar / Ice / Bartender 等专用工具——检测到它们运行时会自动抑制遮挡提醒
 - 暗色 App 图标变体（`Assets.xcassets/AppIcon.appiconset/dark/`）只在 Xcode 资产目录（`Assets.car`）流程下生效；`script/release.sh` 用 `iconutil` 生成仅含浅色图标的 `.icns`
 - MAS 沙盒拦截 `NSRunningApplication.terminate()` 且用户无对应授权开关，故 MAS 版用 `-D MAC_APP_STORE` 编译期剔除退出功能

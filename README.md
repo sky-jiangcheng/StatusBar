@@ -57,6 +57,7 @@ See, launch, quit, and pin every menu bar app running on your Mac. **No permissi
 |---------|-------------|
 | **Main window** | Two tabs — Apps and Settings — in one window. Apps: sidebar (search + type filter + grouped app list with per-section counts) and a detail pane (overview with compact stats when nothing is selected, structured app details with a pin toggle when an app is) |
 | **Menu bar popover** | Type-grouped app list with search and per-app memory; system memory overview card; explicit close button; settings and main-window shortcuts in the footer |
+| **Global hotkey** | ⌃⌥M summons the main window from anywhere (Carbon registration — no Accessibility permission) |
 | **Themes** | System / light / dark, applied instantly app-wide |
 | **Localization** | English, 简体中文, 日本語, Deutsch, Español — follow the system or pick manually |
 | **Custom order** | Drag to reorder; unordered apps can be dropped into a specific position |
@@ -127,6 +128,7 @@ git tag v1.20.1 && git push origin v1.20.1
 
 - Status Bar (accessory) apps cannot be foregrounded with `NSRunningApplication.activate()` — a macOS security restriction. Topiary re-launches them via `NSWorkspace.openApplication` (`activates = true`); activation timing differs slightly from the deprecated `launchApplication(withBundleIdentifier:)`, and a few accessory apps (e.g. Macs Fan Control) can't be raised by other apps at all
 - App typing is based on `activationPolicy`, so the real owner of a menu bar icon cannot be read
+- The menu bar icon's initial position is system-controlled — fresh status items land leftmost, next to the notch. **⌘-drag it once** to where you want it; the position is remembered across launches. The app also detects when the icon is occluded and summons its window automatically
 - The app does not hide real system menu bar icons (the AX-based hiding was removed in v1.6.0). Pair it with a dedicated hider utility (Hidden Bar, Ice, Bartender) if you want that — occlusion warnings are suppressed automatically while one runs
 - Dark app icon variants (`Assets.xcassets/AppIcon.appiconset/dark/`) only apply via the Xcode asset-catalog (`Assets.car`) flow; `script/release.sh` generates a light-only `.icns` via `iconutil`
 - Under MAS sandbox, `NSRunningApplication.terminate()` is blocked with no user-facing toggle, so the MAS build strips Quit / Force Quit at compile time via `-D MAC_APP_STORE`
