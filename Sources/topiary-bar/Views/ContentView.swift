@@ -9,6 +9,11 @@ struct ContentView: View {
     @State private var selectedFilter: AppFilter = .all
     @State private var searchText = ""
     @State private var selectedItemID: String?
+    @State private var windowTab: WindowTab = .apps
+
+    enum WindowTab: Hashable {
+        case apps, settings
+    }
 
     enum AppFilter: String, CaseIterable {
         case all, statusbar, dock
@@ -55,16 +60,41 @@ struct ContentView: View {
     }
 
     var body: some View {
+        Group {
+            switch windowTab {
+            case .apps:
+                appsView
+            case .settings:
+                SettingsView()
+            }
+        }
+        .frame(minWidth: 700, minHeight: 500)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Picker("", selection: $windowTab) {
+                    Text(l10n.windowTabApps).tag(WindowTab.apps)
+                    Text(l10n.windowTabSettings).tag(WindowTab.settings)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .frame(width: 200)
+            }
+        }
+        .onAppear {
+            accessibilityManager.refresh()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .selectSettingsTab)) { _ in
+            windowTab = .settings
+        }
+    }
+
+    private var appsView: some View {
         HSplitView {
             sidebar
                 .frame(minWidth: 260, idealWidth: 300, maxWidth: 360)
 
             detailView
                 .frame(minWidth: 400, idealWidth: 500)
-        }
-        .frame(minWidth: 700, minHeight: 500)
-        .onAppear {
-            accessibilityManager.refresh()
         }
     }
 
@@ -105,6 +135,7 @@ struct ContentView: View {
                 Text(l10n.dock).tag(AppFilter.dock)
             }
             .pickerStyle(.segmented)
+            .labelsHidden()
 
             // Section headers carry the per-type counts; only a live search
             // needs the extra "N apps" result line.
@@ -180,6 +211,8 @@ struct ContentView: View {
 // MARK: - Sidebar row
 
 private struct SidebarRow: View {
+    @Environment(SettingsStore.self) private var settings
+
     let item: MenuBarMonitor.MenuBarItem
     let onSelect: () -> Void
 
@@ -192,6 +225,14 @@ private struct SidebarRow: View {
             Text(item.processName)
                 .font(.body)
                 .lineLimit(1)
+
+            // Pinned apps carry their own resident status item in the menu
+            // bar — mark it right in the list.
+            if settings.isPinned(item.id) {
+                Image(systemName: "pin.fill")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
 
             Spacer()
 

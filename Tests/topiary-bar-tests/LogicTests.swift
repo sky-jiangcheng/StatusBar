@@ -26,36 +26,6 @@ final class LogicTests: XCTestCase {
         XCTAssertNil(MenuBarMonitor.baseBundleID(of: ""))
     }
 
-    // MARK: - AggregationPanel.heightFor
-
-    func testHeightForEmptyListUsesFixedMinimum() {
-        XCTAssertEqual(
-            AggregationPanel.heightFor(statusbarCount: 0, spacing: 8),
-            AggregationPanel.Layout.verticalPadding
-                + AggregationPanel.Layout.headerHeight
-                + AggregationPanel.Layout.emptyStateHeight
-        )
-    }
-
-    func testHeightForGrowsPerRowThenCaps() {
-        let layout = AggregationPanel.Layout.self
-        XCTAssertEqual(
-            AggregationPanel.heightFor(statusbarCount: 1, spacing: 8),
-            layout.verticalPadding + layout.headerHeight + layout.rowHeight
-        )
-        // 10 apps / 5 columns = 2 rows: exactly one inter-row spacing gap.
-        XCTAssertEqual(
-            AggregationPanel.heightFor(statusbarCount: 10, spacing: 4),
-            layout.verticalPadding + layout.headerHeight + 2 * layout.rowHeight + 4
-        )
-        // 15 apps = 3 rows, but the panel caps at maxVisibleRows.
-        XCTAssertEqual(
-            AggregationPanel.heightFor(statusbarCount: 15, spacing: 4),
-            layout.verticalPadding + layout.headerHeight
-                + CGFloat(layout.maxVisibleRows) * layout.rowHeight + 4
-        )
-    }
-
     // MARK: - MenuBarMonitor.sortedByCustomOrder
 
     private func item(_ id: String, _ name: String) -> MenuBarMonitor.MenuBarItem {

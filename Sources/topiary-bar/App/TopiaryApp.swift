@@ -14,15 +14,7 @@ struct TopiaryApp: App {
                 .environment(appDelegate.visibilityMonitor)
                 .environment(appDelegate.systemMemoryMonitor)
         }
-        .defaultSize(width: 700, height: 450)
-
-        Settings {
-            SettingsView()
-                .environment(appDelegate.settingsStore)
-                .environment(appDelegate.menuBarMonitor)
-                .environment(appDelegate.accessibilityManager)
-        }
-        .defaultSize(width: 520, height: 480)
+        .defaultSize(width: 760, height: 520)
     }
 
     init() {}
@@ -56,6 +48,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     /// Fallback manager window for summoning when the SwiftUI `Window` scene
     /// has been closed and `openWindow` is unavailable (no view context).
     private var fallbackMainWindow: NSWindow?
+    private var notificationObservers: [NSObjectProtocol] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         settingsStore.applyAppearance()
@@ -71,6 +64,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         menuBarMonitor.startMonitoring()
 
         systemMemoryMonitor.start()
+
+        // Main window / settings entry points coming from the status item's
+        // context menu and the popover: the AppDelegate owns the actual
+        // summoning, then re-broadcasts the tab selection to the window.
+        notificationObservers.append(NotificationCenter.default.addObserver(
+            forName: .openMainWindow, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.summonMainWindow() }
+        })
+        notificationObservers.append(NotificationCenter.default.addObserver(
+            forName: .openSettingsTab, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.summonMainWindow()
+                NotificationCenter.default.post(name: .selectSettingsTab, object: nil)
+            }
+        })
 
         // When the main menu bar icon is swallowed by the notch, the app would
         // be unreachable — surface the manager window right away.
@@ -139,6 +150,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     func applicationWillTerminate(_ notification: Notification) {
         visibilityMonitor.stop()
         systemMemoryMonitor.stop()
+        for observer in notificationObservers {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        notificationObservers.removeAll()
 
         // Release menu bar resources in a deterministic order before teardown.
         menuBarMonitor.stopMonitoring()

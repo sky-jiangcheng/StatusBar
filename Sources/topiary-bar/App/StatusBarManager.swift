@@ -16,7 +16,6 @@ final class StatusBarManager {
     private static let popoverReshowGrace: TimeInterval = 0.3
     private var popoverCloseDate: Date?
 
-    private let aggregationPanel: AggregationPanel
     private let residentBar: ResidentBarManager
 
     private let menuBarMonitor: MenuBarMonitor
@@ -37,10 +36,6 @@ final class StatusBarManager {
         self.accessibilityManager = accessibilityManager
         self.visibilityMonitor = visibilityMonitor
         self.systemMemoryMonitor = systemMemoryMonitor
-        self.aggregationPanel = AggregationPanel(
-            menuBarMonitor: menuBarMonitor,
-            settingsStore: settingsStore
-        )
         self.residentBar = ResidentBarManager(
             menuBarMonitor: menuBarMonitor,
             settingsStore: settingsStore
@@ -49,13 +44,12 @@ final class StatusBarManager {
         setupStatusItem()
         setupPopover()
         setupEventMonitor()
-        setupNotifications()
         trackStatusBarButton()
     }
 
     /// Re-registers itself on every change: updates the menu bar icon whenever
-    /// the user picks another aggregation icon style, and the tooltip whenever
-    /// the app language changes.
+    /// the user picks another icon style, and the tooltip whenever the app
+    /// language changes.
     private func trackStatusBarButton() {
         withObservationTracking {
             _ = settingsStore.aggregationIcon
@@ -74,8 +68,6 @@ final class StatusBarManager {
         statusItem?.button?.toolTip = "Topiary — \(settingsStore.l10n.menuBarManager)"
     }
 
-    /// Removes the status item, event monitor, and all notification observers.
-    /// Must run on the main actor; safe to call multiple times.
     // MARK: - Occlusion monitoring
 
     /// The app's own menu bar status item, for VisibilityMonitor.
@@ -86,6 +78,8 @@ final class StatusBarManager {
         residentBar.visibilitySnapshot()
     }
 
+    /// Removes the status item, event monitor, and all notification observers.
+    /// Must run on the main actor; safe to call multiple times.
     func teardown() {
         popover.close()
 
@@ -103,7 +97,6 @@ final class StatusBarManager {
         }
         observers.removeAll()
 
-        aggregationPanel.hide()
         residentBar.teardown()
 
         if let statusItem {
@@ -124,7 +117,7 @@ final class StatusBarManager {
         refreshStatusBarButton()
     }
 
-    /// Menu bar icon reflects the user-selected aggregation icon style.
+    /// Menu bar icon reflects the user-selected icon style.
     private static func image(for icon: SettingsStore.AggregationIconType) -> NSImage? {
         let symbol: String
         switch icon {
@@ -139,7 +132,7 @@ final class StatusBarManager {
     }
 
     private func setupPopover() {
-        popover.contentSize = NSSize(width: 360, height: 480)
+        popover.contentSize = NSSize(width: 360, height: 520)
         popover.behavior = .transient
         popover.animates = true
 
@@ -183,33 +176,6 @@ final class StatusBarManager {
         }
     }
 
-    private func setupNotifications() {
-        let layoutObserver = NotificationCenter.default.addObserver(
-            forName: .menuBarItemsChanged,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                guard let self else { return }
-                if self.aggregationPanel.isShown {
-                    self.aggregationPanel.updatePosition()
-                }
-            }
-        }
-        observers.append(layoutObserver)
-
-        let toggleObserver = NotificationCenter.default.addObserver(
-            forName: .toggleAggregationPanel,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.toggleAggregationPanel()
-            }
-        }
-        observers.append(toggleObserver)
-    }
-
     @objc private func statusBarButtonClicked(_ sender: AnyObject?) {
         guard let event = NSApp.currentEvent else { return }
 
@@ -235,15 +201,13 @@ final class StatusBarManager {
         let l10n = settingsStore.l10n
         let menu = NSMenu()
 
-        let panelItem = NSMenuItem(
-            title: aggregationPanel.isShown ? l10n.hideAggregationPanel : l10n.showAggregationPanel,
-            action: #selector(toggleAggregationPanel),
+        let mainItem = NSMenuItem(
+            title: l10n.openMainWindow,
+            action: #selector(openMainWindow),
             keyEquivalent: ""
         )
-        panelItem.target = self
-        menu.addItem(panelItem)
-
-        menu.addItem(.separator())
+        mainItem.target = self
+        menu.addItem(mainItem)
 
         let settingsItem = NSMenuItem(
             title: l10n.settingsDots,
@@ -268,16 +232,14 @@ final class StatusBarManager {
         statusItem?.menu = nil
     }
 
-    @objc private func toggleAggregationPanel() {
-        if aggregationPanel.isShown {
-            aggregationPanel.hide()
-        } else {
-            aggregationPanel.show()
-        }
+    @objc private func openMainWindow() {
+        NotificationCenter.default.post(name: .openMainWindow, object: nil)
     }
 
+    /// Settings now lives inside the main window: summon it and switch to the
+    /// settings tab (AppDelegate summons, ContentView switches).
     @objc private func openSettings() {
-        AppSettingsOpener.open()
+        NotificationCenter.default.post(name: .openSettingsTab, object: nil)
     }
 
     @objc private func quitApp() {

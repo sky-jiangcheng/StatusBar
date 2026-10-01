@@ -7,21 +7,13 @@ import Observation
 final class SettingsStore {
     var aggregationIcon: AggregationIconType = .dots
     var refreshInterval: TimeInterval = 2.0
-    var iconSpacing: IconSpacing = .default
     var customOrder: [String] = []
-    /// Bundle IDs the user chose to keep visibly resident in the aggregation
-    /// panel, in the order they were pinned. Panel content is driven by this
-    /// list rather than "every Status Bar app currently running".
+    /// Bundle IDs the user chose to keep visibly resident in the menu bar,
+    /// in the order they were pinned. Each pinned app gets its own always-
+    /// visible status item.
     var pinnedAppIDs: [String] = []
     var appearance: AppearanceMode = .system
     var language: AppLanguage = .system
-
-    /// Whether the floating aggregation panel is currently on screen.
-    /// UI state only — deliberately not persisted, and not part of `save()` /
-    /// `load()`. Every visibility change funnels through
-    /// `AggregationPanel.show()` / `hide()`, so the popover button label can
-    /// never disagree with the panel.
-    var isAggregationPanelVisible = false
 
     enum AggregationIconType: String, CaseIterable, Identifiable {
         case dots = "Three Dots"
@@ -41,24 +33,6 @@ final class SettingsStore {
             case .square: return "square"
             case .circle: return "circle"
             case .transparent: return "circle.dotted"
-            }
-        }
-    }
-
-    enum IconSpacing: String, CaseIterable, Identifiable {
-        case `default` = "Default"
-        case compact = "Compact"
-        case small = "Small"
-        case none = "None"
-
-        var id: String { rawValue }
-
-        var value: CGFloat {
-            switch self {
-            case .default: return 8
-            case .compact: return 4
-            case .small: return 2
-            case .none: return 0
             }
         }
     }
@@ -83,7 +57,6 @@ final class SettingsStore {
 
     func load() {
         aggregationIcon = AggregationIconType(rawValue: defaults.string(forKey: "aggregationIcon") ?? "") ?? .dots
-        iconSpacing = IconSpacing(rawValue: defaults.string(forKey: "iconSpacing") ?? "") ?? .default
         customOrder = defaults.stringArray(forKey: "customOrder") ?? []
         pinnedAppIDs = defaults.stringArray(forKey: "pinnedAppIDs") ?? []
 
@@ -97,7 +70,6 @@ final class SettingsStore {
     func save() {
         defaults.set(aggregationIcon.rawValue, forKey: "aggregationIcon")
         defaults.set(refreshInterval, forKey: "refreshInterval")
-        defaults.set(iconSpacing.rawValue, forKey: "iconSpacing")
         defaults.set(customOrder, forKey: "customOrder")
         defaults.set(pinnedAppIDs, forKey: "pinnedAppIDs")
         defaults.set(appearance.rawValue, forKey: "appearance")

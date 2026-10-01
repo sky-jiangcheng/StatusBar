@@ -206,9 +206,10 @@ struct PopoverView: View {
 
     private var footerSection: some View {
         HStack(spacing: 12) {
-            // Settings, left.
+            // Settings, left: opens the main window on its Settings tab
+            // (AppDelegate summons the window, ContentView switches tabs).
             Button {
-                AppSettingsOpener.open()
+                NotificationCenter.default.post(name: .openSettingsTab, object: nil)
             } label: {
                 Image(systemName: "gearshape")
                     .font(.body)
@@ -234,23 +235,13 @@ struct PopoverView: View {
 
             Spacer(minLength: 0)
 
-            // Panel toggle, right; icon-only with the state in the tooltip.
-            Button {
-                NotificationCenter.default.post(name: .toggleAggregationPanel, object: nil)
-            } label: {
-                Image(systemName: settings.isAggregationPanelVisible ? "rectangle.stack.fill" : "rectangle.stack")
-                    .foregroundStyle(settings.isAggregationPanelVisible ? Color.accentColor : Color.secondary)
-            }
-            .buttonStyle(.plain)
-            .help(panelToggleTooltip)
-            .accessibilityLabel(panelToggleTooltip)
+            // Invisible counterpart of the gear keeps the primary button
+            // horizontally centered.
+            Color.clear.frame(width: 22, height: 22)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
     }
-
-    /// Compact, dismissible warning for genuine occlusion (a menu-bar hider
-    /// utility suppresses it entirely).
     private var occlusionBanner: some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
@@ -284,10 +275,6 @@ struct PopoverView: View {
             return l10n.notchWarningMainBody
         }
         return String(format: l10n.notchWarningPinnedBody, visibilityMonitor.hiddenPinnedIDs.count)
-    }
-
-    private var panelToggleTooltip: String {
-        settings.isAggregationPanelVisible ? l10n.hideAggregationPanel : l10n.showAggregationPanel
     }
 }
 

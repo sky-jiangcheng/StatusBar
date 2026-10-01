@@ -312,5 +312,10 @@ final class MenuBarMonitor {
 extension Notification.Name {
     static let refreshIntervalChanged = Notification.Name("refreshIntervalChanged")
     static let menuBarItemsChanged = Notification.Name("menuBarItemsChanged")
-    static let toggleAggregationPanel = Notification.Name("toggleAggregationPanel")
+    /// Summon the main window (AppDelegate handles the actual window work).
+    static let openMainWindow = Notification.Name("openMainWindow")
+    /// Summon the main window and switch it to the settings tab.
+    static let openSettingsTab = Notification.Name("openSettingsTab")
+    /// Switch the (already visible) main window to the settings tab.
+    static let selectSettingsTab = Notification.Name("selectSettingsTab")
 }

@@ -76,15 +76,11 @@ struct L10nTable {
     var searchPlaceholder: String
     var settingsDots: String
     var quitAppTitle: String
-    var showAggregationPanel: String
-    var hideAggregationPanel: String
     var openMainWindow: String
     var selectAppPrompt: String
-    // Settings — tabs & General
-    var tabGeneral: String
-    var tabAggregation: String
-    var tabIcons: String
-    var tabOrder: String
+    // Main window tabs
+    var windowTabApps: String
+    var windowTabSettings: String
     var sectionAppearance: String
     var appearanceSystem: String
     var appearanceLight: String
@@ -116,13 +112,8 @@ struct L10nTable {
     var sectionUnordered: String
     var noIcons: String
     var noIconsDetected: String
-    // Aggregation panel
-    var noStatusApps: String
-    var noPinnedApps: String
-    var noPinnedAppsCaption: String
-    var addAppToPanel: String
+    // Resident bar context menu
     var removeFromPanel: String
-    var noAppsToPin: String
     // App detail pane
     var pinToMenuBar: String
     var unpinFromMenuBar: String
@@ -157,14 +148,10 @@ enum L10n {
         searchPlaceholder: "Search...",
         settingsDots: "Settings...",
         quitAppTitle: "Quit Topiary",
-        showAggregationPanel: "Show Aggregation Panel",
-        hideAggregationPanel: "Hide Aggregation Panel",
         openMainWindow: "Open Main Window",
         selectAppPrompt: "Select an app to see its details.",
-        tabGeneral: "General",
-        tabAggregation: "Aggregation",
-        tabIcons: "Icons",
-        tabOrder: "Order",
+        windowTabApps: "Apps",
+        windowTabSettings: "Settings",
         sectionAppearance: "Appearance",
         appearanceSystem: "System",
         appearanceLight: "Light",
@@ -173,8 +160,8 @@ enum L10n {
         languageSystem: "System",
         sectionRefresh: "Refresh",
         scanInterval: "Menu bar scan interval",
-        sectionAggIcon: "Aggregation Icon",
-        aggIconCaption: "Choose the icon displayed in the menu bar when aggregation mode is active.",
+        sectionAggIcon: "Menu Bar Icon",
+        aggIconCaption: "Choose the icon Topiary shows in the menu bar.",
         sectionSpacing: "Icon Spacing",
         spacingDefault: "Default",
         spacingCompact: "Compact",
@@ -194,12 +181,7 @@ enum L10n {
         sectionUnordered: "Unordered",
         noIcons: "No Icons",
         noIconsDetected: "No menu bar icons detected.",
-        noStatusApps: "No Status Bar apps running",
-        noPinnedApps: "No apps pinned to the panel",
-        noPinnedAppsCaption: "Click + in the title bar to pin apps here.",
-        addAppToPanel: "Add app to panel",
         removeFromPanel: "Remove from panel",
-        noAppsToPin: "No more apps to add",
         pinToMenuBar: "Pin to Menu Bar",
         unpinFromMenuBar: "Unpin from Menu Bar",
         statusbarActivateHint: "This app has no Dock icon. “Open” re-launches it to the front.",
@@ -230,14 +212,10 @@ enum L10n {
         searchPlaceholder: "搜索…",
         settingsDots: "设置…",
         quitAppTitle: "退出 Topiary",
-        showAggregationPanel: "显示聚合面板",
-        hideAggregationPanel: "隐藏聚合面板",
         openMainWindow: "打开主窗口",
         selectAppPrompt: "在左侧选择应用以查看详情。",
-        tabGeneral: "通用",
-        tabAggregation: "聚合",
-        tabIcons: "图标",
-        tabOrder: "排序",
+        windowTabApps: "应用",
+        windowTabSettings: "设置",
         sectionAppearance: "外观",
         appearanceSystem: "跟随系统",
         appearanceLight: "浅色",
@@ -246,8 +224,8 @@ enum L10n {
         languageSystem: "跟随系统",
         sectionRefresh: "刷新",
         scanInterval: "菜单栏扫描间隔",
-        sectionAggIcon: "聚合图标",
-        aggIconCaption: "选择聚合模式下菜单栏显示的图标。",
+        sectionAggIcon: "菜单栏图标",
+        aggIconCaption: "选择 Topiary 在菜单栏显示的图标。",
         sectionSpacing: "图标间距",
         spacingDefault: "默认",
         spacingCompact: "紧凑",
@@ -267,12 +245,7 @@ enum L10n {
         sectionUnordered: "未排序",
         noIcons: "无图标",
         noIconsDetected: "未检测到菜单栏图标。",
-        noStatusApps: "没有运行中的菜单栏应用",
-        noPinnedApps: "尚未将应用固定到面板",
-        noPinnedAppsCaption: "点击标题栏 + 可在此固定应用。",
-        addAppToPanel: "添加应用到面板",
         removeFromPanel: "从面板移除",
-        noAppsToPin: "没有更多可添加的应用",
         pinToMenuBar: "常驻菜单栏",
         unpinFromMenuBar: "取消常驻",
         statusbarActivateHint: "此应用没有程序坞图标，「打开」会重新唤起它的窗口。",
@@ -303,14 +276,10 @@ enum L10n {
         searchPlaceholder: "検索…",
         settingsDots: "設定…",
         quitAppTitle: "Topiary を終了",
-        showAggregationPanel: "集約パネルを表示",
-        hideAggregationPanel: "集約パネルを隠す",
         openMainWindow: "メインウィンドウを開く",
         selectAppPrompt: "左のアプリを選択すると詳細が表示されます。",
-        tabGeneral: "一般",
-        tabAggregation: "集約",
-        tabIcons: "アイコン",
-        tabOrder: "順序",
+        windowTabApps: "アプリ",
+        windowTabSettings: "設定",
         sectionAppearance: "外観",
         appearanceSystem: "システムに従う",
         appearanceLight: "ライト",
@@ -319,8 +288,8 @@ enum L10n {
         languageSystem: "システムに従う",
         sectionRefresh: "更新",
         scanInterval: "メニューバーのスキャン間隔",
-        sectionAggIcon: "集約アイコン",
-        aggIconCaption: "集約モードでメニューバーに表示するアイコンを選択します。",
+        sectionAggIcon: "メニューバーアイコン",
+        aggIconCaption: "Topiary がメニューバーに表示するアイコンを選択します。",
         sectionSpacing: "アイコンの間隔",
         spacingDefault: "デフォルト",
         spacingCompact: "コンパクト",
@@ -340,12 +309,7 @@ enum L10n {
         sectionUnordered: "未整列",
         noIcons: "アイコンなし",
         noIconsDetected: "メニューバーのアイコンが検出されません。",
-        noStatusApps: "実行中のステータスバーアプリはありません",
-        noPinnedApps: "パネルに固定されたアプリはありません",
-        noPinnedAppsCaption: "タイトルバーの + をクリックして、ここにアプリを固定します。",
-        addAppToPanel: "パネルにアプリを追加",
         removeFromPanel: "パネルから削除",
-        noAppsToPin: "追加できるアプリはありません",
         pinToMenuBar: "メニューバーに常駐",
         unpinFromMenuBar: "常駐を解除",
         statusbarActivateHint: "このアプリにはドックアイコンがありません。「開く」で前面に再表示します。",
@@ -376,14 +340,10 @@ enum L10n {
         searchPlaceholder: "Suchen…",
         settingsDots: "Einstellungen…",
         quitAppTitle: "Topiary beenden",
-        showAggregationPanel: "Aggregations-Panel anzeigen",
-        hideAggregationPanel: "Aggregations-Panel ausblenden",
         openMainWindow: "Hauptfenster öffnen",
         selectAppPrompt: "Wähle links eine App aus, um Details zu sehen.",
-        tabGeneral: "Allgemein",
-        tabAggregation: "Aggregation",
-        tabIcons: "Symbole",
-        tabOrder: "Reihenfolge",
+        windowTabApps: "Apps",
+        windowTabSettings: "Einstellungen",
         sectionAppearance: "Erscheinungsbild",
         appearanceSystem: "System",
         appearanceLight: "Hell",
@@ -392,8 +352,8 @@ enum L10n {
         languageSystem: "System",
         sectionRefresh: "Aktualisieren",
         scanInterval: "Scanintervall der Menüleiste",
-        sectionAggIcon: "Aggregationssymbol",
-        aggIconCaption: "Wählen Sie das Symbol, das im Aggregationsmodus in der Menüleiste angezeigt wird.",
+        sectionAggIcon: "Menüleistensymbol",
+        aggIconCaption: "Wählen Sie das Symbol, das Topiary in der Menüleiste zeigt.",
         sectionSpacing: "Symbolabstand",
         spacingDefault: "Standard",
         spacingCompact: "Kompakt",
@@ -413,12 +373,7 @@ enum L10n {
         sectionUnordered: "Nicht sortiert",
         noIcons: "Keine Symbole",
         noIconsDetected: "Keine Menüleisten-Symbole erkannt.",
-        noStatusApps: "Keine Statusleisten-Apps aktiv",
-        noPinnedApps: "Keine Apps aus dem Panel angeheftet",
-        noPinnedAppsCaption: "Klicken Sie im Titel auf +, um hier Apps anzupinnen.",
-        addAppToPanel: "App zum Panel hinzufügen",
         removeFromPanel: "Aus dem Panel entfernen",
-        noAppsToPin: "Keine weiteren Apps zum Hinzufügen",
         pinToMenuBar: "In die Menüleiste pinnen",
         unpinFromMenuBar: "Nicht mehr pinnen",
         statusbarActivateHint: "Diese App hat kein Dock-Symbol. „Öffnen“ holt sie erneut nach vorn.",
@@ -449,14 +404,10 @@ enum L10n {
         searchPlaceholder: "Buscar…",
         settingsDots: "Ajustes…",
         quitAppTitle: "Salir de Topiary",
-        showAggregationPanel: "Mostrar panel de agregación",
-        hideAggregationPanel: "Ocultar panel de agregación",
         openMainWindow: "Abrir ventana principal",
         selectAppPrompt: "Selecciona una app a la izquierda para ver los detalles.",
-        tabGeneral: "General",
-        tabAggregation: "Agregación",
-        tabIcons: "Iconos",
-        tabOrder: "Orden",
+        windowTabApps: "Apps",
+        windowTabSettings: "Ajustes",
         sectionAppearance: "Apariencia",
         appearanceSystem: "Sistema",
         appearanceLight: "Claro",
@@ -465,8 +416,8 @@ enum L10n {
         languageSystem: "Sistema",
         sectionRefresh: "Actualización",
         scanInterval: "Intervalo de escaneo de la barra de menú",
-        sectionAggIcon: "Icono de agregación",
-        aggIconCaption: "Elige el icono que se muestra en la barra de menú cuando el modo de agregación está activo.",
+        sectionAggIcon: "Icono de la barra de menús",
+        aggIconCaption: "Elige el icono que Topiary muestra en la barra de menús.",
         sectionSpacing: "Espaciado de iconos",
         spacingDefault: "Predeterminado",
         spacingCompact: "Compacto",
@@ -486,12 +437,7 @@ enum L10n {
         sectionUnordered: "Sin ordenar",
         noIcons: "Sin iconos",
         noIconsDetected: "No se detectaron iconos de la barra de menú.",
-        noStatusApps: "No hay aplicaciones de barra de estado en ejecución",
-        noPinnedApps: "No hay apps fijadas al panel",
-        noPinnedAppsCaption: "Haz clic en + de la barra de título para fijar apps aquí.",
-        addAppToPanel: "Añadir app al panel",
         removeFromPanel: "Quitar del panel",
-        noAppsToPin: "No hay más apps para añadir",
         pinToMenuBar: "Fijar a la barra de menú",
         unpinFromMenuBar: "Dejar de fijar",
         statusbarActivateHint: "Esta app no tiene icono en el Dock. «Abrir» la trae de nuevo al frente.",

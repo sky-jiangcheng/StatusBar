@@ -38,7 +38,7 @@ See, launch, quit, and pin every menu bar app running on your Mac. **No permissi
 | Feature | Description |
 |---------|-------------|
 | **Pin to menu bar** | Pinned app icons live directly in the macOS menu bar — one resident status item per app, always visible, no window or panel needed. Left-click activates the app; right-click offers open / unpin / quit |
-| **Aggregation panel** | A manual management panel under the menu bar: add apps with `+`, hover an icon and click `×` to unpin (v1.19.5: the panel no longer auto-pops, so no floating box over your desktop) |
+| **Pin from the main window** | Select any app and flip its "Pin to Menu Bar" switch in the detail pane; pinned rows carry a pin mark in the list. No floating management panel needed |
 | **Persistence** | Pins and custom order survive relaunch (stored per distribution channel in `UserDefaults`) |
 
 ### 🚦 App Management
@@ -55,9 +55,8 @@ See, launch, quit, and pin every menu bar app running on your Mac. **No permissi
 
 | Feature | Description |
 |---------|-------------|
-| **Main window** | Sidebar (search + type filter + grouped app list with per-section counts) and a detail pane: brand overview with compact stats when nothing is selected, full app details with a pin toggle when an app is |
-| **Menu bar popover** | Type-grouped app list with search; panel toggle / main window / settings in the footer; row actions reveal on hover |
-| **Aggregation panel** | HUD vibrancy material, 5-column icon grid, hover feedback, auto-dismiss |
+| **Main window** | Two tabs — Apps and Settings — in one window. Apps: sidebar (search + type filter + grouped app list with per-section counts) and a detail pane (overview with compact stats when nothing is selected, structured app details with a pin toggle when an app is) |
+| **Menu bar popover** | Type-grouped app list with search and per-app memory; system memory overview card; explicit close button; settings and main-window shortcuts in the footer |
 | **Themes** | System / light / dark, applied instantly app-wide |
 | **Localization** | English, 简体中文, 日本語, Deutsch, Español — follow the system or pick manually |
 | **Custom order** | Drag to reorder; unordered apps can be dropped into a specific position |
@@ -128,7 +127,7 @@ git tag v1.20.1 && git push origin v1.20.1
 
 - Status Bar (accessory) apps cannot be foregrounded with `NSRunningApplication.activate()` — a macOS security restriction. Topiary re-launches them via `NSWorkspace.openApplication` (`activates = true`); activation timing differs slightly from the deprecated `launchApplication(withBundleIdentifier:)`, and a few accessory apps (e.g. Macs Fan Control) can't be raised by other apps at all
 - App typing is based on `activationPolicy`, so the real owner of a menu bar icon cannot be read
-- The aggregation panel does not hide real system menu bar icons (the AX-based hiding was removed in v1.6.0); it is a manual management surface only
+- The app does not hide real system menu bar icons (the AX-based hiding was removed in v1.6.0). Pair it with a dedicated hider utility (Hidden Bar, Ice, Bartender) if you want that — occlusion warnings are suppressed automatically while one runs
 - Dark app icon variants (`Assets.xcassets/AppIcon.appiconset/dark/`) only apply via the Xcode asset-catalog (`Assets.car`) flow; `script/release.sh` generates a light-only `.icns` via `iconutil`
 - Under MAS sandbox, `NSRunningApplication.terminate()` is blocked with no user-facing toggle, so the MAS build strips Quit / Force Quit at compile time via `-D MAC_APP_STORE`
 
@@ -151,8 +150,8 @@ topiary-bar/
 ├── Package.swift
 ├── Sources/topiary-bar/
 │   ├── App/                    # Entry point, settings window, status bar controller
-│   ├── Managers/               # Monitoring, resident bar, settings, localization, panel
-│   ├── Views/                  # Main window / popover / panel / settings / theme components
+│   ├── Managers/               # Monitoring, resident bar, memory/visibility monitors, settings, localization
+│   ├── Views/                  # Main window (apps + settings tabs) / popover / theme components
 │   └── Resources/              # entitlements, Assets.xcassets
 ├── Tests/topiary-bar-tests/     # Unit tests (swift test, logic only)
 ├── script/
