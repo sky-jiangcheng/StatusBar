@@ -6,7 +6,7 @@
 
 | 版本 | 内容 |
 |------|------|
-| Unreleased | 品牌重塑：StatusBar → Topiary（仓库 / 包 / 目录更名 `topiary-bar`；App 显示名、菜单文案、CI 产物同步更名；Bundle ID 与 App Store 记录不变） |
+| v1.21.0 | 品牌重塑：StatusBar → Topiary（仓库 / 包 / 目录更名 `topiary-bar`；App 显示名、菜单文案、CI 产物同步更名；Bundle ID 与 App Store 记录不变） |
 | v1.20.1 | 刘海遮挡检测：菜单栏图标被刘海或拥挤菜单栏静默吞掉时自动弹出管理窗口（LSUIElement 后台代理不再失联）；主窗口与弹窗显示警告横幅，引导退出部分菜单栏应用腾出空间；Finder 重新打开应用也会召唤主窗口 |
 | v1.20.0 | UI 重设计 + 品牌命名分层：新增设计系统组件（AppIconView / AppTypeBadge / RowActionButton / StatChip）；主窗口分组列表 + 概览页 + 应用详情页（新增常驻开关与唤起提示）；弹窗按类型分组、行按钮悬停显现；聚合面板改 HUD 毛玻璃材质、图标块升级；紫/绿类型配色改为中性徽章；仓库 / 包 / 目录迁移 kebab-case（`status-bar`），App 显示名保持 StatusBar |
 | v1.19.8 | 移除设置页无实际作用的「聚合/标准/禁用」三种运行模式（历史遗留的空选项），连同弹出页模式徽标一并清理 |
