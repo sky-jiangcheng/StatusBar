@@ -158,8 +158,7 @@ topiary-bar/
 ├── script/
 │   ├── build_and_run.sh        # Local: build + sign + run
 │   └── release.sh              # Release: mas / devid channels
-├── tools/                      # Icon & screenshot tooling
-├── design/leaf-icon/           # App icon design sources
+├── tools/                      # App icon & screenshot generators
 └── docs/                       # GitHub Pages (EN / zh-CN)
 ```
 

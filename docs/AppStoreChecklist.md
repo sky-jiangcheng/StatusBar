@@ -7,7 +7,7 @@
 - 不请求屏幕录制、输入监控、文件访问、网络访问或自动化权限
 - **不请求辅助功能（Accessibility）权限**：仅使用公共 API 列出运行中的应用
 - 包含最小 App Sandbox 授权文件 `Sources/topiary-bar/Resources/topiary-bar.entitlements`
-- App 图标源文件在 `design/leaf-icon`
+- App 图标由 `tools/generate_app_icon.py` 从滑块玻璃面板源图生成（`python3 tools/generate_app_icon.py [SOURCE_IMAGE]`），产物写入 `Sources/topiary-bar/Resources/Assets.xcassets/AppIcon.appiconset`
 - 发布流程不依赖 Xcode 工程：`script/release.sh` 直接编译 SPM 产物并组装 `.app`
 
 ## 提交前必要步骤
@@ -43,7 +43,7 @@
 - Status Bar 应用无法通过 `NSRunningApplication.activate()` 激活（macOS 安全限制），本应用对 accessory 应用使用 `NSWorkspace.openApplication(at:configuration:)` 唤起
 - 部分 accessory app（如 Macs Fan Control）无法被其他 app 激活
 - App 类型检测基于 `activationPolicy`，无法读取真实的状态栏图标归属
-- 聚合面板不会隐藏系统菜单栏图标（v1.6.0 起移除 AX 隐藏方案），仅在菜单栏下方浮动显示
+- 应用不会隐藏系统菜单栏图标（AX 隐藏方案已于 v1.6.0 移除）；需要该能力请搭配 Hidden Bar / Ice 等专用工具
 - 暗色 App 图标变体（`Assets.xcassets/AppIcon.appiconset/dark/`）只在 Xcode 资产目录（`Assets.car`）流程下生效；`script/release.sh` 用 `iconutil` 生成 `.icns`，该格式只包含浅色图标
 - MAS 沙盒下 `NSRunningApplication.terminate()` 被系统拦截，因此 mas 渠道用 `-D MAC_APP_STORE` 编译期剔除退出功能
 

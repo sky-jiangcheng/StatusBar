@@ -158,8 +158,7 @@ topiary-bar/
 ├── script/
 │   ├── build_and_run.sh        # 本地：构建 + 签名 + 运行
 │   └── release.sh              # 发布：mas / devid 渠道
-├── tools/                      # 图标与截图工具
-├── design/leaf-icon/           # App 图标设计稿
+├── tools/                      # App 图标与截图生成脚本
 └── docs/                       # GitHub Pages（中英双语）
 ```
 
