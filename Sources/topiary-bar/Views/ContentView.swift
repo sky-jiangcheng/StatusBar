@@ -149,13 +149,8 @@ struct ContentView: View {
     }
 
     private func row(item: MenuBarMonitor.MenuBarItem) -> some View {
-        SidebarRow(
-            item: item,
-            l10n: l10n,
-            isSelected: selectedItemID == item.id,
-            onSelect: { selectedItemID = item.id }
-        )
-        .tag(item.id)
+        SidebarRow(item: item, onSelect: { selectedItemID = item.id })
+            .tag(item.id)
     }
 
     private func sectionHeader(_ title: String, systemImage: String, count: Int) -> some View {
@@ -185,57 +180,30 @@ struct ContentView: View {
 // MARK: - Sidebar row
 
 private struct SidebarRow: View {
-    @Environment(MenuBarMonitor.self) private var menuBarMonitor
-
     let item: MenuBarMonitor.MenuBarItem
-    let l10n: L10nTable
-    let isSelected: Bool
     let onSelect: () -> Void
-
-    @State private var isHovering = false
 
     var body: some View {
         HStack(spacing: 10) {
             AppIconView(icon: item.icon, size: 28)
 
-            // Single-line row: the section header already carries the type,
-            // a per-row badge only added a second line of noise.
+            // Single-line row, consistent with the popover list: the section
+            // header carries the type, actions live in the detail pane.
             Text(item.processName)
                 .font(.body)
                 .lineLimit(1)
 
             Spacer()
 
-            actionCluster
+            if let footprint = item.memoryFootprint {
+                Text(Format.memory(footprint))
+                    .font(.callout.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
         }
         .padding(.vertical, 6)
         .contentShape(Rectangle())
         .onTapGesture { onSelect() }
-        .onHover { isHovering = $0 }
-    }
-
-    /// Kept constant-width so revealing it never shifts the row text, and
-    /// hit-tested away while hidden so those pixels fall through to row
-    /// selection instead of swallowing the click.
-    @ViewBuilder
-    private var actionCluster: some View {
-        HStack(spacing: 4) {
-            RowActionButton(systemImage: "arrow.up.forward.app", tint: .accentColor, help: l10n.open) {
-                menuBarMonitor.activateApp(item)
-            }
-
-#if !MAC_APP_STORE
-            RowActionButton(systemImage: "xmark.circle.fill", tint: .red, help: l10n.quit) {
-                menuBarMonitor.quitApp(item)
-            }
-
-            RowActionButton(systemImage: "exclamationmark.triangle.fill", tint: .orange, help: l10n.forceQuit) {
-                menuBarMonitor.forceQuitApp(item)
-            }
-#endif
-        }
-        .opacity(isHovering || isSelected ? 1 : 0)
-        .allowsHitTesting(isHovering || isSelected)
     }
 }
 
@@ -336,6 +304,9 @@ private struct OverviewView: View {
 
 // MARK: - App detail (selection)
 
+/// Left-aligned definition-list layout — identity header, an info card
+/// (type / memory / PID), then actions — instead of everything floating
+/// centered with no hierarchy.
 private struct AppDetailView: View {
     @Environment(MenuBarMonitor.self) private var menuBarMonitor
     @Environment(SettingsStore.self) private var settings
@@ -346,31 +317,39 @@ private struct AppDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                AppIconView(icon: item.icon, size: 64)
+                HStack(spacing: 16) {
+                    AppIconView(icon: item.icon, size: 64)
 
-                VStack(spacing: 4) {
-                    Text(item.processName)
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .multilineTextAlignment(.center)
-
-                    Text(item.bundleIdentifier)
-                        .font(.callout.monospaced())
-                        .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                        .multilineTextAlignment(.center)
-
-                    if let footprint = item.memoryFootprint {
-                        Text(Format.memory(footprint))
-                            .font(.callout.monospacedDigit())
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(item.processName)
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .lineLimit(1)
+                        Text(item.bundleIdentifier)
+                            .font(.caption.monospaced())
                             .foregroundStyle(.secondary)
+                            .textSelection(.enabled)
+                            .lineLimit(2)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                AppTypeBadge(type: item.appType, l10n: l10n)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(.quaternary.opacity(0.6), in: Capsule())
+                VStack(spacing: 0) {
+                    infoRow(l10n.infoType) {
+                        AppTypeBadge(type: item.appType, l10n: l10n)
+                    }
+                    Divider()
+                    infoRow(l10n.memoryUsage) {
+                        Text(item.memoryFootprint.map { Format.memory($0) } ?? "—")
+                            .font(.callout.monospacedDigit())
+                    }
+                    Divider()
+                    infoRow(l10n.infoPID) {
+                        Text("\(item.pid)")
+                            .font(.callout.monospacedDigit())
+                    }
+                }
+                .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: Theme.Radius.control))
 
                 actions
 
@@ -378,50 +357,55 @@ private struct AppDetailView: View {
                     Text(l10n.statusbarActivateHint)
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: 360)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: 400)
             .padding(24)
         }
     }
 
+    private func infoRow<Content: View>(_ label: String, @ViewBuilder value: () -> Content) -> some View {
+        HStack {
+            Text(label)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+            Spacer()
+            value()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 9)
+    }
+
     @ViewBuilder
     private var actions: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 10) {
+        HStack(spacing: 10) {
+            if menuBarMonitor.canOpen(item) {
                 Button {
                     menuBarMonitor.activateApp(item)
                 } label: {
                     Label(l10n.open, systemImage: "arrow.up.forward.app")
                 }
                 .buttonStyle(.borderedProminent)
-
-                Button {
-                    settings.togglePin(item.id)
-                } label: {
-                    Label(
-                        settings.isPinned(item.id) ? l10n.unpinFromMenuBar : l10n.pinToMenuBar,
-                        systemImage: settings.isPinned(item.id) ? "pin.slash.fill" : "pin.fill"
-                    )
-                }
-                .buttonStyle(.bordered)
             }
 
+            Button {
+                settings.togglePin(item.id)
+            } label: {
+                Label(
+                    settings.isPinned(item.id) ? l10n.unpinFromMenuBar : l10n.pinToMenuBar,
+                    systemImage: settings.isPinned(item.id) ? "pin.slash.fill" : "pin.fill"
+                )
+            }
+            .buttonStyle(.bordered)
+
 #if !MAC_APP_STORE
-            HStack(spacing: 10) {
+            if menuBarMonitor.canQuit(item) {
                 Button {
                     menuBarMonitor.quitApp(item)
                 } label: {
                     Label(l10n.quit, systemImage: "xmark.circle")
-                }
-                .buttonStyle(.bordered)
-
-                Button(role: .destructive) {
-                    menuBarMonitor.forceQuitApp(item)
-                } label: {
-                    Label(l10n.forceQuit, systemImage: "exclamationmark.triangle")
                 }
                 .buttonStyle(.bordered)
             }

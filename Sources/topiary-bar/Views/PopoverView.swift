@@ -100,33 +100,36 @@ struct PopoverView: View {
         .padding(.vertical, 12)
     }
 
-    /// Lemon-style overview: system memory as a percentage with a progress
-    /// bar and used/total breakdown.
+    /// Compact Lemon-style overview: one label/value line over a thin bar —
+    /// deliberately small so the app list stays the protagonist.
     private var memorySection: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 6) {
-                Label(l10n.memoryUsage, systemImage: "memorychip")
-                    .font(.callout)
+                Image(systemName: "memorychip")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(l10n.memoryUsage)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 Spacer()
+                Text("\(Format.memory(systemMemory.usedBytes)) / \(Format.memory(systemMemory.totalBytes))")
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
                 Text(percentText)
                     .font(.callout.monospacedDigit())
                     .fontWeight(.semibold)
                     .foregroundStyle(systemMemory.usedFraction > 0.85 ? Color.orange : Color.primary)
             }
-
             ProgressView(value: systemMemory.usedFraction)
                 .progressViewStyle(.linear)
+                .controlSize(.small)
                 .tint(systemMemory.usedFraction > 0.85 ? Color.orange : Color.accentColor)
-
-            Text("\(Format.memory(systemMemory.usedBytes)) / \(Format.memory(systemMemory.totalBytes))")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: Theme.Radius.control))
         .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
     }
 
     private var percentText: String {
@@ -294,8 +297,6 @@ private struct IconRow: View {
     let item: MenuBarMonitor.MenuBarItem
     let l10n: L10nTable
 
-    @State private var isHovering = false
-
     var body: some View {
         HStack(spacing: 10) {
             AppIconView(icon: item.icon, size: 26)
@@ -313,28 +314,29 @@ private struct IconRow: View {
                     .foregroundStyle(.secondary)
             }
 
-            // Hidden until hover so ten quiet rows read as one calm list.
-            HStack(spacing: 4) {
-                RowActionButton(systemImage: "arrow.up.forward.app", tint: .accentColor, help: l10n.open) {
+            // Visible, labeled mini buttons: icon-only hover controls were
+            // unreadable at a glance. Dead actions are hidden entirely — see
+            // canOpen/canQuit.
+            if menuBarMonitor.canOpen(item) {
+                Button(l10n.open) {
                     menuBarMonitor.activateApp(item)
                 }
+                .buttonStyle(.bordered)
+                .controlSize(.mini)
+            }
 
 #if !MAC_APP_STORE
-                RowActionButton(systemImage: "xmark.circle.fill", tint: .red, help: l10n.quit) {
+            if menuBarMonitor.canQuit(item) {
+                Button(l10n.quit) {
                     menuBarMonitor.quitApp(item)
                 }
-
-                RowActionButton(systemImage: "exclamationmark.triangle.fill", tint: .orange, help: l10n.forceQuit) {
-                    menuBarMonitor.forceQuitApp(item)
-                }
-#endif
+                .buttonStyle(.bordered)
+                .controlSize(.mini)
             }
-            .opacity(isHovering ? 1 : 0)
-            .allowsHitTesting(isHovering)
+#endif
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.vertical, 7)
         .contentShape(Rectangle())
-        .onHover { isHovering = $0 }
     }
 }

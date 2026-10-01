@@ -69,10 +69,10 @@ struct L10nTable {
     var total: String
     var open: String
     var quit: String
-    var forceQuit: String
-    var forceQuitConfirmTitle: String
-    var forceQuitConfirmBody: String
     var cancel: String
+    // Detail info rows
+    var infoType: String
+    var infoPID: String
     var searchPlaceholder: String
     var settingsDots: String
     var quitAppTitle: String
@@ -151,10 +151,9 @@ enum L10n {
         total: "Total",
         open: "Open",
         quit: "Quit",
-        forceQuit: "Force Quit",
-        forceQuitConfirmTitle: "Force quit “%@”?",
-        forceQuitConfirmBody: "The app will be terminated immediately. Unsaved changes may be lost.",
         cancel: "Cancel",
+        infoType: "Type",
+        infoPID: "PID",
         searchPlaceholder: "Search...",
         settingsDots: "Settings...",
         quitAppTitle: "Quit Topiary",
@@ -225,10 +224,9 @@ enum L10n {
         total: "总计",
         open: "打开",
         quit: "退出",
-        forceQuit: "强制退出",
-        forceQuitConfirmTitle: "强制退出“%@”？",
-        forceQuitConfirmBody: "应用将被立即终止，未保存的更改可能丢失。",
         cancel: "取消",
+        infoType: "类型",
+        infoPID: "PID",
         searchPlaceholder: "搜索…",
         settingsDots: "设置…",
         quitAppTitle: "退出 Topiary",
@@ -299,10 +297,9 @@ enum L10n {
         total: "合計",
         open: "開く",
         quit: "終了",
-        forceQuit: "強制終了",
-        forceQuitConfirmTitle: "「%@」を強制終了しますか？",
-        forceQuitConfirmBody: "アプリは直ちに終了します。未保存の変更は失われる可能性があります。",
         cancel: "キャンセル",
+        infoType: "種類",
+        infoPID: "PID",
         searchPlaceholder: "検索…",
         settingsDots: "設定…",
         quitAppTitle: "Topiary を終了",
@@ -373,10 +370,9 @@ enum L10n {
         total: "Gesamt",
         open: "Öffnen",
         quit: "Beenden",
-        forceQuit: "Beenden erzwingen",
-        forceQuitConfirmTitle: "„%@“ sofort beenden?",
-        forceQuitConfirmBody: "Die App wird sofort beendet. Ungespeicherte Änderungen können verloren gehen.",
         cancel: "Abbrechen",
+        infoType: "Typ",
+        infoPID: "PID",
         searchPlaceholder: "Suchen…",
         settingsDots: "Einstellungen…",
         quitAppTitle: "Topiary beenden",
@@ -447,10 +443,9 @@ enum L10n {
         total: "Total",
         open: "Abrir",
         quit: "Salir",
-        forceQuit: "Forzar salida",
-        forceQuitConfirmTitle: "¿Forzar la salida de “%@”?",
-        forceQuitConfirmBody: "La aplicación se cerrará de inmediato. Los cambios sin guardar pueden perderse.",
         cancel: "Cancelar",
+        infoType: "Tipo",
+        infoPID: "PID",
         searchPlaceholder: "Buscar…",
         settingsDots: "Ajustes…",
         quitAppTitle: "Salir de Topiary",

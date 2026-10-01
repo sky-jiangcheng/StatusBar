@@ -251,26 +251,38 @@ final class MenuBarMonitor {
     }
 
 #if !MAC_APP_STORE
-    func quitApp(_ item: MenuBarItem) {
+    /// Quits the app with a single button: graceful `terminate()` first, then
+    /// automatic escalation to `forceTerminate()` if it is still alive after a
+    /// short grace period. Replaces the old quit/force-quit pair, which read
+    /// as two identical outcomes to the user.
+    func quitApp(_ item: MenuBarMonitor.MenuBarItem) {
         guard let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == item.bundleIdentifier }) else { return }
         app.terminate()
-    }
-
-    func forceQuitApp(_ item: MenuBarItem) {
-        guard let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == item.bundleIdentifier }) else { return }
-        // SIGKILL is irreversible; guard the small inline button against
-        // mis-clicks with a confirmation dialog.
-        let l10n = L10n.table(for: settingsStore.language)
-        let alert = NSAlert()
-        alert.alertStyle = .warning
-        alert.messageText = String(format: l10n.forceQuitConfirmTitle, item.processName)
-        alert.informativeText = l10n.forceQuitConfirmBody
-        alert.addButton(withTitle: l10n.forceQuit)
-        alert.addButton(withTitle: l10n.cancel)
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
-        app.forceTerminate()
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(3))
+            guard !app.isTerminated else { return }
+            app.forceTerminate()
+        }
     }
 #endif
+
+    /// Whether "Open" can actually bring this app forward. Dock apps respond
+    /// to `activate()` unconditionally; accessory apps need a bundle URL for
+    /// the `openApplication` re-launch path, otherwise the button would be a
+    /// no-op and should not be shown at all.
+    func canOpen(_ item: MenuBarMonitor.MenuBarItem) -> Bool {
+        guard NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == item.bundleIdentifier }) else {
+            return false
+        }
+        if item.appType == .dockOnly { return true }
+        return NSWorkspace.shared.urlForApplication(withBundleIdentifier: item.bundleIdentifier) != nil
+    }
+
+    /// Whether "Quit" is meaningful. Finder ignores terminate (it relaunches),
+    /// so the button would be dead weight there.
+    func canQuit(_ item: MenuBarMonitor.MenuBarItem) -> Bool {
+        item.bundleIdentifier != "com.apple.Finder"
+    }
 
     func activateApp(_ item: MenuBarItem) {
         guard let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == item.bundleIdentifier }) else { return }

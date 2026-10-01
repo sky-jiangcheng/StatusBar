@@ -61,34 +61,6 @@ struct AppTypeBadge: View {
     }
 }
 
-// MARK: - Row action button
-
-/// Compact icon button for list rows: semantic tint with a circular hover
-/// halo instead of the old bare tinted glyphs.
-struct RowActionButton: View {
-    let systemImage: String
-    let tint: Color
-    let help: String
-    let action: () -> Void
-
-    @State private var isHovering = false
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 12, weight: .medium))
-                // Quieter at rest, full colour on approach: three saturated
-                // glyphs per row read as noise until pointed at.
-                .foregroundStyle(tint.opacity(isHovering ? 1 : 0.55))
-                .frame(width: 22, height: 22)
-                .background(tint.opacity(isHovering ? 0.15 : 0), in: Circle())
-        }
-        .buttonStyle(.plain)
-        .onHover { isHovering = $0 }
-        .help(help)
-    }
-}
-
 // MARK: - Formatting
 
 enum Format {
