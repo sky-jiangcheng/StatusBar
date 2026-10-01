@@ -50,6 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         settingsStore.applyAppearance()
+        settingsStore.applyLaunchAtLogin()
         updateDockPolicy()
 
         statusBarController = StatusBarManager(

@@ -53,6 +53,15 @@ struct SettingsView: View {
                 Text(l10n.showDockIconCaption)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                Toggle(l10n.launchAtLogin, isOn: $settings.launchAtLogin)
+                    .onChange(of: settings.launchAtLogin) { _, _ in
+                        settings.save()
+                        settings.applyLaunchAtLogin()
+                    }
+                Text(l10n.launchAtLoginCaption)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section(l10n.sectionRefresh) {

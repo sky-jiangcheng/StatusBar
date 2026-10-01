@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import Observation
+import ServiceManagement
 
 @Observable
 @MainActor
@@ -20,6 +21,10 @@ final class SettingsStore {
     /// window: hidden again when the window closes — the app stays alive in
     /// the menu bar either way. Off = never show a Dock icon.
     var showDockIcon: Bool = true
+    /// Launch at login. Claiming a menu bar spot early at every login is the
+    /// only way to keep the icon near the right edge — later apps stack to
+    /// the left, toward the notch.
+    var launchAtLogin: Bool = false
 
     enum AggregationIconType: String, CaseIterable, Identifiable {
         case dots = "Three Dots"
@@ -75,6 +80,7 @@ final class SettingsStore {
         if defaults.object(forKey: "showDockIcon") != nil {
             showDockIcon = defaults.bool(forKey: "showDockIcon")
         }
+        launchAtLogin = defaults.bool(forKey: "launchAtLogin")
         if let data = defaults.data(forKey: "mainWindowHotKey"),
            let value = try? JSONDecoder().decode(HotKeyValue.self, from: data) {
             mainWindowHotKey = value
@@ -88,6 +94,23 @@ final class SettingsStore {
         NSApp.setActivationPolicy(showDockIcon ? .regular : .accessory)
     }
 
+    /// Syncs the login-item with the user's preference (best-effort: failures
+    /// fall back to System Settings → Login Items).
+    func applyLaunchAtLogin() {
+        do {
+            if launchAtLogin {
+                if SMAppService.mainApp.status != .enabled {
+                    try SMAppService.mainApp.register()
+                }
+            } else if SMAppService.mainApp.status == .enabled {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+            // Unbundled dev runs and approval-pending states land here; the
+            // user can always toggle it in System Settings.
+        }
+    }
+
     func save() {
         defaults.set(aggregationIcon.rawValue, forKey: "aggregationIcon")
         defaults.set(refreshInterval, forKey: "refreshInterval")
@@ -95,6 +118,7 @@ final class SettingsStore {
         defaults.set(appearance.rawValue, forKey: "appearance")
         defaults.set(language.rawValue, forKey: "language")
         defaults.set(showDockIcon, forKey: "showDockIcon")
+        defaults.set(launchAtLogin, forKey: "launchAtLogin")
         defaults.set(try? JSONEncoder().encode(mainWindowHotKey), forKey: "mainWindowHotKey")
     }
 

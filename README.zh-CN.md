@@ -127,7 +127,7 @@ git tag v1.20.1 && git push origin v1.20.1
 
 - Status Bar（accessory）应用无法通过 `NSRunningApplication.activate()` 前台化 —— 属 macOS 安全限制。本应用通过 `NSWorkspace.openApplication`（`activates = true`）重新唤起；激活时序与已弃用的 `launchApplication(withBundleIdentifier:)` 存在差异，个别 accessory 应用（如 Macs Fan Control）本就无法被其他应用唤起
 - App 类型基于 `activationPolicy`，无法读取真实的状态栏图标归属
-- 菜单栏图标的初始位置由系统控制——新状态项总是落在最左侧（紧贴刘海）。**⌘-拖动一次**到想要的位置即可，系统会跨启动记住该位置；应用自身也会检测图标被遮挡并自动弹出窗口
+- 菜单栏图标的初始位置由系统控制——新状态项总是落在最左侧（紧贴刘海）。开启「登录时启动」让 Topiary 抢先占位，或 **⌘-拖动一次**到想要的位置（系统会跨启动记住）；应用自身也会检测图标被遮挡并自动弹出窗口
 - 应用不会隐藏真实系统菜单栏图标（AX 隐藏方案已于 v1.6.0 移除）；需要该能力请搭配 Hidden Bar / Ice / Bartender 等专用工具——检测到它们运行时会自动抑制遮挡提醒
 - 暗色 App 图标变体（`Assets.xcassets/AppIcon.appiconset/dark/`）只在 Xcode 资产目录（`Assets.car`）流程下生效；`script/release.sh` 用 `iconutil` 生成仅含浅色图标的 `.icns`
 - MAS 沙盒拦截 `NSRunningApplication.terminate()` 且用户无对应授权开关，故 MAS 版用 `-D MAC_APP_STORE` 编译期剔除退出功能
@@ -143,6 +143,7 @@ git tag v1.20.1 && git push origin v1.20.1
 - **架构**：`@Observable`（Observation framework）
 - **构建**：Swift Package Manager（无 `.xcodeproj`，发布脚本组装 `.app`）
 - **后台代理**：以 `LSUIElement` 启动（程序坞不闪现）；程序坞图标跟随主面板——打开时显示、关闭时自动隐藏（可在设置永久关闭），无论何时应用都在菜单栏常驻
+- **登录时启动**：登录后自动启动 Topiary，抢占菜单栏右侧的稳定位置（后启动的应用图标只能向左排，越晚越容易挤进刘海）
 
 ## 项目结构
 

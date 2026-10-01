@@ -58,6 +58,7 @@ See, launch, quit, and pin every menu bar app running on your Mac. **No permissi
 | **Main window** | Two tabs — Apps and Settings — in one window. Apps: sidebar (search + type filter + grouped app list with per-section counts) and a detail pane (overview with compact stats when nothing is selected, structured app details with a pin toggle when an app is) |
 | **Menu bar popover** | Type-grouped app list with search and per-app memory; system memory overview card; explicit close button; settings / main window / quit in the footer |
 | **Global hotkey** | ⌃⌥M summons the main window from anywhere (Carbon registration — no Accessibility permission) |
+| **Launch at Login** | Starts Topiary automatically at login to claim a stable spot near the right edge of the menu bar |
 | **Themes** | System / light / dark, applied instantly app-wide |
 | **Localization** | English, 简体中文, 日本語, Deutsch, Español — follow the system or pick manually |
 

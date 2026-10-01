@@ -88,6 +88,8 @@ struct L10nTable {
     var sectionDock: String
     var showDockIcon: String
     var showDockIconCaption: String
+    var launchAtLogin: String
+    var launchAtLoginCaption: String
     var sectionRefresh: String
     var scanInterval: String
     // Settings — Menu bar icon
@@ -153,6 +155,8 @@ enum L10n {
         sectionDock: "Dock",
         showDockIcon: "Show Dock icon",
         showDockIconCaption: "The Dock icon appears while the main window is open and hides when it closes.",
+        launchAtLogin: "Launch at Login",
+        launchAtLoginCaption: "Start Topiary automatically at login to claim a stable spot near the right edge of the menu bar.",
         sectionRefresh: "Refresh",
         scanInterval: "Menu bar scan interval",
         sectionAggIcon: "Menu Bar Icon",
@@ -211,6 +215,8 @@ enum L10n {
         sectionDock: "程序坞",
         showDockIcon: "在程序坞显示图标",
         showDockIconCaption: "主面板打开时显示程序坞图标，关闭后自动隐藏。",
+        launchAtLogin: "登录时启动",
+        launchAtLoginCaption: "登录后自动启动 Topiary，抢占菜单栏右侧的稳定位置。",
         sectionRefresh: "刷新",
         scanInterval: "菜单栏扫描间隔",
         sectionAggIcon: "菜单栏图标",
@@ -269,6 +275,8 @@ enum L10n {
         sectionDock: "ドック",
         showDockIcon: "ドックにアイコンを表示",
         showDockIconCaption: "メインウィンドウが開いている間だけドックにアイコンを表示し、閉じると隠れます。",
+        launchAtLogin: "ログイン時に起動",
+        launchAtLoginCaption: "ログイン後に Topiary を自動起動し、メニューバー右側の安定した位置を確保します。",
         sectionRefresh: "更新",
         scanInterval: "メニューバーのスキャン間隔",
         sectionAggIcon: "メニューバーアイコン",
@@ -327,6 +335,8 @@ enum L10n {
         sectionDock: "Dock",
         showDockIcon: "Dock-Symbol anzeigen",
         showDockIconCaption: "Das Dock-Symbol erscheint, solange das Hauptfenster offen ist, und verschwindet beim Schließen.",
+        launchAtLogin: "Bei der Anmeldung starten",
+        launchAtLoginCaption: "Topiary automatisch bei der Anmeldung starten, um einen stabilen Platz rechts in der Menüleiste zu sichern.",
         sectionRefresh: "Aktualisieren",
         scanInterval: "Scanintervall der Menüleiste",
         sectionAggIcon: "Menüleistensymbol",
@@ -385,6 +395,8 @@ enum L10n {
         sectionDock: "Dock",
         showDockIcon: "Mostrar el icono en el Dock",
         showDockIconCaption: "El icono del Dock aparece con la ventana principal y se oculta al cerrarla.",
+        launchAtLogin: "Abrir al iniciar sesión",
+        launchAtLoginCaption: "Inicia Topiary automáticamente al iniciar sesión para asegurar un lugar estable en la barra de menús.",
         sectionRefresh: "Actualización",
         scanInterval: "Intervalo de escaneo de la barra de menú",
         sectionAggIcon: "Icono de la barra de menús",
