@@ -14,6 +14,8 @@ final class SettingsStore {
     var pinnedAppIDs: [String] = []
     var appearance: AppearanceMode = .system
     var language: AppLanguage = .system
+    /// Global hotkey that summons the main window; nil disables the hotkey.
+    var mainWindowHotKey: HotKeyValue? = .mainWindow
 
     enum AggregationIconType: String, CaseIterable, Identifiable {
         case dots = "Three Dots"
@@ -65,6 +67,10 @@ final class SettingsStore {
 
         appearance = AppearanceMode(rawValue: defaults.string(forKey: "appearance") ?? "") ?? .system
         language = AppLanguage(rawValue: defaults.string(forKey: "language") ?? "") ?? .system
+        if let data = defaults.data(forKey: "mainWindowHotKey"),
+           let value = try? JSONDecoder().decode(HotKeyValue.self, from: data) {
+            mainWindowHotKey = value
+        }
     }
 
     func save() {
@@ -74,6 +80,7 @@ final class SettingsStore {
         defaults.set(pinnedAppIDs, forKey: "pinnedAppIDs")
         defaults.set(appearance.rawValue, forKey: "appearance")
         defaults.set(language.rawValue, forKey: "language")
+        defaults.set(try? JSONEncoder().encode(mainWindowHotKey), forKey: "mainWindowHotKey")
     }
 
     /// Whether `bundleID` is currently pinned into the resident panel.

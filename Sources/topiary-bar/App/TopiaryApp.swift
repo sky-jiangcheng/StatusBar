@@ -64,7 +64,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         menuBarMonitor.startMonitoring()
 
         systemMemoryMonitor.start()
-        GlobalHotKey.install()
+        GlobalHotKey.apply(settingsStore.mainWindowHotKey)
 
         // Main window / settings entry points coming from the status item's
         // context menu and the popover: the AppDelegate owns the actual

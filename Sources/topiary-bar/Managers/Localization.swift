@@ -125,6 +125,13 @@ struct L10nTable {
     // Popover overview
     var memoryUsage: String
     var popoverClose: String
+    // Global hotkey
+    var hotKeyTitle: String
+    var hotKeyOpenMainWindow: String
+    var hotKeyRecording: String
+    var hotKeyNone: String
+    var hotKeyClear: String
+    var hotKeyConflict: String
 }
 
 enum L10n {
@@ -189,7 +196,13 @@ enum L10n {
         notchWarningMainBody: "Topiary's menu bar icon is hidden behind the notch — the menu bar ran out of room. Quit or remove some menu bar apps to free space; the icon comes back automatically.",
         notchWarningPinnedBody: "%d pinned app icons are hidden behind the notch or an overcrowded menu bar. Quit or remove some menu bar apps to bring them back.",
         memoryUsage: "Memory Usage",
-        popoverClose: "Close"
+        popoverClose: "Close",
+        hotKeyTitle: "Global Hotkey",
+        hotKeyOpenMainWindow: "Summon main window",
+        hotKeyRecording: "Press shortcut…",
+        hotKeyNone: "Disabled",
+        hotKeyClear: "Clear",
+        hotKeyConflict: "This shortcut is already taken — please choose another."
     )
 
     static let zhHans = L10nTable(
@@ -253,7 +266,13 @@ enum L10n {
         notchWarningMainBody: "Topiary 的菜单栏图标被刘海遮挡（菜单栏已满）。退出或移除部分菜单栏应用腾出空间后，图标会自动恢复显示。",
         notchWarningPinnedBody: "有 %d 个常驻应用图标被刘海或拥挤的菜单栏遮挡。退出或移除部分菜单栏应用即可恢复显示。",
         memoryUsage: "内存占用",
-        popoverClose: "关闭"
+        popoverClose: "关闭",
+        hotKeyTitle: "全局快捷键",
+        hotKeyOpenMainWindow: "唤起主窗口",
+        hotKeyRecording: "按下快捷键…",
+        hotKeyNone: "未设置",
+        hotKeyClear: "清除",
+        hotKeyConflict: "该快捷键已被其他应用占用，请更换一个。"
     )
 
     static let ja = L10nTable(
@@ -317,7 +336,13 @@ enum L10n {
         notchWarningMainBody: "メニューバーが満杯で、Topiary のアイコンがノッチの裏に隠れています。メニューバーアプリをいくつか終了すると、アイコンは自動的に戻ります。",
         notchWarningPinnedBody: "%d 個のピン留めアイコンがノッチや混雑したメニューバーに隠れています。メニューバーアプリを終了すると表示されます。",
         memoryUsage: "メモリ使用率",
-        popoverClose: "閉じる"
+        popoverClose: "閉じる",
+        hotKeyTitle: "グローバルショートカット",
+        hotKeyOpenMainWindow: "メインウィンドウを呼び出す",
+        hotKeyRecording: "ショートカットを入力…",
+        hotKeyNone: "未設定",
+        hotKeyClear: "クリア",
+        hotKeyConflict: "このショートカットは既に使用されています。別のものを設定してください。"
     )
 
     static let de = L10nTable(
@@ -381,7 +406,13 @@ enum L10n {
         notchWarningMainBody: "Das Topiary-Symbol wird vom Notch verdeckt — die Menüleiste ist voll. Beende oder entferne einige Menüleisten-Apps; das Symbol erscheint automatisch wieder.",
         notchWarningPinnedBody: "%d angepinnte Symbole sind hinter dem Notch bzw. einer überfüllten Menüleiste verborgen. Beende oder entferne einige Menüleisten-Apps, um sie wieder anzuzeigen.",
         memoryUsage: "Speichernutzung",
-        popoverClose: "Schließen"
+        popoverClose: "Schließen",
+        hotKeyTitle: "Globaler Kurzbefehl",
+        hotKeyOpenMainWindow: "Hauptfenster aufrufen",
+        hotKeyRecording: "Kurzbefehl drücken…",
+        hotKeyNone: "Nicht festgelegt",
+        hotKeyClear: "Löschen",
+        hotKeyConflict: "Dieser Kurzbefehl ist bereits belegt — bitte einen anderen wählen."
     )
 
     static let es = L10nTable(
@@ -445,7 +476,13 @@ enum L10n {
         notchWarningMainBody: "El icono de Topiary está oculto tras el notch: la barra de menús se quedó sin espacio. Sal o elimina algunas apps de la barra de menús; el icono volverá a aparecer.",
         notchWarningPinnedBody: "%d iconos fijados están ocultos tras el notch o en una barra de menús saturada. Sal o elimina algunas apps de la barra de menús para recuperarlos.",
         memoryUsage: "Uso de memoria",
-        popoverClose: "Cerrar"
+        popoverClose: "Cerrar",
+        hotKeyTitle: "Atajo global",
+        hotKeyOpenMainWindow: "Abrir la ventana principal",
+        hotKeyRecording: "Pulsa el atajo…",
+        hotKeyNone: "Sin atajo",
+        hotKeyClear: "Borrar",
+        hotKeyConflict: "Este atajo ya está en uso — elige otro."
     )
 
     // Memoized: Locale.preferredLanguages is stable within a launch session,

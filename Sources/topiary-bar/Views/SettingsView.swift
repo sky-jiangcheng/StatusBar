@@ -7,6 +7,8 @@ struct SettingsView: View {
     @Environment(SettingsStore.self) private var settings
     @Environment(MenuBarMonitor.self) private var menuBarMonitor
 
+    @State private var hotKeyConflict = false
+
     private var l10n: L10nTable { settings.l10n }
 
     var body: some View {
@@ -61,6 +63,20 @@ struct SettingsView: View {
                 }
             }
 
+            Section(l10n.hotKeyTitle) {
+                HStack {
+                    Text(l10n.hotKeyOpenMainWindow)
+                    Spacer()
+                    HotKeyRecorder(hotKey: $settings.mainWindowHotKey, l10n: l10n)
+                        .frame(minWidth: 130, minHeight: 26)
+                }
+                if hotKeyConflict {
+                    Text(l10n.hotKeyConflict)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+            }
+
             Section(l10n.sectionAggIcon) {
                 Text(l10n.aggIconCaption)
                     .font(.caption)
@@ -104,5 +120,10 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .onChange(of: settings.mainWindowHotKey) { _, newValue in
+            // Swap the live registration; on conflict the hotkey stays off
+            // until the user records a free combination.
+            hotKeyConflict = (GlobalHotKey.apply(newValue) == .conflict)
+        }
     }
 }

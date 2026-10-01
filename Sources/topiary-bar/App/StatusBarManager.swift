@@ -211,11 +211,14 @@ final class StatusBarManager {
         let mainItem = NSMenuItem(
             title: l10n.openMainWindow,
             action: #selector(openMainWindow),
-            keyEquivalent: "m"
+            keyEquivalent: ""
         )
-        // Display-only mirror of the Carbon global hotkey (⌃⌥M): the actual
-        // app-wide trigger is registered in GlobalHotKey.
-        mainItem.keyEquivalentModifierMask = [.control, .option]
+        // Mirror the user's configured global hotkey (⌃⌥M by default) in the
+        // menu display; the app-wide trigger lives in GlobalHotKey.
+        if let hotKey = settingsStore.mainWindowHotKey {
+            mainItem.keyEquivalent = hotKey.menuKeyEquivalent
+            mainItem.keyEquivalentModifierMask = hotKey.menuModifierMask
+        }
         mainItem.target = self
         menu.addItem(mainItem)
 
