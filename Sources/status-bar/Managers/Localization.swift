@@ -127,6 +127,10 @@ struct L10nTable {
     var pinToMenuBar: String
     var unpinFromMenuBar: String
     var statusbarActivateHint: String
+    // Menu bar occlusion (notch / overflow)
+    var notchWarningTitle: String
+    var notchWarningMainBody: String
+    var notchWarningPinnedBody: String
 }
 
 enum L10n {
@@ -196,7 +200,10 @@ enum L10n {
         noAppsToPin: "No more apps to add",
         pinToMenuBar: "Pin to Menu Bar",
         unpinFromMenuBar: "Unpin from Menu Bar",
-        statusbarActivateHint: "This app has no Dock icon. “Open” re-launches it to the front."
+        statusbarActivateHint: "This app has no Dock icon. “Open” re-launches it to the front.",
+        notchWarningTitle: "Menu Bar Space Is Full",
+        notchWarningMainBody: "StatusBar's menu bar icon is hidden behind the notch — the menu bar ran out of room. Quit or remove some menu bar apps to free space; the icon comes back automatically.",
+        notchWarningPinnedBody: "%d pinned app icons are hidden behind the notch or an overcrowded menu bar. Quit or remove some menu bar apps to bring them back."
     )
 
     static let zhHans = L10nTable(
@@ -265,7 +272,10 @@ enum L10n {
         noAppsToPin: "没有更多可添加的应用",
         pinToMenuBar: "常驻菜单栏",
         unpinFromMenuBar: "取消常驻",
-        statusbarActivateHint: "此应用没有程序坞图标，「打开」会重新唤起它的窗口。"
+        statusbarActivateHint: "此应用没有程序坞图标，「打开」会重新唤起它的窗口。",
+        notchWarningTitle: "菜单栏空间不足",
+        notchWarningMainBody: "StatusBar 的菜单栏图标被刘海遮挡（菜单栏已满）。退出或移除部分菜单栏应用腾出空间后，图标会自动恢复显示。",
+        notchWarningPinnedBody: "有 %d 个常驻应用图标被刘海或拥挤的菜单栏遮挡。退出或移除部分菜单栏应用即可恢复显示。"
     )
 
     static let ja = L10nTable(
@@ -334,7 +344,10 @@ enum L10n {
         noAppsToPin: "追加できるアプリはありません",
         pinToMenuBar: "メニューバーに常駐",
         unpinFromMenuBar: "常駐を解除",
-        statusbarActivateHint: "このアプリにはドックアイコンがありません。「開く」で前面に再表示します。"
+        statusbarActivateHint: "このアプリにはドックアイコンがありません。「開く」で前面に再表示します。",
+        notchWarningTitle: "メニューバーに空きがありません",
+        notchWarningMainBody: "メニューバーが満杯で、StatusBar のアイコンがノッチの裏に隠れています。メニューバーアプリをいくつか終了すると、アイコンは自動的に戻ります。",
+        notchWarningPinnedBody: "%d 個のピン留めアイコンがノッチや混雑したメニューバーに隠れています。メニューバーアプリを終了すると表示されます。"
     )
 
     static let de = L10nTable(
@@ -403,7 +416,10 @@ enum L10n {
         noAppsToPin: "Keine weiteren Apps zum Hinzufügen",
         pinToMenuBar: "In die Menüleiste pinnen",
         unpinFromMenuBar: "Nicht mehr pinnen",
-        statusbarActivateHint: "Diese App hat kein Dock-Symbol. „Öffnen“ holt sie erneut nach vorn."
+        statusbarActivateHint: "Diese App hat kein Dock-Symbol. „Öffnen“ holt sie erneut nach vorn.",
+        notchWarningTitle: "Menüleiste ist voll",
+        notchWarningMainBody: "Das StatusBar-Symbol wird vom Notch verdeckt — die Menüleiste ist voll. Beende oder entferne einige Menüleisten-Apps; das Symbol erscheint automatisch wieder.",
+        notchWarningPinnedBody: "%d angepinnte Symbole sind hinter dem Notch bzw. einer überfüllten Menüleiste verborgen. Beende oder entferne einige Menüleisten-Apps, um sie wieder anzuzeigen."
     )
 
     static let es = L10nTable(
@@ -472,7 +488,10 @@ enum L10n {
         noAppsToPin: "No hay más apps para añadir",
         pinToMenuBar: "Fijar a la barra de menú",
         unpinFromMenuBar: "Dejar de fijar",
-        statusbarActivateHint: "Esta app no tiene icono en el Dock. «Abrir» la trae de nuevo al frente."
+        statusbarActivateHint: "Esta app no tiene icono en el Dock. «Abrir» la trae de nuevo al frente.",
+        notchWarningTitle: "La barra de menús está llena",
+        notchWarningMainBody: "El icono de StatusBar está oculto tras el notch: la barra de menús se quedó sin espacio. Sal o elimina algunas apps de la barra de menús; el icono volverá a aparecer.",
+        notchWarningPinnedBody: "%d iconos fijados están ocultos tras el notch o en una barra de menús saturada. Sal o elimina algunas apps de la barra de menús para recuperarlos."
     )
 
     // Memoized: Locale.preferredLanguages is stable within a launch session,

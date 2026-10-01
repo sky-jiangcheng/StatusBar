@@ -5,6 +5,7 @@ struct PopoverView: View {
     @Environment(MenuBarMonitor.self) private var menuBarMonitor
     @Environment(SettingsStore.self) private var settings
     @Environment(\.openWindow) private var openWindow
+    @Environment(VisibilityMonitor.self) private var visibilityMonitor
 
     @State private var searchText = ""
 
@@ -36,7 +37,12 @@ struct PopoverView: View {
         VStack(spacing: 0) {
             headerSection
 
-            Divider()
+            if visibilityMonitor.hasOcclusion {
+                occlusionBanner
+                Divider()
+            } else {
+                Divider()
+            }
 
             searchSection
 
@@ -171,6 +177,32 @@ struct PopoverView: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+    }
+
+    /// Compact warning shown when our own icons are occluded by the notch or
+    /// an overcrowded menu bar (only reachable while the main icon is visible,
+    /// so this is usually the pinned-icons case).
+    private var occlusionBanner: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundStyle(.orange)
+            Text(occlusionBody)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.leading)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(.orange.opacity(0.10))
+    }
+
+    private var occlusionBody: String {
+        if visibilityMonitor.isMainItemHidden {
+            return l10n.notchWarningMainBody
+        }
+        return String(format: l10n.notchWarningPinnedBody, visibilityMonitor.hiddenPinnedIDs.count)
     }
 
     private var panelToggleTooltip: String {

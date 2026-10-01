@@ -22,11 +22,18 @@ final class StatusBarManager {
     private let menuBarMonitor: MenuBarMonitor
     private let settingsStore: SettingsStore
     private let accessibilityManager: AccessibilityManager
+    private let visibilityMonitor: VisibilityMonitor
 
-    init(menuBarMonitor: MenuBarMonitor, settingsStore: SettingsStore, accessibilityManager: AccessibilityManager) {
+    init(
+        menuBarMonitor: MenuBarMonitor,
+        settingsStore: SettingsStore,
+        accessibilityManager: AccessibilityManager,
+        visibilityMonitor: VisibilityMonitor
+    ) {
         self.menuBarMonitor = menuBarMonitor
         self.settingsStore = settingsStore
         self.accessibilityManager = accessibilityManager
+        self.visibilityMonitor = visibilityMonitor
         self.aggregationPanel = AggregationPanel(
             menuBarMonitor: menuBarMonitor,
             settingsStore: settingsStore
@@ -66,6 +73,16 @@ final class StatusBarManager {
 
     /// Removes the status item, event monitor, and all notification observers.
     /// Must run on the main actor; safe to call multiple times.
+    // MARK: - Occlusion monitoring
+
+    /// The app's own menu bar status item, for VisibilityMonitor.
+    var visibilityMainItem: NSStatusItem? { statusItem }
+
+    /// The pinned resident status items, for VisibilityMonitor.
+    func visibilityPinnedItems() -> [(id: String, item: NSStatusItem)] {
+        residentBar.visibilitySnapshot()
+    }
+
     func teardown() {
         popover.close()
 
@@ -132,6 +149,7 @@ final class StatusBarManager {
             .environment(menuBarMonitor)
             .environment(settingsStore)
             .environment(accessibilityManager)
+            .environment(visibilityMonitor)
         )
 
         popover.contentViewController = NSViewController()

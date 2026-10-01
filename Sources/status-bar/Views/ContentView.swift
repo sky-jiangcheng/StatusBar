@@ -4,6 +4,7 @@ struct ContentView: View {
     @Environment(MenuBarMonitor.self) private var menuBarMonitor
     @Environment(SettingsStore.self) private var settings
     @Environment(AccessibilityManager.self) private var accessibilityManager
+    @Environment(VisibilityMonitor.self) private var visibilityMonitor
 
     @State private var selectedFilter: AppFilter = .all
     @State private var searchText = ""
@@ -251,6 +252,17 @@ private struct OverviewView: View {
     let dockCount: Int
     let accessibilityAuthorized: Bool
 
+    @Environment(VisibilityMonitor.self) private var visibilityMonitor
+
+    /// Main icon occluded and pinned icons occluded read differently; the
+    /// pinned variant carries the count.
+    private var occlusionBody: String {
+        if visibilityMonitor.isMainItemHidden {
+            return l10n.notchWarningMainBody
+        }
+        return String(format: l10n.notchWarningPinnedBody, visibilityMonitor.hiddenPinnedIDs.count)
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             Spacer()
@@ -272,6 +284,21 @@ private struct OverviewView: View {
                 StatChip(systemImage: "list.bullet", title: l10n.total, value: total)
                 StatChip(systemImage: "menubar.rectangle", title: l10n.statusBar, value: statusbarCount)
                 StatChip(systemImage: "dock.rectangle", title: l10n.dock, value: dockCount)
+            }
+
+            if visibilityMonitor.hasOcclusion {
+                VStack(alignment: .leading, spacing: 6) {
+                    Label(l10n.notchWarningTitle, systemImage: "exclamationmark.triangle.fill")
+                        .font(.callout)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.orange)
+                    Text(occlusionBody)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(12)
+                .frame(maxWidth: 420, alignment: .leading)
+                .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: Theme.Radius.control))
             }
 
             Text(l10n.selectAppPrompt)

@@ -27,6 +27,11 @@ final class ResidentBarManager {
         syncStatusItems()
     }
 
+    /// Snapshot of the live resident status items, for occlusion monitoring.
+    func visibilitySnapshot() -> [(id: String, item: NSStatusItem)] {
+        statusItems.map { (id: $0.key, item: $0.value) }
+    }
+
     /// Removes every observer and every status item from the system menu bar.
     /// Must run on the main actor; safe to call multiple times.
     func teardown() {
