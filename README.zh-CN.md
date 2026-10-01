@@ -142,7 +142,7 @@ git tag v1.20.1 && git push origin v1.20.1
 - **框架**：SwiftUI + AppKit
 - **架构**：`@Observable`（Observation framework）
 - **构建**：Swift Package Manager（无 `.xcodeproj`，发布脚本组装 `.app`）
-- **后台代理**：以 `LSUIElement` 启动（程序坞不闪现），运行时切换为常规应用——程序坞图标默认显示（可在设置关闭），关闭全部窗口后常驻图标持续保留
+- **后台代理**：以 `LSUIElement` 启动（程序坞不闪现）；程序坞图标跟随主面板——打开时显示、关闭时自动隐藏（可在设置永久关闭），无论何时应用都在菜单栏常驻
 
 ## 项目结构
 

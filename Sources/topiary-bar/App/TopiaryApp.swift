@@ -50,7 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         settingsStore.applyAppearance()
-        settingsStore.applyDockPolicy()
+        updateDockPolicy()
 
         statusBarController = StatusBarManager(
             menuBarMonitor: menuBarMonitor,
@@ -82,11 +82,49 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             }
         })
 
+        // The Dock icon follows the main window's visibility: re-evaluate on
+        // every window close and whenever a window reports it is about to
+        // appear. A delayed pass covers the SwiftUI scene window that appears
+        // shortly after launch.
+        notificationObservers.append(NotificationCenter.default.addObserver(
+            forName: .mainWindowVisibilityChanged, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.updateDockPolicy() }
+        })
+        notificationObservers.append(NotificationCenter.default.addObserver(
+            forName: NSWindow.willCloseNotification, object: nil, queue: .main
+        ) { [weak self] note in
+            // Extract a Sendable identity here; the NSWindow itself must not
+            // cross into the Task (Swift 6 sending rules).
+            let closingWindowID = (note.object as? NSWindow).map(ObjectIdentifier.init)
+            Task { @MainActor [weak self] in
+                guard let closingWindowID else { return }
+                self?.updateDockPolicy(excluding: closingWindowID)
+            }
+        })
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+            self?.updateDockPolicy()
+        }
+
         // When the main menu bar icon is swallowed by the notch, the app would
         // be unreachable — surface the manager window right away.
         visibilityMonitor.start { [weak self] in
             self?.summonMainWindow()
         }
+    }
+
+    /// Dock icon follows the main window: visible while a content window is
+    /// on screen (and the user hasn't disabled it), hidden when the window
+    /// closes — the app stays alive in the menu bar either way.
+    func updateDockPolicy(excluding closingWindowID: ObjectIdentifier? = nil) {
+        let windowVisible = NSApp.windows.contains {
+            $0.isVisible
+                && $0.styleMask.contains(.titled)
+                && ObjectIdentifier($0) != closingWindowID
+        }
+        NSApp.setActivationPolicy(
+            settingsStore.showDockIcon && windowVisible ? .regular : .accessory
+        )
     }
 
     /// Background agent (LSUIElement): closing the last window must never quit
@@ -144,10 +182,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     /// ContentView in our own fallback NSWindow.
     func summonMainWindow() {
         NSApp.activate(ignoringOtherApps: true)
+        // Bring the Dock icon back before the window appears (when enabled).
+        if settingsStore.showDockIcon {
+            NSApp.setActivationPolicy(.regular)
+        }
         // Only *titled* windows count as reachable UI. The transient popover
         // (~360pt) and the status-item windows are borderless and would
         // otherwise pass a width heuristic, making the gear button a no-op.
         if NSApp.windows.contains(where: { $0.isVisible && $0.styleMask.contains(.titled) }) {
+            updateDockPolicy()
             return
         }
         if let fallback = fallbackMainWindow {
@@ -172,6 +215,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         fallbackMainWindow = window
         window.center()
         window.makeKeyAndOrderFront(nil)
+        updateDockPolicy()
     }
 
     func applicationWillTerminate(_ notification: Notification) {

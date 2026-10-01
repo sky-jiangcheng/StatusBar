@@ -299,4 +299,6 @@ extension Notification.Name {
     static let openSettingsTab = Notification.Name("openSettingsTab")
     /// Switch the (already visible) main window to the settings tab.
     static let selectSettingsTab = Notification.Name("selectSettingsTab")
+    /// Main-window visibility may have changed — re-evaluate the Dock policy.
+    static let mainWindowVisibilityChanged = Notification.Name("mainWindowVisibilityChanged")
 }

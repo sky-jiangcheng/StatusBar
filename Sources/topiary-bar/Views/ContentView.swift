@@ -91,6 +91,10 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .selectSettingsTab)) { _ in
             windowTab = .settings
         }
+        .onAppear {
+            // The Dock icon reappears with the main window.
+            NotificationCenter.default.post(name: .mainWindowVisibilityChanged, object: nil)
+        }
     }
 
     private var appsView: some View {

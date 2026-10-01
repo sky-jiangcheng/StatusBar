@@ -87,6 +87,7 @@ struct L10nTable {
     var languageSystem: String
     var sectionDock: String
     var showDockIcon: String
+    var showDockIconCaption: String
     var sectionRefresh: String
     var scanInterval: String
     // Settings — Menu bar icon
@@ -151,6 +152,7 @@ enum L10n {
         languageSystem: "System",
         sectionDock: "Dock",
         showDockIcon: "Show Dock icon",
+        showDockIconCaption: "The Dock icon appears while the main window is open and hides when it closes.",
         sectionRefresh: "Refresh",
         scanInterval: "Menu bar scan interval",
         sectionAggIcon: "Menu Bar Icon",
@@ -208,6 +210,7 @@ enum L10n {
         languageSystem: "跟随系统",
         sectionDock: "程序坞",
         showDockIcon: "在程序坞显示图标",
+        showDockIconCaption: "主面板打开时显示程序坞图标，关闭后自动隐藏。",
         sectionRefresh: "刷新",
         scanInterval: "菜单栏扫描间隔",
         sectionAggIcon: "菜单栏图标",
@@ -265,6 +268,7 @@ enum L10n {
         languageSystem: "システムに従う",
         sectionDock: "ドック",
         showDockIcon: "ドックにアイコンを表示",
+        showDockIconCaption: "メインウィンドウが開いている間だけドックにアイコンを表示し、閉じると隠れます。",
         sectionRefresh: "更新",
         scanInterval: "メニューバーのスキャン間隔",
         sectionAggIcon: "メニューバーアイコン",
@@ -322,6 +326,7 @@ enum L10n {
         languageSystem: "System",
         sectionDock: "Dock",
         showDockIcon: "Dock-Symbol anzeigen",
+        showDockIconCaption: "Das Dock-Symbol erscheint, solange das Hauptfenster offen ist, und verschwindet beim Schließen.",
         sectionRefresh: "Aktualisieren",
         scanInterval: "Scanintervall der Menüleiste",
         sectionAggIcon: "Menüleistensymbol",
@@ -379,6 +384,7 @@ enum L10n {
         languageSystem: "Sistema",
         sectionDock: "Dock",
         showDockIcon: "Mostrar el icono en el Dock",
+        showDockIconCaption: "El icono del Dock aparece con la ventana principal y se oculta al cerrarla.",
         sectionRefresh: "Actualización",
         scanInterval: "Intervalo de escaneo de la barra de menú",
         sectionAggIcon: "Icono de la barra de menús",

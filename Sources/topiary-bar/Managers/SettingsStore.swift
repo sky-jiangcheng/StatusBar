@@ -15,9 +15,10 @@ final class SettingsStore {
     var language: AppLanguage = .system
     /// Global hotkey that summons the main window; nil disables the hotkey.
     var mainWindowHotKey: HotKeyValue? = .mainWindow
-    /// Whether the Topiary icon is visible in the Dock (brand visibility +
-    /// discoverability). Default on; off turns the app back into a pure
-    /// background agent (no Dock icon, no ⌘-Tab entry).
+    /// Whether the Topiary icon appears in the Dock while the main window is
+    /// open (brand visibility + discoverability). The icon follows the main
+    /// window: hidden again when the window closes — the app stays alive in
+    /// the menu bar either way. Off = never show a Dock icon.
     var showDockIcon: Bool = true
 
     enum AggregationIconType: String, CaseIterable, Identifiable {
@@ -51,7 +52,7 @@ final class SettingsStore {
         load()
     }
 
-    /// Applies the selected appearance globally. Call after launch and on change.
+    /// Applies the user's appearance preference globally. Call after launch and on change.
     func applyAppearance() {
         switch appearance {
         case .system: NSApp.appearance = nil

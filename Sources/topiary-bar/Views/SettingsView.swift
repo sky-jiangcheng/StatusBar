@@ -48,8 +48,11 @@ struct SettingsView: View {
                 Toggle(l10n.showDockIcon, isOn: $settings.showDockIcon)
                     .onChange(of: settings.showDockIcon) { _, _ in
                         settings.save()
-                        settings.applyDockPolicy()
+                        NotificationCenter.default.post(name: .mainWindowVisibilityChanged, object: nil)
                     }
+                Text(l10n.showDockIconCaption)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section(l10n.sectionRefresh) {
