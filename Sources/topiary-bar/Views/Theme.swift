@@ -77,7 +77,9 @@ struct RowActionButton: View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(tint)
+                // Quieter at rest, full colour on approach: three saturated
+                // glyphs per row read as noise until pointed at.
+                .foregroundStyle(tint.opacity(isHovering ? 1 : 0.55))
                 .frame(width: 22, height: 22)
                 .background(tint.opacity(isHovering ? 0.15 : 0), in: Circle())
         }

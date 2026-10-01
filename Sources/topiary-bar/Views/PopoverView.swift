@@ -9,6 +9,7 @@ struct PopoverView: View {
     @Environment(SystemMemoryMonitor.self) private var systemMemory
 
     @State private var searchText = ""
+    @State private var occlusionDismissed = false
 
     let onDismiss: () -> Void
 
@@ -45,7 +46,7 @@ struct PopoverView: View {
 
             memorySection
 
-            if visibilityMonitor.hasOcclusion {
+            if visibilityMonitor.hasOcclusion && !occlusionDismissed {
                 occlusionBanner
                 Divider()
             } else {
@@ -63,6 +64,11 @@ struct PopoverView: View {
             footerSection
         }
         .frame(minWidth: 360, idealWidth: 360, minHeight: 420, idealHeight: 520)
+        .onChange(of: visibilityMonitor.hasOcclusion) { _, stillOccluded in
+            // Re-arm the manual dismissal once the occlusion clears, so a new
+            // occurrence warns again instead of staying silenced forever.
+            if !stillOccluded { occlusionDismissed = false }
+        }
     }
 
     private var headerSection: some View {
@@ -167,7 +173,7 @@ struct PopoverView: View {
                             Section {
                                 ForEach(statusbarItems) { IconRow(item: $0, l10n: l10n) }
                             } header: {
-                                sectionHeader(l10n.statusBar, systemImage: "menubar.rectangle", count: statusbarItems.count)
+                                sectionHeader(l10n.statusBar, count: statusbarItems.count)
                             }
                         }
 
@@ -175,7 +181,7 @@ struct PopoverView: View {
                             Section {
                                 ForEach(dockItems) { IconRow(item: $0, l10n: l10n) }
                             } header: {
-                                sectionHeader(l10n.dock, systemImage: "dock.rectangle", count: dockItems.count)
+                                sectionHeader(l10n.dock, count: dockItems.count)
                             }
                         }
                     }
@@ -184,14 +190,15 @@ struct PopoverView: View {
         }
     }
 
-    private func sectionHeader(_ title: String, systemImage: String, count: Int) -> some View {
-        Label("\(title) · \(count)", systemImage: systemImage)
-            .font(.caption2)
+    private func sectionHeader(_ title: String, count: Int) -> some View {
+        Text("\(title) · \(count)")
+            .font(.caption)
+            .fontWeight(.semibold)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
-            .padding(.vertical, 4)
-            .background(.quaternary.opacity(0.3))
+            .padding(.vertical, 5)
+            .background(.quaternary.opacity(0.25))
     }
 
     private var footerSection: some View {
@@ -239,9 +246,8 @@ struct PopoverView: View {
         .padding(.vertical, 10)
     }
 
-    /// Compact warning shown when our own icons are occluded by the notch or
-    /// an overcrowded menu bar (only reachable while the main icon is visible,
-    /// so this is usually the pinned-icons case).
+    /// Compact, dismissible warning for genuine occlusion (a menu-bar hider
+    /// utility suppresses it entirely).
     private var occlusionBanner: some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
@@ -252,10 +258,22 @@ struct PopoverView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.leading)
             Spacer(minLength: 0)
+            Button {
+                occlusionDismissed = true
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(4)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(l10n.popoverClose)
+            .accessibilityLabel(l10n.popoverClose)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(.orange.opacity(0.10))
+        .background(.orange.opacity(0.08))
     }
 
     private var occlusionBody: String {
@@ -280,15 +298,12 @@ private struct IconRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            AppIconView(icon: item.icon, size: 24)
+            AppIconView(icon: item.icon, size: 26)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.processName)
-                    .font(.system(.body, weight: .medium))
-                    .lineLimit(1)
-                    .foregroundStyle(.primary)
-                AppTypeBadge(type: item.appType, l10n: l10n)
-            }
+            Text(item.processName)
+                .font(.system(.body, weight: .medium))
+                .lineLimit(1)
+                .foregroundStyle(.primary)
 
             Spacer()
 

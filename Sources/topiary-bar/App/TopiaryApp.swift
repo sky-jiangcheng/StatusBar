@@ -45,7 +45,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     /// exist is safe.
     private(set) lazy var visibilityMonitor = VisibilityMonitor(
         mainItemProvider: { [weak self] in self?.statusBarController?.visibilityMainItem },
-        pinnedItemsProvider: { [weak self] in self?.statusBarController?.visibilityPinnedItems() ?? [] }
+        pinnedItemsProvider: { [weak self] in self?.statusBarController?.visibilityPinnedItems() ?? [] },
+        isHiderRunning: { [weak self] in
+            // Hidden Bar & co. intentionally park icons behind the notch; while
+            // one runs, occlusion is the user's own choice, not a problem.
+            self?.menuBarMonitor.menuBarItems.contains { StatusBarVisibility.isKnownHider($0) } ?? false
+        }
     )
 
     /// Fallback manager window for summoning when the SwiftUI `Window` scene

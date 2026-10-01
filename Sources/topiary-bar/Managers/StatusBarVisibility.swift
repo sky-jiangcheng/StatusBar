@@ -11,6 +11,27 @@ import Observation
 /// render collapses to (near) zero size, and an item pushed into the notch
 /// sits inside the gap between the screen's two auxiliary menu bar areas.
 enum StatusBarVisibility {
+    /// Bundle IDs and process names of known menu-bar hiding utilities
+    /// (Hidden Bar, Ice, Bartender, Dozer, Vanilla). While one runs, items
+    /// parked behind the notch are *intentional* — the user manages menu bar
+    /// visibility with that tool — so occlusion warnings must stay silent.
+    private static let hiderBundleIDs: Set<String> = [
+        "com.dwarvesf.hidden",          // Hidden Bar
+        "jordanbaird.Ice",              // Ice
+        "com.surteesstudios.Bartender", // Bartender
+        "com.kennethmorland.Dozer",     // Dozer
+    ]
+
+    private static let hiderNames: Set<String> = [
+        "hidden bar", "ice", "bartender", "dozer", "vanilla",
+    ]
+
+    /// True when the item is (or belongs to) a known menu-bar hider utility.
+    nonisolated static func isKnownHider(_ item: MenuBarMonitor.MenuBarItem) -> Bool {
+        hiderBundleIDs.contains(item.bundleIdentifier.lowercased())
+            || hiderNames.contains(item.processName.lowercased())
+    }
+
     /// Horizontal band covered by the notch on `screen`; nil when the screen
     /// has no notch (the two auxiliary areas are then contiguous).
     @MainActor
@@ -67,14 +88,19 @@ final class VisibilityMonitor {
     private var observers: [NSObjectProtocol] = []
     private let mainItemProvider: () -> NSStatusItem?
     private let pinnedItemsProvider: () -> [(id: String, item: NSStatusItem)]
+    /// True while a menu-bar hiding utility is running; occlusion is then
+    /// treated as intentional and never warned about.
+    private let isHiderRunning: () -> Bool
     private var onMainItemHidden: (() -> Void)?
 
     init(
         mainItemProvider: @escaping () -> NSStatusItem?,
-        pinnedItemsProvider: @escaping () -> [(id: String, item: NSStatusItem)]
+        pinnedItemsProvider: @escaping () -> [(id: String, item: NSStatusItem)],
+        isHiderRunning: @escaping () -> Bool
     ) {
         self.mainItemProvider = mainItemProvider
         self.pinnedItemsProvider = pinnedItemsProvider
+        self.isHiderRunning = isHiderRunning
     }
 
     func start(onMainItemHidden: @escaping () -> Void) {
@@ -117,10 +143,16 @@ final class VisibilityMonitor {
     private func refresh() {
         let screen = NSScreen.main
 
-        let mainHidden = !StatusBarVisibility.isVisible(mainItemProvider(), on: screen)
-        let hiddenPins = pinnedItemsProvider()
-            .filter { !StatusBarVisibility.isVisible($0.item, on: screen) }
-            .map(\.id)
+        // A running hider utility (Hidden Bar, Ice, …) parks icons behind the
+        // notch on purpose — that is not "the menu bar is full", so the whole
+        // warning path stays off while one is detected.
+        let hiderRunning = isHiderRunning()
+        let mainHidden = !hiderRunning && !StatusBarVisibility.isVisible(mainItemProvider(), on: screen)
+        let hiddenPins = hiderRunning
+            ? []
+            : pinnedItemsProvider()
+                .filter { !StatusBarVisibility.isVisible($0.item, on: screen) }
+                .map(\.id)
 
         let wasHidden = isMainItemHidden
         isMainItemHidden = mainHidden

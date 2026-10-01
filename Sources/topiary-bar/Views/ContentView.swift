@@ -198,13 +198,11 @@ private struct SidebarRow: View {
         HStack(spacing: 10) {
             AppIconView(icon: item.icon, size: 28)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.processName)
-                    .font(.body)
-                    .lineLimit(1)
-
-                AppTypeBadge(type: item.appType, l10n: l10n)
-            }
+            // Single-line row: the section header already carries the type,
+            // a per-row badge only added a second line of noise.
+            Text(item.processName)
+                .font(.body)
+                .lineLimit(1)
 
             Spacer()
 
