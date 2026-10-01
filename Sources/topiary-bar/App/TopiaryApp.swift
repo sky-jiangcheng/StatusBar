@@ -118,9 +118,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     /// ContentView in our own fallback NSWindow.
     func summonMainWindow() {
         NSApp.activate(ignoringOtherApps: true)
-        // Status items and the aggregation panel also surface as small app
-        // windows; only a content-sized window counts as reachable UI.
-        if NSApp.windows.contains(where: { $0.isVisible && $0.frame.width >= 200 }) {
+        // Only *titled* windows count as reachable UI. The transient popover
+        // (~360pt) and the status-item windows are borderless and would
+        // otherwise pass a width heuristic, making the gear button a no-op.
+        if NSApp.windows.contains(where: { $0.isVisible && $0.styleMask.contains(.titled) }) {
             return
         }
         if let fallback = fallbackMainWindow {

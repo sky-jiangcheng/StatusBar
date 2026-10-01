@@ -218,6 +218,7 @@ struct PopoverView: View {
             .buttonStyle(.plain)
             .help(l10n.settingsDots)
             .accessibilityLabel(l10n.settingsDots)
+            .frame(width: 60, alignment: .leading)
 
             Spacer(minLength: 0)
 
@@ -235,9 +236,18 @@ struct PopoverView: View {
 
             Spacer(minLength: 0)
 
-            // Invisible counterpart of the gear keeps the primary button
-            // horizontally centered.
-            Color.clear.frame(width: 22, height: 22)
+            // Quit, right: this is an LSUIElement background agent with no
+            // Dock icon — without this button there is no discoverable way
+            // to exit the app.
+            Button {
+                NSApp.terminate(nil)
+            } label: {
+                Text(l10n.quit)
+                    .font(.callout)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .frame(width: 60, alignment: .trailing)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
