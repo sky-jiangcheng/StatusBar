@@ -12,6 +12,7 @@ struct TopiaryApp: App {
                 .environment(appDelegate.menuBarMonitor)
                 .environment(appDelegate.accessibilityManager)
                 .environment(appDelegate.visibilityMonitor)
+                .environment(appDelegate.systemMemoryMonitor)
         }
         .defaultSize(width: 700, height: 450)
 
@@ -33,6 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
     let settingsStore = SettingsStore()
     let accessibilityManager = AccessibilityManager()
+    let systemMemoryMonitor = SystemMemoryMonitor()
 
     private(set) lazy var menuBarMonitor = MenuBarMonitor(
         settingsStore: settingsStore
@@ -57,10 +59,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             menuBarMonitor: menuBarMonitor,
             settingsStore: settingsStore,
             accessibilityManager: accessibilityManager,
-            visibilityMonitor: visibilityMonitor
+            visibilityMonitor: visibilityMonitor,
+            systemMemoryMonitor: systemMemoryMonitor
         )
 
         menuBarMonitor.startMonitoring()
+
+        systemMemoryMonitor.start()
 
         // When the main menu bar icon is swallowed by the notch, the app would
         // be unreachable — surface the manager window right away.
@@ -119,6 +124,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
                 .environment(menuBarMonitor)
                 .environment(accessibilityManager)
                 .environment(visibilityMonitor)
+                .environment(systemMemoryMonitor)
         )
         fallbackMainWindow = window
         window.center()
@@ -127,6 +133,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
     func applicationWillTerminate(_ notification: Notification) {
         visibilityMonitor.stop()
+        systemMemoryMonitor.stop()
 
         // Release menu bar resources in a deterministic order before teardown.
         menuBarMonitor.stopMonitoring()

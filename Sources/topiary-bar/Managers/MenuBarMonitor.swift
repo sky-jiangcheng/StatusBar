@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 import Observation
 
 @Observable
@@ -22,6 +23,15 @@ final class MenuBarMonitor {
         let processName: String
         let icon: NSImage?
         let appType: AppType
+        /// Process identifier, for memory-footprint lookups.
+        var pid: pid_t = -1
+        /// Physical memory footprint in bytes (Activity Monitor's "Memory"
+        /// column); nil when unavailable, e.g. in the sandboxed MAS build.
+        var memoryFootprint: UInt64? = nil
+
+        // Identity deliberately excludes pid/memoryFootprint: live values
+        // change every scan and must not re-identify items (SwiftUI list
+        // diffs, pin state, detail-pane selection all key off identity).
 
         func hash(into hasher: inout Hasher) {
             hasher.combine(id)
@@ -173,7 +183,9 @@ final class MenuBarMonitor {
                     bundleIdentifier: bundleID,
                     processName: name,
                     icon: app.icon,
-                    appType: .dockOnly
+                    appType: .dockOnly,
+                    pid: app.processIdentifier,
+                    memoryFootprint: Self.physFootprint(pid: app.processIdentifier)
                 )
                 items.append(item)
             } else if app.activationPolicy == .accessory {
@@ -199,7 +211,9 @@ final class MenuBarMonitor {
                     bundleIdentifier: bundleID,
                     processName: name,
                     icon: app.icon,
-                    appType: .statusbarOnly
+                    appType: .statusbarOnly,
+                    pid: app.processIdentifier,
+                    memoryFootprint: Self.physFootprint(pid: app.processIdentifier)
                 )
                 items.append(item)
             }
@@ -215,6 +229,25 @@ final class MenuBarMonitor {
         let parts = identifier.split(separator: ".").map(String.init)
         guard parts.count >= 2 else { return nil }
         return parts.prefix(2).joined(separator: ".")
+    }
+
+    /// Physical memory footprint of a process in bytes (Activity Monitor's
+    /// "Memory" column reads the same `ri_phys_footprint`). nil when the
+    /// lookup fails. Compiled out of the sandboxed MAS build: reading other
+    /// processes' rusage is outside the App Store sandbox contract.
+    static func physFootprint(pid: pid_t) -> UInt64? {
+#if MAC_APP_STORE
+        return nil
+#else
+        var usage = rusage_info_current()
+        let result = withUnsafeMutablePointer(to: &usage) { ptr in
+            ptr.withMemoryRebound(to: rusage_info_t?.self, capacity: 1) { infoPtr in
+                proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, infoPtr)
+            }
+        }
+        guard result == 0 else { return nil }
+        return usage.ri_phys_footprint
+#endif
     }
 
 #if !MAC_APP_STORE

@@ -6,6 +6,7 @@ struct PopoverView: View {
     @Environment(SettingsStore.self) private var settings
     @Environment(\.openWindow) private var openWindow
     @Environment(VisibilityMonitor.self) private var visibilityMonitor
+    @Environment(SystemMemoryMonitor.self) private var systemMemory
 
     @State private var searchText = ""
 
@@ -24,18 +25,25 @@ struct PopoverView: View {
         }
     }
 
-    /// Status Bar apps lead: they are the reason this app exists.
+    /// Status Bar apps lead; within each section the heaviest memory users
+    /// surface first, so the hog is always the top row.
     private var statusbarItems: [MenuBarMonitor.MenuBarItem] {
-        filteredItems.filter { $0.appType == .statusbarOnly }
+        filteredItems
+            .filter { $0.appType == .statusbarOnly }
+            .sorted { ($0.memoryFootprint ?? 0) > ($1.memoryFootprint ?? 0) }
     }
 
     private var dockItems: [MenuBarMonitor.MenuBarItem] {
-        filteredItems.filter { $0.appType == .dockOnly }
+        filteredItems
+            .filter { $0.appType == .dockOnly }
+            .sorted { ($0.memoryFootprint ?? 0) > ($1.memoryFootprint ?? 0) }
     }
 
     var body: some View {
         VStack(spacing: 0) {
             headerSection
+
+            memorySection
 
             if visibilityMonitor.hasOcclusion {
                 occlusionBanner
@@ -54,11 +62,11 @@ struct PopoverView: View {
 
             footerSection
         }
-        .frame(minWidth: 360, idealWidth: 360, minHeight: 420, idealHeight: 480)
+        .frame(minWidth: 360, idealWidth: 360, minHeight: 420, idealHeight: 520)
     }
 
     private var headerSection: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Topiary")
                     .font(.headline)
@@ -68,9 +76,55 @@ struct PopoverView: View {
             }
 
             Spacer()
+
+            // Explicit close affordance — outside clicks already dismiss the
+            // transient popover, but a visible × makes the way out obvious.
+            Button {
+                onDismiss()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help(l10n.popoverClose)
+            .accessibilityLabel(l10n.popoverClose)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+    }
+
+    /// Lemon-style overview: system memory as a percentage with a progress
+    /// bar and used/total breakdown.
+    private var memorySection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Label(l10n.memoryUsage, systemImage: "memorychip")
+                    .font(.callout)
+                Spacer()
+                Text(percentText)
+                    .font(.callout.monospacedDigit())
+                    .fontWeight(.semibold)
+                    .foregroundStyle(systemMemory.usedFraction > 0.85 ? Color.orange : Color.primary)
+            }
+
+            ProgressView(value: systemMemory.usedFraction)
+                .progressViewStyle(.linear)
+                .tint(systemMemory.usedFraction > 0.85 ? Color.orange : Color.accentColor)
+
+            Text("\(Format.memory(systemMemory.usedBytes)) / \(Format.memory(systemMemory.totalBytes))")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: Theme.Radius.control))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+    }
+
+    private var percentText: String {
+        "\(Int((systemMemory.usedFraction * 100).rounded()))%"
     }
 
     private var searchSection: some View {
@@ -141,11 +195,36 @@ struct PopoverView: View {
     }
 
     private var footerSection: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 12) {
+            // Settings, left.
+            Button {
+                AppSettingsOpener.open()
+            } label: {
+                Image(systemName: "gearshape")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help(l10n.settingsDots)
+            .accessibilityLabel(l10n.settingsDots)
+
             Spacer(minLength: 0)
 
-            // Icon-only keeps the row inside the 360pt popover across all five
-            // languages; the state lives in the tooltip / accessibility label.
+            // Primary action, centered like Lemon's "Open Lemon": the main
+            // window is closable with no other re-entry point, so the popover
+            // — the surface users reach first — carries it.
+            Button {
+                openWindow(id: "main")
+            } label: {
+                Label(l10n.openMainWindow, systemImage: "macwindow")
+                    .font(.callout)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+
+            Spacer(minLength: 0)
+
+            // Panel toggle, right; icon-only with the state in the tooltip.
             Button {
                 NotificationCenter.default.post(name: .toggleAggregationPanel, object: nil)
             } label: {
@@ -155,28 +234,9 @@ struct PopoverView: View {
             .buttonStyle(.plain)
             .help(panelToggleTooltip)
             .accessibilityLabel(panelToggleTooltip)
-
-            // The main window is closable and has no other re-entry point, so
-            // the popover — the surface users reach first — carries it.
-            Button(l10n.openMainWindow) {
-                openWindow(id: "main")
-            }
-            .buttonStyle(.plain)
-
-            Button(l10n.settingsDots) {
-                AppSettingsOpener.open()
-            }
-            .buttonStyle(.plain)
-
-            Button(l10n.quit) {
-                NSApp.terminate(nil)
-            }
-            .buttonStyle(.plain)
         }
-        .font(.caption)
-        .foregroundStyle(.secondary)
         .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.vertical, 10)
     }
 
     /// Compact warning shown when our own icons are occluded by the notch or
@@ -231,6 +291,12 @@ private struct IconRow: View {
             }
 
             Spacer()
+
+            if let footprint = item.memoryFootprint {
+                Text(Format.memory(footprint))
+                    .font(.callout.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
 
             // Hidden until hover so ten quiet rows read as one calm list.
             HStack(spacing: 4) {

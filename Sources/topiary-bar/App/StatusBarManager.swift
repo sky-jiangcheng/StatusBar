@@ -23,17 +23,20 @@ final class StatusBarManager {
     private let settingsStore: SettingsStore
     private let accessibilityManager: AccessibilityManager
     private let visibilityMonitor: VisibilityMonitor
+    private let systemMemoryMonitor: SystemMemoryMonitor
 
     init(
         menuBarMonitor: MenuBarMonitor,
         settingsStore: SettingsStore,
         accessibilityManager: AccessibilityManager,
-        visibilityMonitor: VisibilityMonitor
+        visibilityMonitor: VisibilityMonitor,
+        systemMemoryMonitor: SystemMemoryMonitor
     ) {
         self.menuBarMonitor = menuBarMonitor
         self.settingsStore = settingsStore
         self.accessibilityManager = accessibilityManager
         self.visibilityMonitor = visibilityMonitor
+        self.systemMemoryMonitor = systemMemoryMonitor
         self.aggregationPanel = AggregationPanel(
             menuBarMonitor: menuBarMonitor,
             settingsStore: settingsStore
@@ -150,6 +153,7 @@ final class StatusBarManager {
             .environment(settingsStore)
             .environment(accessibilityManager)
             .environment(visibilityMonitor)
+            .environment(systemMemoryMonitor)
         )
 
         popover.contentViewController = NSViewController()

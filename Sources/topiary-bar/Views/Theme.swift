@@ -87,6 +87,21 @@ struct RowActionButton: View {
     }
 }
 
+// MARK: - Formatting
+
+enum Format {
+    /// Human-readable memory footprint, Lemon-style: "3.25 GB", "257 MB",
+    /// "48.2 MB". GB keeps two decimals; MB keeps one below 100 for the
+    /// small-app tail, none above.
+    static func memory(_ bytes: UInt64) -> String {
+        let gb = Double(bytes) / (1024 * 1024 * 1024)
+        if gb >= 1 { return String(format: "%.2f GB", gb) }
+        let mb = Double(bytes) / (1024 * 1024)
+        if mb >= 100 { return String(format: "%.0f MB", mb) }
+        return String(format: "%.1f MB", mb)
+    }
+}
+
 // MARK: - Stat chip
 
 /// Compact read-only summary chip for the overview state. Filtering is owned

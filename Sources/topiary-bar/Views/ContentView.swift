@@ -361,6 +361,12 @@ private struct AppDetailView: View {
                         .foregroundStyle(.secondary)
                         .textSelection(.enabled)
                         .multilineTextAlignment(.center)
+
+                    if let footprint = item.memoryFootprint {
+                        Text(Format.memory(footprint))
+                            .font(.callout.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 AppTypeBadge(type: item.appType, l10n: l10n)
