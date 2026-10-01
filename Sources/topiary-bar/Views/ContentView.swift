@@ -272,7 +272,7 @@ private struct OverviewView: View {
                 .foregroundStyle(Color.accentColor)
 
             VStack(spacing: 4) {
-                Text("StatusBar")
+                Text("Topiary")
                     .font(.title2)
                     .fontWeight(.semibold)
                 Text(l10n.menuBarManager)

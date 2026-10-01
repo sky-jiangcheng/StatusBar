@@ -60,7 +60,7 @@ struct PopoverView: View {
     private var headerSection: some View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("StatusBar")
+                Text("Topiary")
                     .font(.headline)
                 Text(String(format: l10n.appsCount, menuBarMonitor.menuBarItems.count))
                     .font(.caption)

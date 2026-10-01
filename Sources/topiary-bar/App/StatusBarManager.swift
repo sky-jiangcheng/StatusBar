@@ -68,7 +68,7 @@ final class StatusBarManager {
 
     private func refreshStatusBarButton() {
         statusItem?.button?.image = Self.image(for: settingsStore.aggregationIcon)
-        statusItem?.button?.toolTip = "StatusBar — \(settingsStore.l10n.menuBarManager)"
+        statusItem?.button?.toolTip = "Topiary — \(settingsStore.l10n.menuBarManager)"
     }
 
     /// Removes the status item, event monitor, and all notification observers.
@@ -132,7 +132,7 @@ final class StatusBarManager {
         case .circle: symbol = "circle"
         case .transparent: symbol = "circle.dotted"
         }
-        return NSImage(systemSymbolName: symbol, accessibilityDescription: "StatusBar")
+        return NSImage(systemSymbolName: symbol, accessibilityDescription: "Topiary")
     }
 
     private func setupPopover() {
@@ -252,7 +252,7 @@ final class StatusBarManager {
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: l10n.quitStatusBar,
+            title: l10n.quitAppTitle,
             action: #selector(quitApp),
             keyEquivalent: "q"
         )

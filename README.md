@@ -1,13 +1,13 @@
-# StatusBar: macOS Menu Bar Manager
+# Topiary: macOS Menu Bar Manager
 
 See, launch, quit, and pin every menu bar app running on your Mac. **No permissions requested, no analytics, nothing leaves your device** — distributed as a notarized Developer ID build and on the Mac App Store.
 
 > 🌐 **English** · [简体中文](README.zh-CN.md)
 
-> **Official site** → [sky-jiangcheng.github.io/status-bar](https://sky-jiangcheng.github.io/status-bar/)
+> **Official site** → [sky-jiangcheng.github.io/topiary-bar](https://sky-jiangcheng.github.io/topiary-bar/)
 
-[![Release](https://img.shields.io/github/v/release/sky-jiangcheng/status-bar?label=release&color=blue)](https://github.com/sky-jiangcheng/status-bar/releases)
-[![Test](https://github.com/sky-jiangcheng/status-bar/actions/workflows/test.yml/badge.svg)](https://github.com/sky-jiangcheng/status-bar/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/v/release/sky-jiangcheng/topiary-bar?label=release&color=blue)](https://github.com/sky-jiangcheng/topiary-bar/releases)
+[![Test](https://github.com/sky-jiangcheng/topiary-bar/actions/workflows/test.yml/badge.svg)](https://github.com/sky-jiangcheng/topiary-bar/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange?logo=swift&logoColor=white)](https://swift.org)
 [![macOS](https://img.shields.io/badge/macOS-14%2B-black?logo=apple&logoColor=white)](https://www.apple.com/macos/)
@@ -47,7 +47,7 @@ See, launch, quit, and pin every menu bar app running on your Mac. **No permissi
 |---------|-------------|
 | **Auto detection** | Classifies running apps as Status Bar (accessory) vs. Dock (regular) via `activationPolicy` |
 | **One-click actions** | Open, quit, and force quit (quit/force quit compiled out of the sandboxed Mac App Store build) |
-| **Accessory wake-up** | macOS refuses to foreground accessory apps via `NSRunningApplication.activate()`; StatusBar re-launches them with `NSWorkspace.openApplication(at:configuration:)` (`activates = true`) |
+| **Accessory wake-up** | macOS refuses to foreground accessory apps via `NSRunningApplication.activate()`; Topiary re-launches them with `NSWorkspace.openApplication(at:configuration:)` (`activates = true`) |
 | **Live monitoring** | Running-app list refreshes on a 1/2/5 s interval |
 | **Search & filter** | By name or bundle ID, in both the main window and the popover |
 
@@ -71,8 +71,8 @@ See, launch, quit, and pin every menu bar app running on your Mac. **No permissi
 
 ## Install
 
-1. Download `StatusBar-<version>.dmg` from [GitHub Releases](https://github.com/sky-jiangcheng/status-bar/releases/latest)
-2. Open the DMG and drag `StatusBar.app` into Applications
+1. Download `Topiary-<version>.dmg` from [GitHub Releases](https://github.com/sky-jiangcheng/topiary-bar/releases/latest)
+2. Open the DMG and drag `Topiary.app` into Applications
 3. On first launch, if Gatekeeper asks: System Settings → Privacy & Security → Open Anyway
 
 The Developer ID build (notarized DMG) includes Quit / Force Quit. The Mac App Store build is sandboxed and ships without them. Both can be installed side by side (different bundle IDs, isolated settings).
@@ -80,7 +80,7 @@ The Developer ID build (notarized DMG) includes Quit / Force Quit. The Mac App S
 ## Build from Source
 
 ```bash
-./script/build_and_run.sh   # build, sign (ad-hoc), and launch dist/StatusBar.app
+./script/build_and_run.sh   # build, sign (ad-hoc), and launch dist/Topiary.app
 swift build                 # build only
 ./script/build_and_run.sh run
 ```
@@ -126,7 +126,7 @@ git tag v1.20.1 && git push origin v1.20.1
 
 ## Known Limitations
 
-- Status Bar (accessory) apps cannot be foregrounded with `NSRunningApplication.activate()` — a macOS security restriction. StatusBar re-launches them via `NSWorkspace.openApplication` (`activates = true`); activation timing differs slightly from the deprecated `launchApplication(withBundleIdentifier:)`, and a few accessory apps (e.g. Macs Fan Control) can't be raised by other apps at all
+- Status Bar (accessory) apps cannot be foregrounded with `NSRunningApplication.activate()` — a macOS security restriction. Topiary re-launches them via `NSWorkspace.openApplication` (`activates = true`); activation timing differs slightly from the deprecated `launchApplication(withBundleIdentifier:)`, and a few accessory apps (e.g. Macs Fan Control) can't be raised by other apps at all
 - App typing is based on `activationPolicy`, so the real owner of a menu bar icon cannot be read
 - The aggregation panel does not hide real system menu bar icons (the AX-based hiding was removed in v1.6.0); it is a manual management surface only
 - Dark app icon variants (`Assets.xcassets/AppIcon.appiconset/dark/`) only apply via the Xcode asset-catalog (`Assets.car`) flow; `script/release.sh` generates a light-only `.icns` via `iconutil`
@@ -134,7 +134,7 @@ git tag v1.20.1 && git push origin v1.20.1
 
 ## Privacy
 
-No permissions requested. The app lists running applications via public APIs, reads the `AXIsProcessTrusted()` state for a read-only indicator, and processes everything locally — **no analytics, no network access, no data collection**. See the [Privacy Policy](https://sky-jiangcheng.github.io/status-bar/privacy/).
+No permissions requested. The app lists running applications via public APIs, reads the `AXIsProcessTrusted()` state for a read-only indicator, and processes everything locally — **no analytics, no network access, no data collection**. See the [Privacy Policy](https://sky-jiangcheng.github.io/topiary-bar/privacy/).
 
 ## Tech Stack
 
@@ -147,14 +147,14 @@ No permissions requested. The app lists running applications via public APIs, re
 ## Project Structure
 
 ```
-status-bar/
+topiary-bar/
 ├── Package.swift
-├── Sources/status-bar/
+├── Sources/topiary-bar/
 │   ├── App/                    # Entry point, settings window, status bar controller
 │   ├── Managers/               # Monitoring, resident bar, settings, localization, panel
 │   ├── Views/                  # Main window / popover / panel / settings / theme components
 │   └── Resources/              # entitlements, Assets.xcassets
-├── Tests/status-bar-tests/     # Unit tests (swift test, logic only)
+├── Tests/topiary-bar-tests/     # Unit tests (swift test, logic only)
 ├── script/
 │   ├── build_and_run.sh        # Local: build + sign + run
 │   └── release.sh              # Release: mas / devid channels
@@ -167,11 +167,11 @@ status-bar/
 
 - [docs/AppStoreChecklist.md](docs/AppStoreChecklist.md) — Mac App Store submission checklist (Chinese)
 - [CHANGELOG.md](CHANGELOG.md) — version history
-- [Official site](https://sky-jiangcheng.github.io/status-bar/) · [Support](https://sky-jiangcheng.github.io/status-bar/support/) · [Privacy Policy](https://sky-jiangcheng.github.io/status-bar/privacy/)
+- [Official site](https://sky-jiangcheng.github.io/topiary-bar/) · [Support](https://sky-jiangcheng.github.io/topiary-bar/support/) · [Privacy Policy](https://sky-jiangcheng.github.io/topiary-bar/privacy/)
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md); releases and artifacts are on [GitHub Releases](https://github.com/sky-jiangcheng/status-bar/releases).
+See [CHANGELOG.md](CHANGELOG.md); releases and artifacts are on [GitHub Releases](https://github.com/sky-jiangcheng/topiary-bar/releases).
 
 ## License
 

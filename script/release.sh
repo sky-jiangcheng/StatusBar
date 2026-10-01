@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build, sign, and package StatusBar.
+# Build, sign, and package Topiary.
 #
 # Distribution channel (CHANNEL):
 #   mas   - Mac App Store: sandbox ON, Quit/Force Quit compiled out, output .pkg
@@ -16,16 +16,16 @@ set -euo pipefail
 #   APP_VERSION        - marketing version, e.g. 1.14.0
 #   BUILD_NUMBER       - build version, default 1
 #   BUNDLE_ID          - default com.jiangcheng.MacStatusApp
-#   PRODUCT            - app/product name, default "StatusBar"
+#   PRODUCT            - app/product name, default "Topiary"
 #   ARCHS              - space-separated archs, default "arm64 x86_64" (universal)
 #   INSTALLER_IDENTITY - pkg signing identity (mas only), defaults to SIGNING_IDENTITY
 #   PROVISIONING_PROFILE - path to .mobileprovision to embed (mas only)
 
 CHANNEL="${CHANNEL:-mas}"
-PRODUCT="${PRODUCT:-StatusBar}"
-# SwiftPM executable product name (package/target renamed to kebab-case; the
-# .app keeps the StatusBar brand, so binary name and bundle name differ).
-SPM_PRODUCT="status-bar"
+PRODUCT="${PRODUCT:-Topiary}"
+# SwiftPM executable product name. The package/target are topiary-bar while
+# the .app display name is "Topiary", so binary name and bundle name differ.
+SPM_PRODUCT="topiary-bar"
 BUNDLE_ID="${BUNDLE_ID:-com.jiangcheng.MacStatusApp}"
 APP_VERSION="${APP_VERSION:-0.0.0}"
 BUILD_NUMBER="${BUILD_NUMBER:-1}"
@@ -36,7 +36,7 @@ MIN_SYSTEM_VERSION="${MIN_SYSTEM_VERSION:-14.0}"
 
 case "$CHANNEL" in
   mas)
-    ENTITLEMENTS_NAME="status-bar.entitlements"
+    ENTITLEMENTS_NAME="topiary-bar.entitlements"
     # Sandboxed MAS build: strip Quit / Force Quit (NSRunningApplication is blocked in sandbox).
     SWIFT_DEFINES=(-Xswiftc -D -Xswiftc MAC_APP_STORE)
     ;;
@@ -77,8 +77,8 @@ APP_CONTENTS="$APP_BUNDLE/Contents"
 APP_MACOS="$APP_CONTENTS/MacOS"
 APP_RESOURCES="$APP_CONTENTS/Resources"
 PKG_PATH="$DIST_DIR/$PRODUCT.pkg"
-ENTITLEMENTS="$ROOT_DIR/Sources/status-bar/Resources/$ENTITLEMENTS_NAME"
-APPCONSET="$ROOT_DIR/Sources/status-bar/Resources/Assets.xcassets/AppIcon.appiconset"
+ENTITLEMENTS="$ROOT_DIR/Sources/topiary-bar/Resources/$ENTITLEMENTS_NAME"
+APPCONSET="$ROOT_DIR/Sources/topiary-bar/Resources/Assets.xcassets/AppIcon.appiconset"
 
 ARCH_FLAGS=()
 for a in $ARCHS; do ARCH_FLAGS+=(--arch "$a"); done

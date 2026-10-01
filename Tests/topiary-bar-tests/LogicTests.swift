@@ -1,6 +1,6 @@
 import XCTest
 
-@testable import status_bar
+@testable import topiary_bar
 
 @MainActor
 final class LogicTests: XCTestCase {

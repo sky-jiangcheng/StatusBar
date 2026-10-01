@@ -26,11 +26,11 @@ done
 # --- icns (light as default bundle icon); icns overwritten each run ---
 mkdir -p iconset.iconset
 for f in "$OUT"/light/icon_*.png; do cp "$f" "iconset.iconset/$(basename "$f")"; done
-iconutil -c icns iconset.iconset -o "StatusBar.icns"
-echo "✓ StatusBar.icns"
+iconutil -c icns iconset.iconset -o "Topiary.icns"
+echo "✓ Topiary.icns"
 
 # --- xcassets: overwrite light PNGs in place, add dark/ subdir ---
-ASSETS="../../Sources/status-bar/Resources/Assets.xcassets"
+ASSETS="../../Sources/topiary-bar/Resources/Assets.xcassets"
 APPICON="$ASSETS/AppIcon.appiconset"
 for f in "$OUT"/light/icon_*.png; do cp "$f" "$APPICON/$(basename "$f")"; done
 mkdir -p "$APPICON/dark"

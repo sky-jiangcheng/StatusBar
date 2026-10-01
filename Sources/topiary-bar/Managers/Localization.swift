@@ -75,7 +75,7 @@ struct L10nTable {
     var cancel: String
     var searchPlaceholder: String
     var settingsDots: String
-    var quitStatusBar: String
+    var quitAppTitle: String
     var showAggregationPanel: String
     var hideAggregationPanel: String
     var openMainWindow: String
@@ -154,7 +154,7 @@ enum L10n {
         cancel: "Cancel",
         searchPlaceholder: "Search...",
         settingsDots: "Settings...",
-        quitStatusBar: "Quit StatusBar",
+        quitAppTitle: "Quit Topiary",
         showAggregationPanel: "Show Aggregation Panel",
         hideAggregationPanel: "Hide Aggregation Panel",
         openMainWindow: "Open Main Window",
@@ -202,7 +202,7 @@ enum L10n {
         unpinFromMenuBar: "Unpin from Menu Bar",
         statusbarActivateHint: "This app has no Dock icon. “Open” re-launches it to the front.",
         notchWarningTitle: "Menu Bar Space Is Full",
-        notchWarningMainBody: "StatusBar's menu bar icon is hidden behind the notch — the menu bar ran out of room. Quit or remove some menu bar apps to free space; the icon comes back automatically.",
+        notchWarningMainBody: "Topiary's menu bar icon is hidden behind the notch — the menu bar ran out of room. Quit or remove some menu bar apps to free space; the icon comes back automatically.",
         notchWarningPinnedBody: "%d pinned app icons are hidden behind the notch or an overcrowded menu bar. Quit or remove some menu bar apps to bring them back."
     )
 
@@ -226,7 +226,7 @@ enum L10n {
         cancel: "取消",
         searchPlaceholder: "搜索…",
         settingsDots: "设置…",
-        quitStatusBar: "退出 StatusBar",
+        quitAppTitle: "退出 Topiary",
         showAggregationPanel: "显示聚合面板",
         hideAggregationPanel: "隐藏聚合面板",
         openMainWindow: "打开主窗口",
@@ -274,7 +274,7 @@ enum L10n {
         unpinFromMenuBar: "取消常驻",
         statusbarActivateHint: "此应用没有程序坞图标，「打开」会重新唤起它的窗口。",
         notchWarningTitle: "菜单栏空间不足",
-        notchWarningMainBody: "StatusBar 的菜单栏图标被刘海遮挡（菜单栏已满）。退出或移除部分菜单栏应用腾出空间后，图标会自动恢复显示。",
+        notchWarningMainBody: "Topiary 的菜单栏图标被刘海遮挡（菜单栏已满）。退出或移除部分菜单栏应用腾出空间后，图标会自动恢复显示。",
         notchWarningPinnedBody: "有 %d 个常驻应用图标被刘海或拥挤的菜单栏遮挡。退出或移除部分菜单栏应用即可恢复显示。"
     )
 
@@ -298,7 +298,7 @@ enum L10n {
         cancel: "キャンセル",
         searchPlaceholder: "検索…",
         settingsDots: "設定…",
-        quitStatusBar: "StatusBar を終了",
+        quitAppTitle: "Topiary を終了",
         showAggregationPanel: "集約パネルを表示",
         hideAggregationPanel: "集約パネルを隠す",
         openMainWindow: "メインウィンドウを開く",
@@ -346,7 +346,7 @@ enum L10n {
         unpinFromMenuBar: "常駐を解除",
         statusbarActivateHint: "このアプリにはドックアイコンがありません。「開く」で前面に再表示します。",
         notchWarningTitle: "メニューバーに空きがありません",
-        notchWarningMainBody: "メニューバーが満杯で、StatusBar のアイコンがノッチの裏に隠れています。メニューバーアプリをいくつか終了すると、アイコンは自動的に戻ります。",
+        notchWarningMainBody: "メニューバーが満杯で、Topiary のアイコンがノッチの裏に隠れています。メニューバーアプリをいくつか終了すると、アイコンは自動的に戻ります。",
         notchWarningPinnedBody: "%d 個のピン留めアイコンがノッチや混雑したメニューバーに隠れています。メニューバーアプリを終了すると表示されます。"
     )
 
@@ -370,7 +370,7 @@ enum L10n {
         cancel: "Abbrechen",
         searchPlaceholder: "Suchen…",
         settingsDots: "Einstellungen…",
-        quitStatusBar: "StatusBar beenden",
+        quitAppTitle: "Topiary beenden",
         showAggregationPanel: "Aggregations-Panel anzeigen",
         hideAggregationPanel: "Aggregations-Panel ausblenden",
         openMainWindow: "Hauptfenster öffnen",
@@ -418,7 +418,7 @@ enum L10n {
         unpinFromMenuBar: "Nicht mehr pinnen",
         statusbarActivateHint: "Diese App hat kein Dock-Symbol. „Öffnen“ holt sie erneut nach vorn.",
         notchWarningTitle: "Menüleiste ist voll",
-        notchWarningMainBody: "Das StatusBar-Symbol wird vom Notch verdeckt — die Menüleiste ist voll. Beende oder entferne einige Menüleisten-Apps; das Symbol erscheint automatisch wieder.",
+        notchWarningMainBody: "Das Topiary-Symbol wird vom Notch verdeckt — die Menüleiste ist voll. Beende oder entferne einige Menüleisten-Apps; das Symbol erscheint automatisch wieder.",
         notchWarningPinnedBody: "%d angepinnte Symbole sind hinter dem Notch bzw. einer überfüllten Menüleiste verborgen. Beende oder entferne einige Menüleisten-Apps, um sie wieder anzuzeigen."
     )
 
@@ -442,7 +442,7 @@ enum L10n {
         cancel: "Cancelar",
         searchPlaceholder: "Buscar…",
         settingsDots: "Ajustes…",
-        quitStatusBar: "Salir de StatusBar",
+        quitAppTitle: "Salir de Topiary",
         showAggregationPanel: "Mostrar panel de agregación",
         hideAggregationPanel: "Ocultar panel de agregación",
         openMainWindow: "Abrir ventana principal",
@@ -490,7 +490,7 @@ enum L10n {
         unpinFromMenuBar: "Dejar de fijar",
         statusbarActivateHint: "Esta app no tiene icono en el Dock. «Abrir» la trae de nuevo al frente.",
         notchWarningTitle: "La barra de menús está llena",
-        notchWarningMainBody: "El icono de StatusBar está oculto tras el notch: la barra de menús se quedó sin espacio. Sal o elimina algunas apps de la barra de menús; el icono volverá a aparecer.",
+        notchWarningMainBody: "El icono de Topiary está oculto tras el notch: la barra de menús se quedó sin espacio. Sal o elimina algunas apps de la barra de menús; el icono volverá a aparecer.",
         notchWarningPinnedBody: "%d iconos fijados están ocultos tras el notch o en una barra de menús saturada. Sal o elimina algunas apps de la barra de menús para recuperarlos."
     )
 

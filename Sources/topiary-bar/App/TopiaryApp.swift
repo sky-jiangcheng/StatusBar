@@ -2,11 +2,11 @@ import AppKit
 import SwiftUI
 
 @main
-struct StatusBarApp: App {
+struct TopiaryApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        Window("StatusBar", id: "main") {
+        Window("Topiary", id: "main") {
             ContentView()
                 .environment(appDelegate.settingsStore)
                 .environment(appDelegate.menuBarMonitor)
@@ -82,7 +82,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         false
     }
 
-    /// Finder re-launch (or `open -na StatusBar`) while already running:
+    /// Finder re-launch (or `open -na Topiary`) while already running:
     /// surface the manager window. Critical when the menu bar icon is
     /// occluded by the notch and the popover is unreachable.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -111,7 +111,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             backing: .buffered,
             defer: false
         )
-        window.title = "StatusBar"
+        window.title = "Topiary"
         window.isReleasedWhenClosed = false
         window.contentView = NSHostingView(
             rootView: ContentView()

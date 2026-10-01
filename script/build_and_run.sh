@@ -6,10 +6,10 @@ set -euo pipefail
 # bundle ID together with the Developer ID entitlements.
 
 MODE="${1:-run}"
-APP_NAME="StatusBar"
-# SwiftPM executable product name (package/target renamed to kebab-case; the
-# .app keeps the StatusBar brand, so binary name and bundle name differ).
-SPM_PRODUCT="status-bar"
+APP_NAME="Topiary"
+# SwiftPM executable product name. The package/target are topiary-bar while
+# the .app display name is "Topiary", so binary name and bundle name differ.
+SPM_PRODUCT="topiary-bar"
 BUNDLE_ID="com.jiangcheng.EasyBar"
 MIN_SYSTEM_VERSION="14.0"
 
@@ -21,7 +21,7 @@ APP_MACOS="$APP_CONTENTS/MacOS"
 APP_RESOURCES="$APP_CONTENTS/Resources"
 APP_BINARY="$APP_MACOS/$APP_NAME"
 INFO_PLIST="$APP_CONTENTS/Info.plist"
-ENTITLEMENTS="$ROOT_DIR/Sources/status-bar/Resources/DeveloperID.entitlements"
+ENTITLEMENTS="$ROOT_DIR/Sources/topiary-bar/Resources/DeveloperID.entitlements"
 
 # SwiftPM has no SWIFTPM_HOME variable (it is silently ignored), so its cache,
 # config and security directories are isolated explicitly instead of touching

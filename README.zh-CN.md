@@ -1,13 +1,13 @@
-# StatusBar: macOS 菜单栏管理器
+# Topiary: macOS 菜单栏管理器
 
 看清、唤起、退出、常驻你 Mac 上运行着的每一个菜单栏应用。**不请求任何权限、无任何统计上报、数据不出设备** —— 同时提供公证的 Developer ID 版与 Mac App Store 版。
 
 > 🌐 [English](README.md) · **简体中文**
 
-> **官网** → [sky-jiangcheng.github.io/status-bar](https://sky-jiangcheng.github.io/status-bar/)
+> **官网** → [sky-jiangcheng.github.io/topiary-bar](https://sky-jiangcheng.github.io/topiary-bar/)
 
-[![Release](https://img.shields.io/github/v/release/sky-jiangcheng/status-bar?label=release&color=blue)](https://github.com/sky-jiangcheng/status-bar/releases)
-[![Test](https://github.com/sky-jiangcheng/status-bar/actions/workflows/test.yml/badge.svg)](https://github.com/sky-jiangcheng/status-bar/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/v/release/sky-jiangcheng/topiary-bar?label=release&color=blue)](https://github.com/sky-jiangcheng/topiary-bar/releases)
+[![Test](https://github.com/sky-jiangcheng/topiary-bar/actions/workflows/test.yml/badge.svg)](https://github.com/sky-jiangcheng/topiary-bar/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange?logo=swift&logoColor=white)](https://swift.org)
 [![macOS](https://img.shields.io/badge/macOS-14%2B-black?logo=apple&logoColor=white)](https://www.apple.com/macos/)
@@ -71,8 +71,8 @@
 
 ## 安装
 
-1. 从 [GitHub Releases](https://github.com/sky-jiangcheng/status-bar/releases/latest) 下载 `StatusBar-<version>.dmg`
-2. 打开 DMG，把 `StatusBar.app` 拖到 Applications
+1. 从 [GitHub Releases](https://github.com/sky-jiangcheng/topiary-bar/releases/latest) 下载 `Topiary-<version>.dmg`
+2. 打开 DMG，把 `Topiary.app` 拖到 Applications
 3. 首次打开若出现 Gatekeeper 提示：系统设置 → 隐私与安全性 → 仍要打开
 
 官网版（Developer ID 公证 DMG）含退出 / 强制退出；Mac App Store 版受沙盒限制，这两项在编译期移除。两版 Bundle ID 不同，可同时安装，设置互不共享。
@@ -80,7 +80,7 @@
 ## 从源码构建
 
 ```bash
-./script/build_and_run.sh   # 构建 + 签名 + 启动 dist/StatusBar.app
+./script/build_and_run.sh   # 构建 + 签名 + 启动 dist/Topiary.app
 swift build                 # 仅构建
 ./script/build_and_run.sh run
 ```
@@ -134,7 +134,7 @@ git tag v1.20.1 && git push origin v1.20.1
 
 ## 隐私
 
-不请求任何权限。应用通过公共 API 列出运行中的应用、只读展示 `AXIsProcessTrusted()` 状态，全部在本地处理 —— **无统计、无网络访问、零数据收集**。详见[隐私政策](https://sky-jiangcheng.github.io/status-bar/privacy/)。
+不请求任何权限。应用通过公共 API 列出运行中的应用、只读展示 `AXIsProcessTrusted()` 状态，全部在本地处理 —— **无统计、无网络访问、零数据收集**。详见[隐私政策](https://sky-jiangcheng.github.io/topiary-bar/privacy/)。
 
 ## 技术栈
 
@@ -147,14 +147,14 @@ git tag v1.20.1 && git push origin v1.20.1
 ## 项目结构
 
 ```
-status-bar/
+topiary-bar/
 ├── Package.swift
-├── Sources/status-bar/
+├── Sources/topiary-bar/
 │   ├── App/                    # 入口、设置窗口、状态栏调度
 │   ├── Managers/               # 监控、常驻栏、设置、本地化、面板
 │   ├── Views/                  # 主窗口 / 弹窗 / 面板 / 设置 / 主题组件
 │   └── Resources/              # entitlements、Assets.xcassets
-├── Tests/status-bar-tests/     # 单元测试（swift test，纯逻辑）
+├── Tests/topiary-bar-tests/     # 单元测试（swift test，纯逻辑）
 ├── script/
 │   ├── build_and_run.sh        # 本地：构建 + 签名 + 运行
 │   └── release.sh              # 发布：mas / devid 渠道
@@ -167,11 +167,11 @@ status-bar/
 
 - [docs/AppStoreChecklist.md](docs/AppStoreChecklist.md) — Mac App Store 提交清单
 - [CHANGELOG.md](CHANGELOG.md) — 版本历史
-- [官网](https://sky-jiangcheng.github.io/status-bar/) · [技术支持](https://sky-jiangcheng.github.io/status-bar/support/) · [隐私政策](https://sky-jiangcheng.github.io/status-bar/privacy/)
+- [官网](https://sky-jiangcheng.github.io/topiary-bar/) · [技术支持](https://sky-jiangcheng.github.io/topiary-bar/support/) · [隐私政策](https://sky-jiangcheng.github.io/topiary-bar/privacy/)
 
 ## 版本历史
 
-见 [CHANGELOG.md](CHANGELOG.md)；各版本产物见 [GitHub Releases](https://github.com/sky-jiangcheng/status-bar/releases)。
+见 [CHANGELOG.md](CHANGELOG.md)；各版本产物见 [GitHub Releases](https://github.com/sky-jiangcheng/topiary-bar/releases)。
 
 ## 许可证
 

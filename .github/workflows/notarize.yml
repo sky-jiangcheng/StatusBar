@@ -83,10 +83,10 @@ jobs:
           DMG_DIR="$RUNNER_TEMP/dmg"
           rm -rf "$DMG_DIR"
           mkdir -p "$DMG_DIR"
-          cp -R "dist/StatusBar.app" "$DMG_DIR/"
+          cp -R "dist/Topiary.app" "$DMG_DIR/"
           ln -s /Applications "$DMG_DIR/Applications"
-          DMG_PATH="dist/StatusBar-${{ steps.version.outputs.version }}.dmg"
-          hdiutil create -volname "StatusBar" -srcfolder "$DMG_DIR" -ov -format UDZO "$DMG_PATH"
+          DMG_PATH="dist/Topiary-${{ steps.version.outputs.version }}.dmg"
+          hdiutil create -volname "Topiary" -srcfolder "$DMG_DIR" -ov -format UDZO "$DMG_PATH"
           codesign --sign "$SIGNING_IDENTITY" --timestamp "$DMG_PATH"
           echo "DMG_PATH=$DMG_PATH" >> "$GITHUB_ENV"
 
@@ -108,8 +108,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: StatusBar-devid-${{ steps.version.outputs.version }}
-          path: dist/StatusBar-${{ steps.version.outputs.version }}.dmg
+          name: Topiary-devid-${{ steps.version.outputs.version }}
+          path: dist/Topiary-${{ steps.version.outputs.version }}.dmg
           if-no-files-found: error
 
       - name: Attach DMG to GitHub Release
@@ -117,6 +117,6 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
-          files: dist/StatusBar-${{ steps.version.outputs.version }}.dmg
+          files: dist/Topiary-${{ steps.version.outputs.version }}.dmg
           fail_on_unmatched_files: true
           generate_release_notes: true

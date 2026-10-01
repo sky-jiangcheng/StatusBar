@@ -2,25 +2,25 @@
 import PackageDescription
 
 let package = Package(
-    name: "status-bar",
+    name: "topiary-bar",
     platforms: [
         .macOS(.v14)
     ],
     products: [
-        .executable(name: "status-bar", targets: ["status-bar"])
+        .executable(name: "topiary-bar", targets: ["topiary-bar"])
     ],
     targets: [
         .executableTarget(
-            name: "status-bar",
-            path: "Sources/status-bar",
+            name: "topiary-bar",
+            path: "Sources/topiary-bar",
             exclude: [
                 "Resources"
             ]
         ),
         .testTarget(
-            name: "status-bar-tests",
-            dependencies: ["status-bar"],
-            path: "Tests/status-bar-tests"
+            name: "topiary-bar-tests",
+            dependencies: ["topiary-bar"],
+            path: "Tests/topiary-bar-tests"
         )
     ]
 )
