@@ -1,6 +1,13 @@
 import AppKit
 import SwiftUI
 
+// MARK: - Brand
+
+/// The product brand, single source of truth for every surface.
+enum Brand {
+    static let name = "Topiary"
+}
+
 // MARK: - Design tokens
 
 /// Shared design tokens. The pre-redesign UI hardcoded radii, opacities and

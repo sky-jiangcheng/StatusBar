@@ -69,13 +69,19 @@ struct ContentView: View {
         .frame(minWidth: 700, minHeight: 500)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Picker("", selection: $windowTab) {
-                    Text(l10n.windowTabApps).tag(WindowTab.apps)
-                    Text(l10n.windowTabSettings).tag(WindowTab.settings)
+                // Brand + window tabs share the title bar, so the full name
+                // stays visible on both tabs.
+                HStack(spacing: 14) {
+                    Text(Brand.name)
+                        .font(.headline)
+                    Picker("", selection: $windowTab) {
+                        Text(l10n.windowTabApps).tag(WindowTab.apps)
+                        Text(l10n.windowTabSettings).tag(WindowTab.settings)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .frame(width: 200)
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .frame(width: 200)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .selectSettingsTab)) { _ in
@@ -272,7 +278,7 @@ private struct OverviewView: View {
                 .foregroundStyle(Color.accentColor)
 
             VStack(spacing: 4) {
-                Text("Topiary")
+                Text(Brand.name)
                     .font(.title2)
                     .fontWeight(.semibold)
                 Text(l10n.menuBarManager)
