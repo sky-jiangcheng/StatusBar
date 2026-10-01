@@ -13,6 +13,7 @@ import Observation
 enum StatusBarVisibility {
     /// Horizontal band covered by the notch on `screen`; nil when the screen
     /// has no notch (the two auxiliary areas are then contiguous).
+    @MainActor
     static func notchBand(on screen: NSScreen) -> ClosedRange<CGFloat>? {
         guard let left = screen.auxiliaryTopLeftArea,
               let right = screen.auxiliaryTopRightArea,
@@ -24,6 +25,11 @@ enum StatusBarVisibility {
     /// window pushed off-screen, or one overlapping the notch band. A missing
     /// window (menu bar auto-hidden, item not laid out yet) is treated as
     /// visible so the monitor never raises a false alarm.
+    ///
+    /// MainActor-isolated because NSStatusItem/NSWindow/NSScreen geometry
+    /// properties are annotated @MainActor in recent SDKs; every caller
+    /// (VisibilityMonitor) runs on the main actor anyway.
+    @MainActor
     static func isVisible(_ item: NSStatusItem?, on screen: NSScreen?) -> Bool {
         guard let item, let window = item.button?.window else { return true }
         let frame = window.frame
