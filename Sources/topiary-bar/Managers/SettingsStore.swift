@@ -15,6 +15,10 @@ final class SettingsStore {
     var language: AppLanguage = .system
     /// Global hotkey that summons the main window; nil disables the hotkey.
     var mainWindowHotKey: HotKeyValue? = .mainWindow
+    /// Whether the Topiary icon is visible in the Dock (brand visibility +
+    /// discoverability). Default on; off turns the app back into a pure
+    /// background agent (no Dock icon, no ⌘-Tab entry).
+    var showDockIcon: Bool = true
 
     enum AggregationIconType: String, CaseIterable, Identifiable {
         case dots = "Three Dots"
@@ -65,10 +69,22 @@ final class SettingsStore {
 
         appearance = AppearanceMode(rawValue: defaults.string(forKey: "appearance") ?? "") ?? .system
         language = AppLanguage(rawValue: defaults.string(forKey: "language") ?? "") ?? .system
+        // Absent key → default (true): the Info.plist still launches the app
+        // as LSUIElement, so first launch starts without a Dock flash either way.
+        if defaults.object(forKey: "showDockIcon") != nil {
+            showDockIcon = defaults.bool(forKey: "showDockIcon")
+        }
         if let data = defaults.data(forKey: "mainWindowHotKey"),
            let value = try? JSONDecoder().decode(HotKeyValue.self, from: data) {
             mainWindowHotKey = value
         }
+    }
+
+    /// Applies the Dock-icon preference at runtime via activation policy.
+    /// The Info.plist keeps LSUIElement=1 so launch never flashes a Dock icon;
+    /// the policy is switched right after launch and on every change.
+    func applyDockPolicy() {
+        NSApp.setActivationPolicy(showDockIcon ? .regular : .accessory)
     }
 
     func save() {
@@ -77,6 +93,7 @@ final class SettingsStore {
         defaults.set(pinnedAppIDs, forKey: "pinnedAppIDs")
         defaults.set(appearance.rawValue, forKey: "appearance")
         defaults.set(language.rawValue, forKey: "language")
+        defaults.set(showDockIcon, forKey: "showDockIcon")
         defaults.set(try? JSONEncoder().encode(mainWindowHotKey), forKey: "mainWindowHotKey")
     }
 

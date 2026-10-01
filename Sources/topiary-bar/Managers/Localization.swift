@@ -85,6 +85,8 @@ struct L10nTable {
     var appearanceDark: String
     var sectionLanguage: String
     var languageSystem: String
+    var sectionDock: String
+    var showDockIcon: String
     var sectionRefresh: String
     var scanInterval: String
     // Settings — Menu bar icon
@@ -147,6 +149,8 @@ enum L10n {
         appearanceDark: "Dark",
         sectionLanguage: "Language",
         languageSystem: "System",
+        sectionDock: "Dock",
+        showDockIcon: "Show Dock icon",
         sectionRefresh: "Refresh",
         scanInterval: "Menu bar scan interval",
         sectionAggIcon: "Menu Bar Icon",
@@ -202,6 +206,8 @@ enum L10n {
         appearanceDark: "深色",
         sectionLanguage: "语言",
         languageSystem: "跟随系统",
+        sectionDock: "程序坞",
+        showDockIcon: "在程序坞显示图标",
         sectionRefresh: "刷新",
         scanInterval: "菜单栏扫描间隔",
         sectionAggIcon: "菜单栏图标",
@@ -257,6 +263,8 @@ enum L10n {
         appearanceDark: "ダーク",
         sectionLanguage: "言語",
         languageSystem: "システムに従う",
+        sectionDock: "ドック",
+        showDockIcon: "ドックにアイコンを表示",
         sectionRefresh: "更新",
         scanInterval: "メニューバーのスキャン間隔",
         sectionAggIcon: "メニューバーアイコン",
@@ -312,6 +320,8 @@ enum L10n {
         appearanceDark: "Dunkel",
         sectionLanguage: "Sprache",
         languageSystem: "System",
+        sectionDock: "Dock",
+        showDockIcon: "Dock-Symbol anzeigen",
         sectionRefresh: "Aktualisieren",
         scanInterval: "Scanintervall der Menüleiste",
         sectionAggIcon: "Menüleistensymbol",
@@ -367,6 +377,8 @@ enum L10n {
         appearanceDark: "Oscuro",
         sectionLanguage: "Idioma",
         languageSystem: "Sistema",
+        sectionDock: "Dock",
+        showDockIcon: "Mostrar el icono en el Dock",
         sectionRefresh: "Actualización",
         scanInterval: "Intervalo de escaneo de la barra de menú",
         sectionAggIcon: "Icono de la barra de menús",

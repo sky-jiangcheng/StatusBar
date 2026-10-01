@@ -70,8 +70,12 @@ struct ContentView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 // Brand + window tabs share the title bar, so the full name
-                // stays visible on both tabs.
-                HStack(spacing: 14) {
+                // and app icon stay visible on both tabs.
+                HStack(spacing: 10) {
+                    Image(nsImage: NSApp.applicationIconImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 17, height: 17)
                     Text(Brand.name)
                         .font(.headline)
                     Picker("", selection: $windowTab) {
@@ -273,9 +277,12 @@ private struct OverviewView: View {
         VStack(spacing: 20) {
             Spacer()
 
-            Image(systemName: "menubar.rectangle")
-                .font(.system(size: 44, weight: .medium))
-                .foregroundStyle(Color.accentColor)
+            // The real app icon as the brand mark (NSApp carries the bundle
+            // icon; the placeholder SF symbol only appears in unbundled runs).
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 56, height: 56)
 
             VStack(spacing: 4) {
                 Text(Brand.name)

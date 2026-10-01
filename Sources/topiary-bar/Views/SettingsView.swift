@@ -44,6 +44,14 @@ struct SettingsView: View {
                 }
             }
 
+            Section(l10n.sectionDock) {
+                Toggle(l10n.showDockIcon, isOn: $settings.showDockIcon)
+                    .onChange(of: settings.showDockIcon) { _, _ in
+                        settings.save()
+                        settings.applyDockPolicy()
+                    }
+            }
+
             Section(l10n.sectionRefresh) {
                 HStack {
                     Text(l10n.scanInterval)

@@ -50,6 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         settingsStore.applyAppearance()
+        settingsStore.applyDockPolicy()
 
         statusBarController = StatusBarManager(
             menuBarMonitor: menuBarMonitor,
@@ -92,6 +93,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     /// the app, or the resident status-bar icons would vanish with it.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
+    }
+
+    /// Branded Dock menu: the Dock icon is a brand surface, so it carries the
+    /// same entry points as the status item's context menu.
+    func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        let l10n = settingsStore.l10n
+        let menu = NSMenu()
+
+        let mainItem = NSMenuItem(title: l10n.openMainWindow, action: #selector(openMainWindowFromDock), keyEquivalent: "")
+        mainItem.target = self
+        menu.addItem(mainItem)
+
+        let settingsItem = NSMenuItem(title: l10n.settingsDots, action: #selector(openSettingsFromDock), keyEquivalent: "")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
+        menu.addItem(.separator())
+
+        let quitItem = NSMenuItem(title: l10n.quitAppTitle, action: #selector(quitFromDock), keyEquivalent: "")
+        quitItem.target = self
+        menu.addItem(quitItem)
+
+        return menu
+    }
+
+    @objc private func openMainWindowFromDock() {
+        NotificationCenter.default.post(name: .openMainWindow, object: nil)
+    }
+
+    @objc private func openSettingsFromDock() {
+        NotificationCenter.default.post(name: .openSettingsTab, object: nil)
+    }
+
+    @objc private func quitFromDock() {
+        NSApp.terminate(nil)
     }
 
     /// Finder re-launch (or `open -na Topiary`) while already running:

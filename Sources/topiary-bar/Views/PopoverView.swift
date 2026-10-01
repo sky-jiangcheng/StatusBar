@@ -74,8 +74,14 @@ struct PopoverView: View {
     private var headerSection: some View {
         HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(Brand.name)
-                    .font(.headline)
+                HStack(spacing: 6) {
+                    Image(nsImage: NSApp.applicationIconImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                    Text(Brand.name)
+                        .font(.headline)
+                }
                 Text(String(format: l10n.appsCount, menuBarMonitor.menuBarItems.count))
                     .font(.caption)
                     .foregroundStyle(.secondary)
