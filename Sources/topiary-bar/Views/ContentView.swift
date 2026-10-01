@@ -3,7 +3,6 @@ import SwiftUI
 struct ContentView: View {
     @Environment(MenuBarMonitor.self) private var menuBarMonitor
     @Environment(SettingsStore.self) private var settings
-    @Environment(AccessibilityManager.self) private var accessibilityManager
     @Environment(VisibilityMonitor.self) private var visibilityMonitor
 
     @State private var selectedFilter: AppFilter = .all
@@ -78,9 +77,6 @@ struct ContentView: View {
                 .labelsHidden()
                 .frame(width: 200)
             }
-        }
-        .onAppear {
-            accessibilityManager.refresh()
         }
         .onReceive(NotificationCenter.default.publisher(for: .selectSettingsTab)) { _ in
             windowTab = .settings
@@ -200,8 +196,7 @@ struct ContentView: View {
                 l10n: l10n,
                 total: menuBarMonitor.menuBarItems.count,
                 statusbarCount: menuBarMonitor.menuBarItems.filter { $0.appType == .statusbarOnly }.count,
-                dockCount: menuBarMonitor.menuBarItems.filter { $0.appType == .dockOnly }.count,
-                accessibilityAuthorized: accessibilityManager.isAuthorized
+                dockCount: menuBarMonitor.menuBarItems.filter { $0.appType == .dockOnly }.count
             )
         }
     }
@@ -249,14 +244,13 @@ private struct SidebarRow: View {
 
 // MARK: - Overview (no selection)
 
-/// Landing state shown while no app is selected: brand, a one-glance summary
-/// and the passive Accessibility diagnostic.
+/// Landing state shown while no app is selected: brand and a one-glance
+/// summary of what the menu bar currently holds.
 private struct OverviewView: View {
     let l10n: L10nTable
     let total: Int
     let statusbarCount: Int
     let dockCount: Int
-    let accessibilityAuthorized: Bool
 
     @Environment(VisibilityMonitor.self) private var visibilityMonitor
 
@@ -312,33 +306,10 @@ private struct OverviewView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
-            accessibilityBadge
-
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(24)
-    }
-
-    // Diagnostic only — the app never requests Accessibility access, so this
-    // is a passive label instead of a permission prompt.
-    @ViewBuilder
-    private var accessibilityBadge: some View {
-        if accessibilityAuthorized {
-            Label(l10n.granted, systemImage: "checkmark.shield.fill")
-                .font(.caption)
-                .foregroundStyle(.green)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(.green.opacity(0.1), in: Capsule())
-        } else {
-            Label(l10n.accessibilityOptional, systemImage: "info.circle")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(.quaternary.opacity(0.6), in: Capsule())
-        }
     }
 }
 

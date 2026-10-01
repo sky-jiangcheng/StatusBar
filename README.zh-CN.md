@@ -134,7 +134,7 @@ git tag v1.20.1 && git push origin v1.20.1
 
 ## 隐私
 
-不请求任何权限。应用通过公共 API 列出运行中的应用、只读展示 `AXIsProcessTrusted()` 状态，全部在本地处理 —— **无统计、无网络访问、零数据收集**。详见[隐私政策](https://sky-jiangcheng.github.io/topiary-bar/privacy/)。
+不请求任何权限。应用通过公共 API 列出运行中的应用，全部在本地处理 —— **无统计、无网络访问、零数据收集**。详见[隐私政策](https://sky-jiangcheng.github.io/topiary-bar/privacy/)。
 
 ## 技术栈
 

@@ -5,7 +5,7 @@
 - 仅使用公共 macOS API
 - 通过 `NSWorkspace.shared.runningApplications` 列出运行中的应用
 - 不请求屏幕录制、输入监控、文件访问、网络访问或自动化权限
-- **不请求辅助功能（Accessibility）权限**：仅在界面上只读展示 `AXIsProcessTrusted()` 的结果，未授权不影响任何功能
+- **不请求辅助功能（Accessibility）权限**：仅使用公共 API 列出运行中的应用
 - 包含最小 App Sandbox 授权文件 `Sources/topiary-bar/Resources/topiary-bar.entitlements`
 - App 图标源文件在 `design/leaf-icon`
 - 发布流程不依赖 Xcode 工程：`script/release.sh` 直接编译 SPM 产物并组装 `.app`

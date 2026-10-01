@@ -20,20 +20,17 @@ final class StatusBarManager {
 
     private let menuBarMonitor: MenuBarMonitor
     private let settingsStore: SettingsStore
-    private let accessibilityManager: AccessibilityManager
     private let visibilityMonitor: VisibilityMonitor
     private let systemMemoryMonitor: SystemMemoryMonitor
 
     init(
         menuBarMonitor: MenuBarMonitor,
         settingsStore: SettingsStore,
-        accessibilityManager: AccessibilityManager,
         visibilityMonitor: VisibilityMonitor,
         systemMemoryMonitor: SystemMemoryMonitor
     ) {
         self.menuBarMonitor = menuBarMonitor
         self.settingsStore = settingsStore
-        self.accessibilityManager = accessibilityManager
         self.visibilityMonitor = visibilityMonitor
         self.systemMemoryMonitor = systemMemoryMonitor
         self.residentBar = ResidentBarManager(
@@ -151,7 +148,6 @@ final class StatusBarManager {
             )
             .environment(menuBarMonitor)
             .environment(settingsStore)
-            .environment(accessibilityManager)
             .environment(visibilityMonitor)
             .environment(systemMemoryMonitor)
         )

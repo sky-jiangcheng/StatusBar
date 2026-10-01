@@ -32,7 +32,7 @@
         <p><strong>如何刷新运行中的应用列表？</strong><br>点击工具栏中的刷新按钮。Topiary 也会按设置间隔自动更新列表。</p>
         <p><strong>为什么有些 Status Bar 应用无法打开？</strong><br>macOS 不允许通过 <code>NSRunningApplication.activate()</code> 激活 accessory app（没有 Dock 图标）。Topiary 改用 <code>NSWorkspace.openApplication</code> 唤起，个别 accessory 应用仍可能无法被其他 app 激活，这是系统限制。</p>
         <p><strong>Topiary 是否收集个人数据？</strong><br>不。运行中的应用信息在本地处理，不会上传到任何服务器。</p>
-        <p><strong>需要 Accessibility 权限吗？</strong><br>不需要。界面只读展示辅助功能开关状态，未开启不影响任何功能。</p>
+        <p><strong>需要 Accessibility 权限吗？</strong><br>不需要。Topiary 只使用公共 API 列出运行中的应用，不涉及辅助功能框架。</p>
         <p><strong>App Store 版和官网 DMG 有什么区别？</strong><br>官网版（Developer ID）含退出 / 强制退出；Mac App Store 版受沙盒限制，这两项在编译期移除。两版 Bundle ID 不同，可同时安装。</p>
 
         <h2>系统要求</h2>
@@ -56,7 +56,7 @@
         <p><strong>How do I refresh the list of running apps?</strong><br>Tap the refresh button in the toolbar. Topiary also refreshes on the interval you set.</p>
         <p><strong>Why can't some Status Bar apps be opened?</strong><br>macOS does not allow <code>NSRunningApplication.activate()</code> on accessory apps (no Dock icon). Topiary uses <code>NSWorkspace.openApplication</code> instead; some accessory apps still cannot be activated by another app. This is a system limitation.</p>
         <p><strong>Does Topiary collect personal data?</strong><br>No. Information about running apps is processed on your device and never uploaded.</p>
-        <p><strong>Is Accessibility permission required?</strong><br>No. The UI only displays the accessibility switch state; every feature works without it.</p>
+        <p><strong>Is Accessibility permission required?</strong><br>No. Topiary only uses public APIs to list running apps — the Accessibility framework is never touched.</p>
         <p><strong>How does the App Store build differ from the DMG?</strong><br>The Developer ID build includes Quit / Force Quit. The Mac App Store build strips those at compile time because of sandboxing. The two builds use different bundle IDs and can coexist.</p>
 
         <h2>System requirements</h2>

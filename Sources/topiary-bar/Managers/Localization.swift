@@ -64,8 +64,6 @@ struct L10nTable {
     var noApps: String
     var noAppsInCategory: String
     var noAppsFound: String
-    var granted: String
-    var accessibilityOptional: String
     var total: String
     var open: String
     var quit: String
@@ -130,8 +128,6 @@ enum L10n {
         noApps: "No Apps",
         noAppsInCategory: "No apps in this category.",
         noAppsFound: "No apps found.",
-        granted: "Granted",
-        accessibilityOptional: "Accessibility: off (optional)",
         total: "Total",
         open: "Open",
         quit: "Quit",
@@ -187,8 +183,6 @@ enum L10n {
         noApps: "无应用",
         noAppsInCategory: "此分类下没有应用。",
         noAppsFound: "未找到应用。",
-        granted: "已授权",
-        accessibilityOptional: "辅助功能：未开启（可选）",
         total: "总计",
         open: "打开",
         quit: "退出",
@@ -244,8 +238,6 @@ enum L10n {
         noApps: "アプリなし",
         noAppsInCategory: "このカテゴリにアプリはありません。",
         noAppsFound: "アプリが見つかりません。",
-        granted: "許可済み",
-        accessibilityOptional: "アクセシビリティ：オフ（任意）",
         total: "合計",
         open: "開く",
         quit: "終了",
@@ -301,8 +293,6 @@ enum L10n {
         noApps: "Keine Apps",
         noAppsInCategory: "Keine Apps in dieser Kategorie.",
         noAppsFound: "Keine Apps gefunden.",
-        granted: "Erteilt",
-        accessibilityOptional: "Bedienungshilfen: aus (optional)",
         total: "Gesamt",
         open: "Öffnen",
         quit: "Beenden",
@@ -358,8 +348,6 @@ enum L10n {
         noApps: "Sin aplicaciones",
         noAppsInCategory: "No hay aplicaciones en esta categoría.",
         noAppsFound: "No se encontraron aplicaciones.",
-        granted: "Concedido",
-        accessibilityOptional: "Accesibilidad: desactivada (opcional)",
         total: "Total",
         open: "Abrir",
         quit: "Salir",

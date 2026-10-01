@@ -134,7 +134,7 @@ git tag v1.20.1 && git push origin v1.20.1
 
 ## Privacy
 
-No permissions requested. The app lists running applications via public APIs, reads the `AXIsProcessTrusted()` state for a read-only indicator, and processes everything locally — **no analytics, no network access, no data collection**. See the [Privacy Policy](https://sky-jiangcheng.github.io/topiary-bar/privacy/).
+No permissions requested. The app lists running applications via public APIs and processes everything locally — **no analytics, no network access, no data collection**. See the [Privacy Policy](https://sky-jiangcheng.github.io/topiary-bar/privacy/).
 
 ## Tech Stack
 

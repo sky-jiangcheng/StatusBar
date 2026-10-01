@@ -10,7 +10,6 @@ struct TopiaryApp: App {
             ContentView()
                 .environment(appDelegate.settingsStore)
                 .environment(appDelegate.menuBarMonitor)
-                .environment(appDelegate.accessibilityManager)
                 .environment(appDelegate.visibilityMonitor)
                 .environment(appDelegate.systemMemoryMonitor)
         }
@@ -25,7 +24,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     private var statusBarController: StatusBarManager?
 
     let settingsStore = SettingsStore()
-    let accessibilityManager = AccessibilityManager()
     let systemMemoryMonitor = SystemMemoryMonitor()
 
     private(set) lazy var menuBarMonitor = MenuBarMonitor(
@@ -56,7 +54,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         statusBarController = StatusBarManager(
             menuBarMonitor: menuBarMonitor,
             settingsStore: settingsStore,
-            accessibilityManager: accessibilityManager,
             visibilityMonitor: visibilityMonitor,
             systemMemoryMonitor: systemMemoryMonitor
         )
@@ -89,13 +86,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         visibilityMonitor.start { [weak self] in
             self?.summonMainWindow()
         }
-    }
-
-    /// Permissions can change while the app is in the background (System
-    /// Settings), so the read-only AX flag is re-read on every activation
-    /// instead of being polled on a timer.
-    func applicationDidBecomeActive(_ notification: Notification) {
-        accessibilityManager.refresh()
     }
 
     /// Background agent (LSUIElement): closing the last window must never quit
@@ -140,7 +130,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             rootView: ContentView()
                 .environment(settingsStore)
                 .environment(menuBarMonitor)
-                .environment(accessibilityManager)
                 .environment(visibilityMonitor)
                 .environment(systemMemoryMonitor)
         )
