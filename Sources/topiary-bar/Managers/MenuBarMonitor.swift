@@ -106,25 +106,6 @@ final class MenuBarMonitor {
         NotificationCenter.default.post(name: .menuBarItemsChanged, object: nil)
     }
 
-    /// Orders items by the user's custom order first; unordered items follow
-    /// alphabetically. Used by the aggregation panel and the popover.
-    func sortedByCustomOrder(_ items: [MenuBarItem]) -> [MenuBarItem] {
-        guard !settingsStore.customOrder.isEmpty else { return items }
-        let rank = Dictionary(
-            settingsStore.customOrder.enumerated().map { ($1, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-        return items.sorted { lhs, rhs in
-            switch (rank[lhs.id], rank[rhs.id]) {
-            case let (left?, right?): return left < right
-            case (.some, .none): return true
-            case (.none, .some): return false
-            default:
-                return lhs.processName.localizedCaseInsensitiveCompare(rhs.processName) == .orderedAscending
-            }
-        }
-    }
-
     private func getMenuItemsFromRunningApps() -> [MenuBarItem] {
         var items: [MenuBarItem] = []
         let runningApps = NSWorkspace.shared.runningApplications

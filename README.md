@@ -60,7 +60,6 @@ See, launch, quit, and pin every menu bar app running on your Mac. **No permissi
 | **Global hotkey** | ⌃⌥M summons the main window from anywhere (Carbon registration — no Accessibility permission) |
 | **Themes** | System / light / dark, applied instantly app-wide |
 | **Localization** | English, 简体中文, 日本語, Deutsch, Español — follow the system or pick manually |
-| **Custom order** | Drag to reorder; unordered apps can be dropped into a specific position |
 
 ## App Types
 

@@ -80,13 +80,23 @@ final class ResidentBarManager {
 
     /// Reconciles the menu bar against `pinnedAppIDs` intersected with the live
     /// app list: drop items that are unpinned or no longer running, add freshly
-    /// pinned ones, and refresh icons/tooltips of the rest.
+    /// pinned ones, and refresh icons/tooltips of the rest. Dock apps are never
+    /// eligible (they are already visible in the Dock) — stray pins from older
+    /// builds are cleaned up here.
     private func syncStatusItems() {
         let pinned = Set(settingsStore.pinnedAppIDs)
         let byID = Dictionary(
             menuBarMonitor.menuBarItems.map { ($0.id, $0) },
             uniquingKeysWith: { first, _ in first }
         )
+
+        // Dock apps must not become resident icons: drop stray pins (e.g. from
+        // earlier builds that allowed pinning any app) before reconciling.
+        let strayDockPins = settingsStore.pinnedAppIDs.filter { byID[$0]?.appType == .dockOnly }
+        if !strayDockPins.isEmpty {
+            settingsStore.pinnedAppIDs.removeAll { strayDockPins.contains($0) }
+            settingsStore.save()
+        }
 
         // Collect then remove: mutating the dictionary while iterating it in a
         // for-in would trap ("collection was mutated while being enumerated").
@@ -106,7 +116,8 @@ final class ResidentBarManager {
 
         for id in settingsStore.pinnedAppIDs {
             guard statusItems[id] == nil,
-                  let menuItem = byID[id] else { continue }
+                  let menuItem = byID[id],
+                  menuItem.appType == .statusbarOnly else { continue }
             if let item = makeStatusItem(for: menuItem) {
                 statusItems[id] = item
             }

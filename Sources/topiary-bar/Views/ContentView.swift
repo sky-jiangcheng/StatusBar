@@ -24,15 +24,14 @@ struct ContentView: View {
     /// Type filter first, then the search query over name and bundle ID.
     /// Mirrors PopoverView so both surfaces find the same apps.
     private var filteredItems: [MenuBarMonitor.MenuBarItem] {
-        let base = menuBarMonitor.sortedByCustomOrder(menuBarMonitor.menuBarItems)
         let scoped: [MenuBarMonitor.MenuBarItem]
         switch selectedFilter {
         case .all:
-            scoped = base
+            scoped = menuBarMonitor.menuBarItems
         case .statusbar:
-            scoped = base.filter { $0.appType == .statusbarOnly }
+            scoped = menuBarMonitor.menuBarItems.filter { $0.appType == .statusbarOnly }
         case .dock:
-            scoped = base.filter { $0.appType == .dockOnly }
+            scoped = menuBarMonitor.menuBarItems.filter { $0.appType == .dockOnly }
         }
 
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -431,15 +430,19 @@ private struct AppDetailView: View {
                 .buttonStyle(.borderedProminent)
             }
 
-            Button {
-                settings.togglePin(item.id)
-            } label: {
-                Label(
-                    settings.isPinned(item.id) ? l10n.unpinFromMenuBar : l10n.pinToMenuBar,
-                    systemImage: settings.isPinned(item.id) ? "pin.slash.fill" : "pin.fill"
-                )
+            // Residency only makes sense for menu-bar (accessory) apps: Dock
+            // apps are already permanently visible in the Dock.
+            if item.appType == .statusbarOnly {
+                Button {
+                    settings.togglePin(item.id)
+                } label: {
+                    Label(
+                        settings.isPinned(item.id) ? l10n.unpinFromMenuBar : l10n.pinToMenuBar,
+                        systemImage: settings.isPinned(item.id) ? "pin.slash.fill" : "pin.fill"
+                    )
+                }
+                .buttonStyle(.bordered)
             }
-            .buttonStyle(.bordered)
 
 #if !MAC_APP_STORE
             if menuBarMonitor.canQuit(item) {

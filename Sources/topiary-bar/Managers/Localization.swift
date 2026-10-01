@@ -89,29 +89,15 @@ struct L10nTable {
     var languageSystem: String
     var sectionRefresh: String
     var scanInterval: String
-    // Settings — Aggregation
+    // Settings — Menu bar icon
     var sectionAggIcon: String
     var aggIconCaption: String
-    var sectionSpacing: String
-    var spacingDefault: String
-    var spacingCompact: String
-    var spacingSmall: String
-    var spacingNone: String
     var iconTypeDots: String
     var iconTypeGrid: String
     var iconTypeChevron: String
     var iconTypeSquare: String
     var iconTypeCircle: String
     var iconTypeTransparent: String
-    // Settings — Icons & Order
-    var iconManagementTitle: String
-    var iconManagementCaption: String
-    var iconOrderTitle: String
-    var iconOrderCaption: String
-    var sectionCustomOrder: String
-    var sectionUnordered: String
-    var noIcons: String
-    var noIconsDetected: String
     // Resident bar context menu
     var removeFromPanel: String
     // App detail pane
@@ -169,25 +155,12 @@ enum L10n {
         scanInterval: "Menu bar scan interval",
         sectionAggIcon: "Menu Bar Icon",
         aggIconCaption: "Choose the icon Topiary shows in the menu bar.",
-        sectionSpacing: "Icon Spacing",
-        spacingDefault: "Default",
-        spacingCompact: "Compact",
-        spacingSmall: "Small",
-        spacingNone: "None",
         iconTypeDots: "Three Dots",
         iconTypeGrid: "Grid",
         iconTypeChevron: "Chevron",
         iconTypeSquare: "Square",
         iconTypeCircle: "Circle",
         iconTypeTransparent: "Transparent",
-        iconManagementTitle: "Menu Bar Icons",
-        iconManagementCaption: "Detected apps and their type.",
-        iconOrderTitle: "Icon Order",
-        iconOrderCaption: "Drag to reorder icons. Icons not in the list will appear after custom-ordered icons.",
-        sectionCustomOrder: "Custom Order",
-        sectionUnordered: "Unordered",
-        noIcons: "No Icons",
-        noIconsDetected: "No menu bar icons detected.",
         removeFromPanel: "Remove from panel",
         pinToMenuBar: "Pin to Menu Bar",
         unpinFromMenuBar: "Unpin from Menu Bar",
@@ -239,25 +212,12 @@ enum L10n {
         scanInterval: "菜单栏扫描间隔",
         sectionAggIcon: "菜单栏图标",
         aggIconCaption: "选择 Topiary 在菜单栏显示的图标。",
-        sectionSpacing: "图标间距",
-        spacingDefault: "默认",
-        spacingCompact: "紧凑",
-        spacingSmall: "小",
-        spacingNone: "无",
         iconTypeDots: "三个点",
         iconTypeGrid: "网格",
         iconTypeChevron: "箭头",
         iconTypeSquare: "方形",
         iconTypeCircle: "圆形",
         iconTypeTransparent: "透明",
-        iconManagementTitle: "菜单栏图标",
-        iconManagementCaption: "检测到的应用及其类型。",
-        iconOrderTitle: "图标顺序",
-        iconOrderCaption: "拖拽调整顺序。不在列表中的应用将排在自定义顺序之后。",
-        sectionCustomOrder: "自定义顺序",
-        sectionUnordered: "未排序",
-        noIcons: "无图标",
-        noIconsDetected: "未检测到菜单栏图标。",
         removeFromPanel: "从面板移除",
         pinToMenuBar: "常驻菜单栏",
         unpinFromMenuBar: "取消常驻",
@@ -309,25 +269,12 @@ enum L10n {
         scanInterval: "メニューバーのスキャン間隔",
         sectionAggIcon: "メニューバーアイコン",
         aggIconCaption: "Topiary がメニューバーに表示するアイコンを選択します。",
-        sectionSpacing: "アイコンの間隔",
-        spacingDefault: "デフォルト",
-        spacingCompact: "コンパクト",
-        spacingSmall: "小",
-        spacingNone: "なし",
         iconTypeDots: "3 つのドット",
         iconTypeGrid: "グリッド",
         iconTypeChevron: "シェブロン",
         iconTypeSquare: "四角",
         iconTypeCircle: "円",
         iconTypeTransparent: "透明",
-        iconManagementTitle: "メニューバーのアイコン",
-        iconManagementCaption: "検出されたアプリとその種類。",
-        iconOrderTitle: "アイコンの順序",
-        iconOrderCaption: "ドラッグして並べ替えます。リストにないアイコンはカスタム順序の後に表示されます。",
-        sectionCustomOrder: "カスタム順序",
-        sectionUnordered: "未整列",
-        noIcons: "アイコンなし",
-        noIconsDetected: "メニューバーのアイコンが検出されません。",
         removeFromPanel: "パネルから削除",
         pinToMenuBar: "メニューバーに常駐",
         unpinFromMenuBar: "常駐を解除",
@@ -379,25 +326,12 @@ enum L10n {
         scanInterval: "Scanintervall der Menüleiste",
         sectionAggIcon: "Menüleistensymbol",
         aggIconCaption: "Wählen Sie das Symbol, das Topiary in der Menüleiste zeigt.",
-        sectionSpacing: "Symbolabstand",
-        spacingDefault: "Standard",
-        spacingCompact: "Kompakt",
-        spacingSmall: "Klein",
-        spacingNone: "Keine",
         iconTypeDots: "Drei Punkte",
         iconTypeGrid: "Raster",
         iconTypeChevron: "Chevron",
         iconTypeSquare: "Quadrat",
         iconTypeCircle: "Kreis",
         iconTypeTransparent: "Transparent",
-        iconManagementTitle: "Menüleisten-Symbole",
-        iconManagementCaption: "Erkannte Apps und ihr Typ.",
-        iconOrderTitle: "Symbolreihenfolge",
-        iconOrderCaption: "Ziehen Sie Symbole zum Neuanordnen. Symbole außerhalb der Liste erscheinen hinter den sortierten.",
-        sectionCustomOrder: "Eigene Reihenfolge",
-        sectionUnordered: "Nicht sortiert",
-        noIcons: "Keine Symbole",
-        noIconsDetected: "Keine Menüleisten-Symbole erkannt.",
         removeFromPanel: "Aus dem Panel entfernen",
         pinToMenuBar: "In die Menüleiste pinnen",
         unpinFromMenuBar: "Nicht mehr pinnen",
@@ -449,25 +383,12 @@ enum L10n {
         scanInterval: "Intervalo de escaneo de la barra de menú",
         sectionAggIcon: "Icono de la barra de menús",
         aggIconCaption: "Elige el icono que Topiary muestra en la barra de menús.",
-        sectionSpacing: "Espaciado de iconos",
-        spacingDefault: "Predeterminado",
-        spacingCompact: "Compacto",
-        spacingSmall: "Pequeño",
-        spacingNone: "Ninguno",
         iconTypeDots: "Tres puntos",
         iconTypeGrid: "Cuadrícula",
         iconTypeChevron: "Cheurón",
         iconTypeSquare: "Cuadrado",
         iconTypeCircle: "Círculo",
         iconTypeTransparent: "Transparente",
-        iconManagementTitle: "Iconos de la barra de menú",
-        iconManagementCaption: "Aplicaciones detectadas y su tipo.",
-        iconOrderTitle: "Orden de iconos",
-        iconOrderCaption: "Arrastra para reordenar. Los iconos que no estén en la lista aparecerán después de los ordenados.",
-        sectionCustomOrder: "Orden personalizado",
-        sectionUnordered: "Sin ordenar",
-        noIcons: "Sin iconos",
-        noIconsDetected: "No se detectaron iconos de la barra de menú.",
         removeFromPanel: "Quitar del panel",
         pinToMenuBar: "Fijar a la barra de menú",
         unpinFromMenuBar: "Dejar de fijar",

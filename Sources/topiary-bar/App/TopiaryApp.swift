@@ -161,9 +161,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         statusBarController?.teardown()
         statusBarController = nil
 
-        // Drop custom-order entries of apps that are no longer running, so the
-        // persisted order does not grow without bound across sessions.
-        settingsStore.pruneOrder(keeping: menuBarMonitor.menuBarItems.map(\.id))
-        settingsStore.prunePins(keeping: menuBarMonitor.menuBarItems.map(\.id))
+        // Drop pins of apps that are no longer running, so the persisted set
+        // does not grow without bound across sessions. Only menu-bar apps are
+        // kept: Dock apps must never become resident icons.
+        settingsStore.prunePins(
+            keeping: menuBarMonitor.menuBarItems
+                .filter { $0.appType == .statusbarOnly }
+                .map(\.id)
+        )
     }
 }

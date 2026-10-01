@@ -16,7 +16,7 @@ struct PopoverView: View {
     private var l10n: L10nTable { settings.l10n }
 
     private var filteredItems: [MenuBarMonitor.MenuBarItem] {
-        let base = menuBarMonitor.sortedByCustomOrder(menuBarMonitor.menuBarItems)
+        let base = menuBarMonitor.menuBarItems
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return base
         }

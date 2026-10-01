@@ -84,40 +84,6 @@ struct SettingsView: View {
 
                 AggregationIconSelector(selectedIcon: $settings.aggregationIcon, l10n: l10n)
             }
-
-            Section(l10n.iconManagementTitle) {
-                Text(l10n.iconManagementCaption)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                List(menuBarMonitor.menuBarItems) { item in
-                    HStack {
-                        AppIconView(icon: item.icon, size: 20)
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(item.processName)
-                                .font(.body)
-                            Text(item.bundleIdentifier)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-
-                        Spacer()
-
-                        AppTypeBadge(type: item.appType, l10n: l10n)
-                    }
-                }
-                .listStyle(.inset(alternatesRowBackgrounds: true))
-                .frame(height: 240)
-            }
-
-            Section(l10n.iconOrderTitle) {
-                IconOrderView(
-                    customOrder: $settings.customOrder,
-                    menuBarItems: menuBarMonitor.menuBarItems,
-                    l10n: l10n
-                )
-            }
         }
         .formStyle(.grouped)
         .onChange(of: settings.mainWindowHotKey) { _, newValue in

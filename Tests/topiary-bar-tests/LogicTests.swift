@@ -26,61 +26,6 @@ final class LogicTests: XCTestCase {
         XCTAssertNil(MenuBarMonitor.baseBundleID(of: ""))
     }
 
-    // MARK: - MenuBarMonitor.sortedByCustomOrder
-
-    private func item(_ id: String, _ name: String) -> MenuBarMonitor.MenuBarItem {
-        MenuBarMonitor.MenuBarItem(
-            id: id,
-            bundleIdentifier: id,
-            processName: name,
-            icon: nil,
-            appType: .dockOnly
-        )
-    }
-
-    func testSortedByCustomOrderPutsOrderedFirstThenUnorderedAlphabetically() {
-        let store = SettingsStore()
-        store.customOrder = ["b"]
-        let monitor = MenuBarMonitor(settingsStore: store)
-
-        let sorted = monitor.sortedByCustomOrder([
-            item("c", "Cherry"),
-            item("b", "Banana"),
-            item("a", "Apple"),
-        ])
-
-        XCTAssertEqual(sorted.map(\.id), ["b", "a", "c"])
-    }
-
-    func testSortedByCustomOrderWithoutOrderKeepsInputOrder() {
-        // With no custom order the input is passed through; the alphabetical
-        // baseline comes from getMenuItemsFromRunningApps.
-        let store = SettingsStore()
-        store.customOrder = []
-        let monitor = MenuBarMonitor(settingsStore: store)
-
-        let sorted = monitor.sortedByCustomOrder([
-            item("c", "Cherry"),
-            item("a", "Apple"),
-        ])
-
-        XCTAssertEqual(sorted.map(\.id), ["c", "a"])
-    }
-
-    func testSortedByCustomOrderIgnoresUnknownOrderedIDs() {
-        // IDs of apps that have quit must not break the ordering.
-        let store = SettingsStore()
-        store.customOrder = ["ghost", "a"]
-        let monitor = MenuBarMonitor(settingsStore: store)
-
-        let sorted = monitor.sortedByCustomOrder([
-            item("b", "Banana"),
-            item("a", "Apple"),
-        ])
-
-        XCTAssertEqual(sorted.map(\.id), ["a", "b"])
-    }
-
     // MARK: - Pin management
 
     func testTogglePinAddsOnesInOrderAndRemoves() {
@@ -111,27 +56,6 @@ final class LogicTests: XCTestCase {
         store.pinnedAppIDs = ["com.running"]
         store.prunePins(keeping: ["com.running"])
         XCTAssertEqual(store.pinnedAppIDs, ["com.running"])
-    }
-
-    // MARK: - Custom order ownership
-
-    func testCustomOrderOnlyContainsExplicitlyOrderedItems() {
-        let store = SettingsStore()
-        store.customOrder = ["b"]
-        let monitor = MenuBarMonitor(settingsStore: store)
-
-        let sorted = monitor.sortedByCustomOrder([
-            item("b", "Banana"),
-            item("a", "Apple"),
-            item("c", "Cherry"),
-        ])
-
-        XCTAssertEqual(sorted.map(\.id), ["b", "a", "c"])
-        XCTAssertEqual(store.customOrder, ["b"])
-        XCTAssertEqual(
-            sorted.filter { !store.customOrder.contains($0.id) }.map(\.id),
-            ["a", "c"]
-        )
     }
 
     // MARK: - MenuBarItem equality

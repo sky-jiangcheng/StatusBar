@@ -7,7 +7,6 @@ import Observation
 final class SettingsStore {
     var aggregationIcon: AggregationIconType = .dots
     var refreshInterval: TimeInterval = 2.0
-    var customOrder: [String] = []
     /// Bundle IDs the user chose to keep visibly resident in the menu bar,
     /// in the order they were pinned. Each pinned app gets its own always-
     /// visible status item.
@@ -59,7 +58,6 @@ final class SettingsStore {
 
     func load() {
         aggregationIcon = AggregationIconType(rawValue: defaults.string(forKey: "aggregationIcon") ?? "") ?? .dots
-        customOrder = defaults.stringArray(forKey: "customOrder") ?? []
         pinnedAppIDs = defaults.stringArray(forKey: "pinnedAppIDs") ?? []
 
         let storedRefresh = defaults.double(forKey: "refreshInterval")
@@ -76,7 +74,6 @@ final class SettingsStore {
     func save() {
         defaults.set(aggregationIcon.rawValue, forKey: "aggregationIcon")
         defaults.set(refreshInterval, forKey: "refreshInterval")
-        defaults.set(customOrder, forKey: "customOrder")
         defaults.set(pinnedAppIDs, forKey: "pinnedAppIDs")
         defaults.set(appearance.rawValue, forKey: "appearance")
         defaults.set(language.rawValue, forKey: "language")
@@ -104,18 +101,6 @@ final class SettingsStore {
         let pruned = pinnedAppIDs.filter { keep.contains($0) }
         guard pruned.count != pinnedAppIDs.count else { return }
         pinnedAppIDs = pruned
-        save()
-    }
-
-    /// Drops custom-order entries whose IDs are absent from `detectedIDs`.
-    /// Called at termination so quit apps stop accumulating in UserDefaults;
-    /// a returning app stays in the Unordered section until the user moves it
-    /// back into the explicit custom order.
-    func pruneOrder(keeping detectedIDs: [String]) {
-        let keep = Set(detectedIDs)
-        let pruned = customOrder.filter { keep.contains($0) }
-        guard pruned.count != customOrder.count else { return }
-        customOrder = pruned
         save()
     }
 }
