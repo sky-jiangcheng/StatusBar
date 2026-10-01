@@ -121,6 +121,8 @@ struct L10nTable {
     var hotKeyNone: String
     var hotKeyClear: String
     var hotKeyConflict: String
+    // Overview — resident apps
+    var residentAppsTitle: String
 }
 
 enum L10n {
@@ -181,7 +183,8 @@ enum L10n {
         hotKeyRecording: "Press shortcut…",
         hotKeyNone: "Disabled",
         hotKeyClear: "Clear",
-        hotKeyConflict: "This shortcut is already taken — please choose another."
+        hotKeyConflict: "This shortcut is already taken — please choose another.",
+        residentAppsTitle: "Resident Apps"
     )
 
     static let zhHans = L10nTable(
@@ -241,7 +244,8 @@ enum L10n {
         hotKeyRecording: "按下快捷键…",
         hotKeyNone: "未设置",
         hotKeyClear: "清除",
-        hotKeyConflict: "该快捷键已被其他应用占用，请更换一个。"
+        hotKeyConflict: "该快捷键已被其他应用占用，请更换一个。",
+        residentAppsTitle: "常驻应用"
     )
 
     static let ja = L10nTable(
@@ -301,7 +305,8 @@ enum L10n {
         hotKeyRecording: "ショートカットを入力…",
         hotKeyNone: "未設定",
         hotKeyClear: "クリア",
-        hotKeyConflict: "このショートカットは既に使用されています。別のものを設定してください。"
+        hotKeyConflict: "このショートカットは既に使用されています。別のものを設定してください。",
+        residentAppsTitle: "常駐アプリ"
     )
 
     static let de = L10nTable(
@@ -361,7 +366,8 @@ enum L10n {
         hotKeyRecording: "Kurzbefehl drücken…",
         hotKeyNone: "Nicht festgelegt",
         hotKeyClear: "Löschen",
-        hotKeyConflict: "Dieser Kurzbefehl ist bereits belegt — bitte einen anderen wählen."
+        hotKeyConflict: "Dieser Kurzbefehl ist bereits belegt — bitte einen anderen wählen.",
+        residentAppsTitle: "Angepinnte Apps"
     )
 
     static let es = L10nTable(
@@ -421,7 +427,8 @@ enum L10n {
         hotKeyRecording: "Pulsa el atajo…",
         hotKeyNone: "Sin atajo",
         hotKeyClear: "Borrar",
-        hotKeyConflict: "Este atajo ya está en uso — elige otro."
+        hotKeyConflict: "Este atajo ya está en uso — elige otro.",
+        residentAppsTitle: "Apps fijadas"
     )
 
     // Memoized: Locale.preferredLanguages is stable within a launch session,

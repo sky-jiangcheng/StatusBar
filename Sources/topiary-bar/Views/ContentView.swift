@@ -69,15 +69,13 @@ struct ContentView: View {
         .frame(minWidth: 700, minHeight: 500)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                // Brand + window tabs share the title bar, so the full name
-                // and app icon stay visible on both tabs.
+                // The window title already carries the brand name on the left;
+                // the toolbar only adds the icon and the tab switcher.
                 HStack(spacing: 10) {
                     Image(nsImage: NSApp.applicationIconImage)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 17, height: 17)
-                    Text(Brand.name)
-                        .font(.headline)
                     Picker("", selection: $windowTab) {
                         Text(l10n.windowTabApps).tag(WindowTab.apps)
                         Text(l10n.windowTabSettings).tag(WindowTab.settings)
@@ -258,15 +256,26 @@ private struct SidebarRow: View {
 
 // MARK: - Overview (no selection)
 
-/// Landing state shown while no app is selected: brand and a one-glance
-/// summary of what the menu bar currently holds.
+/// Landing state shown while no app is selected: brand, a one-glance summary
+/// and direct controls for the resident (pinned) apps — their own menu bar
+/// icons may be occluded, so quitting them must not depend on those icons.
 private struct OverviewView: View {
+    @Environment(MenuBarMonitor.self) private var menuBarMonitor
+    @Environment(SettingsStore.self) private var settings
     let l10n: L10nTable
     let total: Int
     let statusbarCount: Int
     let dockCount: Int
 
     @Environment(VisibilityMonitor.self) private var visibilityMonitor
+
+    /// Pinned apps in pin order, resolved against the live app list.
+    private var pinnedItems: [MenuBarMonitor.MenuBarItem] {
+        let byID = Dictionary(
+            uniqueKeysWithValues: menuBarMonitor.menuBarItems.map { ($0.id, $0) }
+        )
+        return settings.pinnedAppIDs.compactMap { byID[$0] }
+    }
 
     /// Main icon occluded and pinned icons occluded read differently; the
     /// pinned variant carries the count.
@@ -318,6 +327,10 @@ private struct OverviewView: View {
                 .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: Theme.Radius.control))
             }
 
+            if !pinnedItems.isEmpty {
+                residentSection
+            }
+
             Text(l10n.selectAppPrompt)
                 .font(.callout)
                 .foregroundStyle(.secondary)
@@ -327,6 +340,61 @@ private struct OverviewView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(24)
+    }
+
+    /// Direct controls for resident apps: their own menu bar icons may be
+    /// occluded (notch, crowding, a hider utility), so the main panel must be
+    /// able to quit or unpin them without depending on those icons.
+    private var residentSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(l10n.residentAppsTitle)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.top, 10)
+                .padding(.bottom, 4)
+
+            ForEach(pinnedItems) { item in
+                HStack(spacing: 8) {
+                    AppIconView(icon: item.icon, size: 20)
+
+                    Text(item.processName)
+                        .font(.callout)
+                        .lineLimit(1)
+
+                    Spacer()
+
+#if !MAC_APP_STORE
+                    if menuBarMonitor.canQuit(item) {
+                        Button(l10n.quit) {
+                            menuBarMonitor.quitApp(item)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.mini)
+                    }
+#endif
+
+                    Button {
+                        settings.togglePin(item.id)
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .help(l10n.removeFromPanel)
+                    .accessibilityLabel(l10n.removeFromPanel)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+
+                if item.id != pinnedItems.last?.id {
+                    Divider()
+                }
+            }
+        }
+        .frame(width: 320)
+        .background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: Theme.Radius.control))
     }
 }
 
