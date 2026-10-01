@@ -142,7 +142,7 @@ No permissions requested. The app lists running applications via public APIs and
 - **Frameworks**: SwiftUI + AppKit
 - **Architecture**: `@Observable` (Observation framework)
 - **Build**: Swift Package Manager (no `.xcodeproj`; release scripts assemble the `.app`)
-- **Background agent**: `LSUIElement` — closing every window keeps the resident menu bar icons alive
+- **Background agent**: launches as `LSUIElement` (no Dock flash) then switches to a regular app at runtime — the Dock icon is on by default (toggle in Settings) and closing every window keeps the resident menu bar icons alive
 
 ## Project Structure
 
