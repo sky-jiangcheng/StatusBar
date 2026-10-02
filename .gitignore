@@ -12,6 +12,7 @@ xcuserdata/
 AuthKey_*.p8
 .workbuddy/
 .cidata/
+.easyclaw/
 
 # Uploaded artifacts (certificates, profiles, screenshots) must never be committed.
 .uploads/

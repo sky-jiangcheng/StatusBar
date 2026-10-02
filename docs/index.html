@@ -25,7 +25,7 @@
         <h2>下载</h2>
         <p>
           <a href="https://github.com/sky-jiangcheng/topiary-bar/releases/latest">从 GitHub Releases 下载最新 DMG</a>
-          （Developer ID 公证，含退出 / 强制退出）。Mac App Store 版另行分发。
+          （Developer ID 公证版，含退出功能）。Mac App Store 版受沙盒限制不含退出，另行分发。
         </p>
 
         <h2>功能特性</h2>
@@ -36,7 +36,7 @@
           </div>
           <div class="feature-card">
             <h3>⚡ 一键操作</h3>
-            <p>打开、常驻、退出、强制退出应用</p>
+            <p>打开、常驻、退出应用（退出为优雅终止，3 秒未退出自动升级强杀）</p>
           </div>
           <div class="feature-card">
             <h3>📌 状态栏常驻</h3>
@@ -44,7 +44,23 @@
           </div>
           <div class="feature-card">
             <h3>🔎 搜索过滤</h3>
-            <p>按名称或 Bundle ID 快速搜索</p>
+            <p>按名称或 Bundle ID 快速搜索，可按类型筛选</p>
+          </div>
+          <div class="feature-card">
+            <h3>📊 内存洞察</h3>
+            <p>系统内存占用卡片 + 每个应用的内存足迹（本地读取，不上传）</p>
+          </div>
+          <div class="feature-card">
+            <h3>⌨️ 全局快捷键</h3>
+            <p>默认 ⌃⌥M 唤起主窗口，可自定义组合或禁用（Carbon 注册，无需辅助功能权限）</p>
+          </div>
+          <div class="feature-card">
+            <h3>🚀 登录时启动</h3>
+            <p>可选开机启动，抢占菜单栏右侧稳定位置</p>
+          </div>
+          <div class="feature-card">
+            <h3>🛟 刘海遮挡自愈</h3>
+            <p>检测到图标被刘海吞掉时自动弹出管理窗口，后台代理不会失联</p>
           </div>
           <div class="feature-card">
             <h3>🎨 外观主题</h3>
@@ -55,12 +71,12 @@
             <p>简体中文 / English / 日本語 / Deutsch / Español</p>
           </div>
           <div class="feature-card">
-            <h3>↕️ 拖拽排序</h3>
-            <p>拖拽调整菜单栏图标的自定义顺序</p>
+            <h3>🎛️ 图标样式</h3>
+            <p>菜单栏图标可选圆点 / 网格 / 箭头 / 方块 / 圆环 / 透明</p>
           </div>
           <div class="feature-card">
             <h3>🔒 无需权限</h3>
-            <p>运行时不请求任何系统权限</p>
+            <p>运行时不请求任何系统权限，数据不出设备</p>
           </div>
         </div>
 
@@ -85,7 +101,17 @@
         <h2>系统要求</h2>
         <ul>
           <li>macOS 14.0+</li>
-          <li>不请求任何权限：全部功能开箱即用，数据不出设备</li>
+          <li>不请求任何权限，数据不出设备</li>
+        </ul>
+
+        <h2>已知限制</h2>
+        <ul>
+          <li>Status Bar（accessory）应用无法通过 <code>NSRunningApplication.activate()</code> 前置，需改用 <code>openApplication</code> 重新唤起；个别 accessory 应用（如 Macs Fan Control）系统层面不允许被其他应用唤起</li>
+          <li>应用类型基于 <code>activationPolicy</code> 推断，无法读取状态栏图标的真实归属</li>
+          <li>菜单栏图标初始位置由系统决定（首次落在最左侧、靠刘海）。<strong>⌘-拖动一次</strong>即可固定，位置跨启动保留</li>
+          <li>不隐藏其他应用的真实菜单栏图标（AX 隐藏方案已于 v1.6.0 移除），需精简请搭配 Hidden Bar / Ice 等工具；这些工具运行时本应用不会误报刘海遮挡</li>
+          <li>Mac App Store 版受沙盒限制，<code>NSRunningApplication.terminate()</code> 被系统拦截，因此不含退出功能</li>
+          <li>深色图标变体仅在 Xcode 资产目录流程下生效，命令行 <code>iconutil</code> 生成的 <code>.icns</code> 只含浅色图标</li>
         </ul>
 
         <h2>链接</h2>
@@ -101,7 +127,7 @@
         <h2>Download</h2>
         <p>
           <a href="https://github.com/sky-jiangcheng/topiary-bar/releases/latest">Get the latest DMG from GitHub Releases</a>
-          (Developer ID notarized, includes Quit / Force Quit). The Mac App Store build is distributed separately.
+          (Developer ID notarized, includes Quit). The Mac App Store build is sandboxed and ships without it.
         </p>
 
         <h2>Features</h2>
@@ -112,7 +138,7 @@
           </div>
           <div class="feature-card">
             <h3>⚡ One-click actions</h3>
-            <p>Open, pin, quit, or force quit apps</p>
+            <p>Open, pin, or quit apps — quit escalates to a force kill if the app is still alive after 3 s</p>
           </div>
           <div class="feature-card">
             <h3>📌 Resident menu bar icons</h3>
@@ -120,7 +146,23 @@
           </div>
           <div class="feature-card">
             <h3>🔎 Search &amp; filter</h3>
-            <p>Filter instantly by name or bundle identifier</p>
+            <p>Filter by name or bundle identifier, narrowed by app type</p>
+          </div>
+          <div class="feature-card">
+            <h3>📊 Memory insight</h3>
+            <p>System memory card plus a per-app memory footprint, read locally and never uploaded</p>
+          </div>
+          <div class="feature-card">
+            <h3>⌨️ Global hotkey</h3>
+            <p>⌃⌥M summons the main window by default; rebind or disable it (Carbon registration, no Accessibility permission)</p>
+          </div>
+          <div class="feature-card">
+            <h3>🚀 Launch at login</h3>
+            <p>Optional start-at-login claims a stable spot near the right edge of the menu bar</p>
+          </div>
+          <div class="feature-card">
+            <h3>🛟 Notch self-healing</h3>
+            <p>Detects an icon swallowed by the notch and surfaces the manager window, so the background agent is never unreachable</p>
           </div>
           <div class="feature-card">
             <h3>🎨 Themes</h3>
@@ -131,12 +173,12 @@
             <p>English, 简体中文, 日本語, Deutsch, Español</p>
           </div>
           <div class="feature-card">
-            <h3>↕️ Drag to reorder</h3>
-            <p>Arrange menu bar icons into a custom order</p>
+            <h3>🎛️ Icon styles</h3>
+            <p>Dots, grid, chevron, square, circle, or transparent</p>
           </div>
           <div class="feature-card">
             <h3>🔒 No permissions</h3>
-            <p>Runs without requesting any system access</p>
+            <p>Runs without requesting any system access; no data leaves the device</p>
           </div>
         </div>
 
@@ -161,7 +203,17 @@
         <h2>Requirements</h2>
         <ul>
           <li>macOS 14.0 or later</li>
-          <li>No permissions required — every feature works out of the box</li>
+          <li>No permissions required; no data leaves the device</li>
+        </ul>
+
+        <h2>Known limitations</h2>
+        <ul>
+          <li>Status Bar (accessory) apps cannot be foregrounded with <code>NSRunningApplication.activate()</code> — Topiary re-launches them via <code>openApplication</code>; a few accessory apps (e.g. Macs Fan Control) can't be raised by other apps at all</li>
+          <li>App typing is based on <code>activationPolicy</code>, so the real owner of a menu bar icon cannot be read</li>
+          <li>The menu bar icon's initial position is system-controlled (fresh items land leftmost, next to the notch). <strong>⌘-drag it once</strong> to where you want it; the position is remembered across launches</li>
+          <li>Topiary does not hide other apps' real menu bar icons (AX-based hiding was removed in v1.6.0). Pair it with Hidden Bar / Ice for that — occlusion warnings are suppressed automatically while one runs</li>
+          <li>The Mac App Store build is sandboxed and <code>NSRunningApplication.terminate()</code> is blocked, so Quit is compiled out of that channel</li>
+          <li>Dark app icon variants only apply via the Xcode asset-catalog flow; the command-line <code>iconutil</code> build produces a light-only <code>.icns</code></li>
         </ul>
 
         <h2>Links</h2>

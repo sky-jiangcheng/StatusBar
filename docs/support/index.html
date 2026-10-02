@@ -26,14 +26,16 @@
         <p>如需支持、错误报告或反馈，请发送邮件至 <a href="mailto:jiangcheng1806@gmail.com">jiangcheng1806@gmail.com</a>。</p>
 
         <h2>安装</h2>
-        <p>从 <a href="https://github.com/sky-jiangcheng/Topiary/releases/latest">GitHub Releases</a> 下载公证后的 DMG，将 <code>Topiary.app</code> 拖到 Applications。首次打开若出现 Gatekeeper 提示：系统设置 → 隐私与安全性 → 仍要打开。</p>
+        <p>从 <a href="https://github.com/sky-jiangcheng/topiary-bar/releases/latest">GitHub Releases</a> 下载公证后的 DMG，将 <code>Topiary.app</code> 拖到 Applications。首次打开若出现 Gatekeeper 提示：系统设置 → 隐私与安全性 → 仍要打开。</p>
 
         <h2>常见问题</h2>
-        <p><strong>如何刷新运行中的应用列表？</strong><br>点击工具栏中的刷新按钮。Topiary 也会按设置间隔自动更新列表。</p>
+        <p><strong>如何刷新运行中的应用列表？</strong><br>无需手动刷新：Topiary 按设置页的扫描间隔（1 / 2 / 5 秒）自动更新，列表与详情页会即时刷新。</p>
         <p><strong>为什么有些 Status Bar 应用无法打开？</strong><br>macOS 不允许通过 <code>NSRunningApplication.activate()</code> 激活 accessory app（没有 Dock 图标）。Topiary 改用 <code>NSWorkspace.openApplication</code> 唤起，个别 accessory 应用仍可能无法被其他 app 激活，这是系统限制。</p>
+        <p><strong>菜单栏图标被刘海挡住了？</strong><br>Topiary 会自动检测并弹出管理窗口。首次使用建议 <strong>⌘-拖动</strong>图标到顺手的位置，位置会跨启动保留；菜单栏过挤时也可退出部分 Status Bar 应用腾出空间。</p>
+        <p><strong>如何唤起主窗口？</strong><br>点击菜单栏图标打开弹窗，或按全局快捷键（默认 ⌃⌥M，可在设置页自定义或禁用）。</p>
         <p><strong>Topiary 是否收集个人数据？</strong><br>不。运行中的应用信息在本地处理，不会上传到任何服务器。</p>
         <p><strong>需要 Accessibility 权限吗？</strong><br>不需要。Topiary 只使用公共 API 列出运行中的应用，不涉及辅助功能框架。</p>
-        <p><strong>App Store 版和官网 DMG 有什么区别？</strong><br>官网版（Developer ID）含退出 / 强制退出；Mac App Store 版受沙盒限制，这两项在编译期移除。两版 Bundle ID 不同，可同时安装。</p>
+        <p><strong>App Store 版和官网 DMG 有什么区别？</strong><br>官网版（Developer ID）含退出功能；Mac App Store 版受沙盒限制，该功能在编译期移除。两版 Bundle ID 不同，可同时安装。</p>
 
         <h2>系统要求</h2>
         <p>Topiary 需要 macOS 14.0 或更高版本。</p>
@@ -50,14 +52,16 @@
         <p>For support, bug reports, or feedback, email <a href="mailto:jiangcheng1806@gmail.com">jiangcheng1806@gmail.com</a>.</p>
 
         <h2>Install</h2>
-        <p>Download the notarized DMG from <a href="https://github.com/sky-jiangcheng/Topiary/releases/latest">GitHub Releases</a> and drag <code>Topiary.app</code> into Applications. If Gatekeeper prompts on first launch: System Settings → Privacy &amp; Security → Open Anyway.</p>
+        <p>Download the notarized DMG from <a href="https://github.com/sky-jiangcheng/topiary-bar/releases/latest">GitHub Releases</a> and drag <code>Topiary.app</code> into Applications. If Gatekeeper prompts on first launch: System Settings → Privacy &amp; Security → Open Anyway.</p>
 
         <h2>Frequently asked questions</h2>
-        <p><strong>How do I refresh the list of running apps?</strong><br>Tap the refresh button in the toolbar. Topiary also refreshes on the interval you set.</p>
+        <p><strong>How do I refresh the list of running apps?</strong><br>There is nothing to refresh manually: Topiary rescans on the interval you set in Settings (1 / 2 / 5 s) and both the list and the detail pane update in place.</p>
         <p><strong>Why can't some Status Bar apps be opened?</strong><br>macOS does not allow <code>NSRunningApplication.activate()</code> on accessory apps (no Dock icon). Topiary uses <code>NSWorkspace.openApplication</code> instead; some accessory apps still cannot be activated by another app. This is a system limitation.</p>
+        <p><strong>My menu bar icon is hidden by the notch?</strong><br>Topiary detects the occlusion and surfaces the manager window on its own. On first use, <strong>⌘-drag</strong> the icon somewhere convenient — the position is remembered across launches. If the bar is genuinely full, quitting a few Status Bar apps frees it up.</p>
+        <p><strong>How do I open the main window?</strong><br>Click the menu bar icon to open the popover, or press the global hotkey (⌃⌥M by default; rebind or disable it in Settings).</p>
         <p><strong>Does Topiary collect personal data?</strong><br>No. Information about running apps is processed on your device and never uploaded.</p>
         <p><strong>Is Accessibility permission required?</strong><br>No. Topiary only uses public APIs to list running apps — the Accessibility framework is never touched.</p>
-        <p><strong>How does the App Store build differ from the DMG?</strong><br>The Developer ID build includes Quit / Force Quit. The Mac App Store build strips those at compile time because of sandboxing. The two builds use different bundle IDs and can coexist.</p>
+        <p><strong>How does the App Store build differ from the DMG?</strong><br>The Developer ID build includes Quit. The Mac App Store build strips it at compile time because of sandboxing. The two builds use different bundle IDs and can coexist.</p>
 
         <h2>System requirements</h2>
         <p>Topiary requires macOS 14.0 or later.</p>

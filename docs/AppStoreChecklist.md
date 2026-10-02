@@ -7,6 +7,7 @@
 - 不请求屏幕录制、输入监控、文件访问、网络访问或自动化权限
 - **不请求辅助功能（Accessibility）权限**：仅使用公共 API 列出运行中的应用
 - 包含最小 App Sandbox 授权文件 `Sources/topiary-bar/Resources/topiary-bar.entitlements`
+- 包含隐私清单 `Sources/topiary-bar/Resources/PrivacyInfo.xcprivacy`（`release.sh` 自动拷入 bundle 并 `plutil -lint` 校验）；缺失会被 App Store Connect 拒收
 - App 图标由 `tools/generate_app_icon.py` 从滑块玻璃面板源图生成（`python3 tools/generate_app_icon.py [SOURCE_IMAGE]`），产物写入 `Sources/topiary-bar/Resources/Assets.xcassets/AppIcon.appiconset`
 - 发布流程不依赖 Xcode 工程：`script/release.sh` 直接编译 SPM 产物并组装 `.app`
 
@@ -16,12 +17,14 @@
 2. 本地跑通一次发布构建：`CHANNEL=mas SIGNING_IDENTITY="Apple Distribution: …" bash script/release.sh`
 3. 在 Apple Developer 后台确认 / 创建 `com.jiangcheng.MacStatusApp` 的 App ID
 4. 创建并下载 Mac App Store 类型的 provisioning profile
-5. 确认 App Sandbox 由 `Sources/topiary-bar/Resources/topiary-bar.entitlements` 启用（MAS 渠道的 `-D MAC_APP_STORE` 会编译期移除 Quit / Force Quit）
+5. 确认 App Sandbox 由 `Sources/topiary-bar/Resources/topiary-bar.entitlements` 启用（MAS 渠道的 `-D MAC_APP_STORE` 会编译期移除退出功能）
 6. 核对 `script/release.sh` 中内嵌的 `Info.plist`：Bundle ID、版本号（`APP_VERSION` / `BUILD_NUMBER`）、`LSMinimumSystemVersion`、分类
-7. 隐私营养标签：**不收集任何数据**
+7. 隐私营养标签：**不收集任何数据**。隐私清单只申报 `NSPrivacyAccessedAPICategoryUserDefaults` / `CA92.1`（应用自身设置），与标签口径一致
 8. 重新截取 App Store 截图。`AppStoreScreenshots/` 里的文件仍是改版前的旧品牌命名（`macstatus-*`），与当前 UI 不符
-9. 上传：走 CI（`.github/workflows/release.yml`，推送 `v*` 标签）或手动
-   `xcrun altool --upload-app --type macos --file "dist/Topiary.pkg" --apiKey … --apiIssuer …`
+9. 上传：走 CI（`.github/workflows/release.yml`，推送 `v*` 标签）。两个发布 job 都绑定 `release` environment，需在 Repo → Settings → Environments 配置 required reviewers 与 secrets
+10. 手动上传（需完整 Xcode，优先 iTMSTransporter）：
+    `xcrun iTMSTransporter -m upload -assetFile dist/Topiary.pkg -apiKey … -apiIssuer …`
+    旧版 `xcrun altool --upload-app` 已废弃，仅作回退
 
 ## 构建与打包（唯一流程）
 
@@ -46,4 +49,5 @@
 - 应用不会隐藏系统菜单栏图标（AX 隐藏方案已于 v1.6.0 移除）；需要该能力请搭配 Hidden Bar / Ice 等专用工具
 - 暗色 App 图标变体（`Assets.xcassets/AppIcon.appiconset/dark/`）只在 Xcode 资产目录（`Assets.car`）流程下生效；`script/release.sh` 用 `iconutil` 生成 `.icns`，该格式只包含浅色图标
 - MAS 沙盒下 `NSRunningApplication.terminate()` 被系统拦截，因此 mas 渠道用 `-D MAC_APP_STORE` 编译期剔除退出功能
+- 深色图标变体只走 Xcode 资产目录流程；`release.sh` 用 `iconutil` 生成的 `.icns` 仅含浅色图标
 

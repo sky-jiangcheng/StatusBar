@@ -39,17 +39,18 @@ See, launch, quit, and pin every menu bar app running on your Mac. **No permissi
 |---------|-------------|
 | **Pin to menu bar** | Pinned app icons live directly in the macOS menu bar — one resident status item per app, always visible, no window or panel needed. Left-click activates the app; right-click offers open / unpin / quit |
 | **Pin from the main window** | Select any app and flip its "Pin to Menu Bar" switch in the detail pane; pinned rows carry a pin mark in the list. No floating management panel needed |
-| **Persistence** | Pins and custom order survive relaunch (stored per distribution channel in `UserDefaults`) |
+| **Persistence** | Pins and their order survive relaunch (stored per distribution channel in `UserDefaults`) |
 
 ### 🚦 App Management
 
 | Feature | Description |
 |---------|-------------|
 | **Auto detection** | Classifies running apps as Status Bar (accessory) vs. Dock (regular) via `activationPolicy` |
-| **One-click actions** | Open, quit, and force quit (quit/force quit compiled out of the sandboxed Mac App Store build) |
+| **One-click actions** | Open, pin, and quit — quit is a graceful `terminate()` that escalates to `forceTerminate()` if the app is still alive after 3 s (Quit is compiled out of the sandboxed Mac App Store build) |
 | **Accessory wake-up** | macOS refuses to foreground accessory apps via `NSRunningApplication.activate()`; Topiary re-launches them with `NSWorkspace.openApplication(at:configuration:)` (`activates = true`) |
 | **Live monitoring** | Running-app list refreshes on a 1/2/5 s interval |
-| **Search & filter** | By name or bundle ID, in both the main window and the popover |
+| **Search & filter** | By name or bundle ID, narrowed by app type, in both the main window and the popover |
+| **Notch self-healing** | When macOS silently swallows an icon behind the notch, the manager window is summoned automatically so the background agent stays reachable |
 
 ### 🎨 Interface
 
@@ -57,9 +58,10 @@ See, launch, quit, and pin every menu bar app running on your Mac. **No permissi
 |---------|-------------|
 | **Main window** | Two tabs — Apps and Settings — in one window. Apps: sidebar (search + type filter + grouped app list with per-section counts) and a detail pane (overview with compact stats when nothing is selected, structured app details with a pin toggle when an app is) |
 | **Menu bar popover** | Type-grouped app list with search and per-app memory; system memory overview card; explicit close button; settings / main window / quit in the footer |
-| **Global hotkey** | ⌃⌥M summons the main window from anywhere (Carbon registration — no Accessibility permission) |
+| **Global hotkey** | ⌃⌥M summons the main window from anywhere; rebindable and disableable (Carbon registration — no Accessibility permission) |
 | **Launch at Login** | Starts Topiary automatically at login to claim a stable spot near the right edge of the menu bar |
 | **Themes** | System / light / dark, applied instantly app-wide |
+| **Menu bar icon** | Dots / grid / chevron / square / circle / transparent |
 | **Localization** | English, 简体中文, 日本語, Deutsch, Español — follow the system or pick manually |
 
 ## App Types
@@ -75,7 +77,7 @@ See, launch, quit, and pin every menu bar app running on your Mac. **No permissi
 2. Open the DMG and drag `Topiary.app` into Applications
 3. On first launch, if Gatekeeper asks: System Settings → Privacy & Security → Open Anyway
 
-The Developer ID build (notarized DMG) includes Quit / Force Quit. The Mac App Store build is sandboxed and ships without them. Both can be installed side by side (different bundle IDs, isolated settings).
+The Developer ID build (notarized DMG) includes Quit. The Mac App Store build is sandboxed and ships without it. Both can be installed side by side (different bundle IDs, isolated settings).
 
 ## Build from Source
 
@@ -105,9 +107,9 @@ swift build --build-system native \
 
 Pushing a `v*` tag triggers two pipelines at once:
 
-| Channel | Workflow | Bundle ID | Sandbox | Quit / Force Quit | Artifact |
+| Channel | Workflow | Bundle ID | Sandbox | Quit | Artifact |
 |---------|----------|-----------|---------|-------------------|----------|
-| Mac App Store | `release.yml` | `com.jiangcheng.MacStatusApp` | On (MAS enforced) | Compiled out | `.pkg` → uploaded via altool |
+| Mac App Store | `release.yml` | `com.jiangcheng.MacStatusApp` | On (MAS enforced) | Compiled out | `.pkg` → uploaded via iTMSTransporter |
 | Developer ID | `notarize.yml` | `com.jiangcheng.EasyBar` | Off (Hardened Runtime) | Fully available | `.dmg` → notarized + stapled → attached to the GitHub Release |
 
 Unit tests run on every push/PR via `test.yml` (macOS runner + full Xcode, `swift test`).
@@ -116,7 +118,9 @@ Both pipelines drive `script/release.sh`: compile the SPM product and assemble t
 
 > The MAS `.pkg` must be signed with a **3rd Party Mac Developer Installer** certificate. `release.yml` also imports the Apple WWDR G3 intermediate certificate. Required secrets live in Repo → Settings → Secrets and variables → Actions (cert `.p12` + passwords, provisioning profile, App Store Connect API key/issuer); optional `BUNDLE_ID` / `BUNDLE_ID_DIRECT` variables override the bundle IDs. Never commit `.p12` / `.cer` / `.provisionprofile` / `.p8` files.
 
-> `xcrun altool --upload-app` is on Apple's deprecation path; if a runner image drops it, switch that step to Transporter or the App Store Connect API.
+> Both release jobs are pinned to the `release` environment so the signing secrets sit behind required reviewers.
+
+> The App Store upload prefers `xcrun iTMSTransporter` (ships with Xcode) and falls back to the deprecated `altool` when a runner image lacks it.
 
 To cut a release:
 
@@ -131,11 +135,13 @@ git tag v1.20.1 && git push origin v1.20.1
 - The menu bar icon's initial position is system-controlled — fresh status items land leftmost, next to the notch. **⌘-drag it once** to where you want it; the position is remembered across launches. The app also detects when the icon is occluded and summons its window automatically
 - The app does not hide real system menu bar icons (the AX-based hiding was removed in v1.6.0). Pair it with a dedicated hider utility (Hidden Bar, Ice, Bartender) if you want that — occlusion warnings are suppressed automatically while one runs
 - Dark app icon variants (`Assets.xcassets/AppIcon.appiconset/dark/`) only apply via the Xcode asset-catalog (`Assets.car`) flow; `script/release.sh` generates a light-only `.icns` via `iconutil`
-- Under MAS sandbox, `NSRunningApplication.terminate()` is blocked with no user-facing toggle, so the MAS build strips Quit / Force Quit at compile time via `-D MAC_APP_STORE`
+- Under MAS sandbox, `NSRunningApplication.terminate()` is blocked with no user-facing toggle, so the MAS build strips Quit at compile time via `-D MAC_APP_STORE`
 
 ## Privacy
 
 No permissions requested. The app lists running applications via public APIs and processes everything locally — **no analytics, no network access, no data collection**. See the [Privacy Policy](https://sky-jiangcheng.github.io/topiary-bar/privacy/).
+
+`Sources/topiary-bar/Resources/PrivacyInfo.xcprivacy` is the shipped privacy manifest: no tracking, no collected data types, and a single required-reason entry (`NSPrivacyAccessedAPICategoryUserDefaults` / `CA92.1`) covering the app's own settings. `script/release.sh` copies it into the bundle and lints it before signing.
 
 ## Tech Stack
 
@@ -151,10 +157,10 @@ No permissions requested. The app lists running applications via public APIs and
 topiary-bar/
 ├── Package.swift
 ├── Sources/topiary-bar/
-│   ├── App/                    # Entry point, settings window, status bar controller
+│   ├── App/                    # Entry point (AppDelegate) + status bar controller
 │   ├── Managers/               # Monitoring, resident bar, memory/visibility monitors, settings, localization
 │   ├── Views/                  # Main window (apps + settings tabs) / popover / theme components
-│   └── Resources/              # entitlements, Assets.xcassets
+│   └── Resources/              # entitlements, Assets.xcassets, PrivacyInfo.xcprivacy
 ├── Tests/topiary-bar-tests/     # Unit tests (swift test, logic only)
 ├── script/
 │   ├── build_and_run.sh        # Local: build + sign + run

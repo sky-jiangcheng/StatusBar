@@ -39,17 +39,18 @@
 |------|------|
 | **常驻菜单栏** | 勾选的应用图标直接入住 macOS 菜单栏 —— 每个应用一个常驻图标，始终可见，无需弹出任何窗口。左键唤起应用，右键菜单可打开 / 取消常驻 / 退出 |
 | **主窗口一键常驻** | 选中应用后在详情页打开「常驻菜单栏」开关，列表中已常驻的应用带图钉标识——不再需要浮动管理面板 |
-| **持久化** | 常驻勾选重启后仍生效（按分发渠道隔离存于 `UserDefaults`） |
+| **持久化** | 常驻勾选及顺序重启后仍生效（按分发渠道隔离存于 `UserDefaults`） |
 
 ### 🚦 应用管理
 
 | 功能 | 说明 |
 |------|------|
 | **App 类型自动检测** | 基于 `activationPolicy` 区分 Status Bar（accessory）与 Dock（regular）应用 |
-| **一键操作** | 打开、退出、强制退出（MAS 沙盒版编译期剔除退出功能） |
+| **一键操作** | 打开、常驻、退出——退化为优雅 `terminate()`，3 秒未退出自动升级 `forceTerminate()`（MAS 沙盒版编译期剔除退出功能） |
 | **accessory 唤起** | macOS 禁止 `NSRunningApplication.activate()` 前台化 accessory 应用；本应用改用 `NSWorkspace.openApplication(at:configuration:)`（`activates = true`）重新唤起 |
 | **实时监控** | 按 1/2/5 秒间隔刷新运行中的应用列表 |
-| **搜索过滤** | 主窗口与弹窗均可按名称或 Bundle ID 搜索 |
+| **搜索过滤** | 主窗口与弹窗均可按名称或 Bundle ID 搜索，并可按类型筛选 |
+| **刘海自愈** | macOS 静默吞掉刘海下的图标时自动弹出管理窗口，后台代理不会失联 |
 
 ### 🎨 界面
 
@@ -57,8 +58,9 @@
 |------|------|
 | **主窗口** | 双标签一窗口——「应用」与「设置」。应用页：侧栏（搜索 + 类型筛选 + 分组应用列表，小节头带数量）+ 详情区（未选中显示品牌概览与紧凑统计，选中显示结构化应用详情与常驻开关） |
 | **菜单栏弹窗** | 按类型分组的应用列表 + 每应用内存 + 系统内存概览卡片；明确关闭按钮；底栏为设置 / 打开主窗口 / 退出 |
-| **全局快捷键** | ⌃⌥M 随时唤起主窗口（Carbon 注册，无需辅助功能权限） |
+| **全局快捷键** | ⌃⌥M 随时唤起主窗口，可自定义组合或禁用（Carbon 注册，无需辅助功能权限） |
 | **外观主题** | 跟随系统 / 浅色 / 深色，全局即时生效 |
+| **菜单栏图标** | 圆点 / 网格 / 箭头 / 方块 / 圆环 / 透明 |
 | **多语言** | 简体中文 / English / 日本語 / Deutsch / Español，可跟随系统或手动切换 |
 
 ## App 类型
@@ -104,9 +106,9 @@ swift build --build-system native \
 
 推送 `v*` 标签会同时触发两条流水线：
 
-| 渠道 | Workflow | Bundle ID | 沙盒 | Quit / Force Quit | 产物 |
+| 渠道 | Workflow | Bundle ID | 沙盒 | 退出功能 | 产物 |
 |------|----------|-----------|------|-------------------|------|
-| Mac App Store | `release.yml` | `com.jiangcheng.MacStatusApp` | 开（MAS 强制） | 编译期移除 | `.pkg` → altool 上传 |
+| Mac App Store | `release.yml` | `com.jiangcheng.MacStatusApp` | 开（MAS 强制） | 编译期移除 | `.pkg` → iTMSTransporter 上传 |
 | 官网自分发 | `notarize.yml` | `com.jiangcheng.EasyBar` | 关（Hardened Runtime） | 完整可用 | `.dmg` → 公证 + 装订 → 挂到 GitHub Release |
 
 单元测试由 `test.yml` 在每次 push/PR 运行（macOS runner + 完整 Xcode，`swift test`）。
@@ -115,7 +117,9 @@ swift build --build-system native \
 
 > MAS 的 `.pkg` 必须用 **3rd Party Mac Developer Installer** 证书签名；`release.yml` 会导入 Apple WWDR G3 中间证书。所需 Secrets 位于 Repo → Settings → Secrets and variables → Actions（证书 `.p12` + 密码、描述文件、App Store Connect API key/issuer）；可选变量 `BUNDLE_ID` / `BUNDLE_ID_DIRECT` 覆盖 Bundle ID。切勿提交 `.p12` / `.cer` / `.provisionprofile` / `.p8` 文件。
 
-> `xcrun altool --upload-app` 已列入 Apple 弃用计划；若 runner 镜像移除，请将该步骤切换为 Transporter 或 App Store Connect API。
+> 两条发布流水线都绑定到 `release` environment，签名 secrets 需经required reviewers 放行。
+
+> App Store 上传优先使用随 Xcode 提供的 `xcrun iTMSTransporter`；runner 镜像缺失时回退到已弃用的 `altool`。
 
 发布新版本：
 
@@ -136,6 +140,8 @@ git tag v1.20.1 && git push origin v1.20.1
 
 不请求任何权限。应用通过公共 API 列出运行中的应用，全部在本地处理 —— **无统计、无网络访问、零数据收集**。详见[隐私政策](https://sky-jiangcheng.github.io/topiary-bar/privacy/)。
 
+`Sources/topiary-bar/Resources/PrivacyInfo.xcprivacy` 是随包发布的隐私清单：无追踪、无收集数据类型，仅一条 required-reason 声明（`NSPrivacyAccessedAPICategoryUserDefaults` / `CA92.1`）覆盖应用自身设置。`script/release.sh` 会将其拷入 bundle 并在签名前校验。
+
 ## 技术栈
 
 - **语言**：Swift 6.0
@@ -151,10 +157,10 @@ git tag v1.20.1 && git push origin v1.20.1
 topiary-bar/
 ├── Package.swift
 ├── Sources/topiary-bar/
-│   ├── App/                    # 入口、设置窗口、状态栏调度
+│   ├── App/                    # 入口（AppDelegate）+ 状态栏调度
 │   ├── Managers/               # 监控、常驻栏、内存/可见性监控、设置、本地化
 │   ├── Views/                  # 主窗口（应用 + 设置双标签）/ 弹窗 / 主题组件
-│   └── Resources/              # entitlements、Assets.xcassets
+│   └── Resources/              # entitlements、Assets.xcassets、PrivacyInfo.xcprivacy
 ├── Tests/topiary-bar-tests/     # 单元测试（swift test，纯逻辑）
 ├── script/
 │   ├── build_and_run.sh        # 本地：构建 + 签名 + 运行
