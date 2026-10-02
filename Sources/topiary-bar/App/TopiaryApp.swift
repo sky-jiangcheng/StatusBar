@@ -62,7 +62,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
         // systemMemoryMonitor is started/stopped by StatusBarManager's popover
         // delegate — the numbers are only rendered inside the popover.
-        GlobalHotKey.apply(settingsStore.mainWindowHotKey)
+        //
+        // A conflict here (another app grabbed the shortcut while Topiary was
+        // closed) leaves the hotkey unregistered; the user finds out on the
+        // next keypress, and the settings pane re-registers when they pick a
+        // new combination.
+        _ = GlobalHotKey.apply(settingsStore.mainWindowHotKey)
 
         // Main window / settings entry points coming from the status item's
         // context menu and the popover: the AppDelegate owns the actual

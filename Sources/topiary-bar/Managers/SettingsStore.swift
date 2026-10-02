@@ -86,8 +86,8 @@ final class SettingsStore {
         }
         launchAtLogin = defaults.bool(forKey: "launchAtLogin")
         if let data = defaults.data(forKey: "mainWindowHotKey"),
-           let value = try? JSONDecoder().decode(HotKeyValue.self, from: data) {
-            mainWindowHotKey = value
+           let boxed = try? JSONDecoder().decode(Boxed.self, from: data) {
+            mainWindowHotKey = boxed.hotKey
         }
     }
 
@@ -116,7 +116,16 @@ final class SettingsStore {
         defaults.set(language.rawValue, forKey: "language")
         defaults.set(showDockIcon, forKey: "showDockIcon")
         defaults.set(launchAtLogin, forKey: "launchAtLogin")
-        defaults.set(try? JSONEncoder().encode(mainWindowHotKey), forKey: "mainWindowHotKey")
+        // A nil hotkey (user cleared it) must stay distinguishable from an
+        // absent key (never configured): `set(nil, forKey:)` *removes* the
+        // key, which made the default shortcut resurrect on every launch.
+        // Boxing the optional makes "disabled" an explicit stored value.
+        defaults.set(try? JSONEncoder().encode(Boxed(hotKey: mainWindowHotKey)), forKey: "mainWindowHotKey")
+    }
+
+    /// `UserDefaults` cannot store a top-level `nil`, so the hotkey is boxed.
+    private struct Boxed: Codable {
+        let hotKey: HotKeyValue?
     }
 
     /// Whether `bundleID` is currently pinned into the resident panel.

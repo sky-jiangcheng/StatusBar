@@ -2,8 +2,14 @@ import AppKit
 import Observation
 import SwiftUI
 
+/// Status-bar item owner: the menu bar button, its transient popover, and the
+/// right-click context menu.
+///
+/// Inherits NSObject so it can conform to `NSPopoverDelegate` (an
+/// `NSObjectProtocol` refinement, which a pure Swift class cannot declare) and
+/// to keep the existing `#selector` / `button.target = self` wiring.
 @MainActor
-final class StatusBarManager {
+final class StatusBarManager: NSObject {
     private var statusItem: NSStatusItem?
     private let popover = NSPopover()
     private var eventMonitor: Any?
@@ -23,6 +29,8 @@ final class StatusBarManager {
     private let visibilityMonitor: VisibilityMonitor
     private let systemMemoryMonitor: SystemMemoryMonitor
 
+    /// A new designated initializer (NSObject only vends `init()`), so it does
+    /// not override anything — but `super.init()` is still required.
     init(
         menuBarMonitor: MenuBarMonitor,
         settingsStore: SettingsStore,
@@ -37,6 +45,8 @@ final class StatusBarManager {
             menuBarMonitor: menuBarMonitor,
             settingsStore: settingsStore
         )
+
+        super.init()
 
         setupStatusItem()
         setupPopover()
