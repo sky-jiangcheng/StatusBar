@@ -46,6 +46,16 @@ final class MenuBarMonitor {
                 && lhs.appType == rhs.appType
                 && lhs.icon === rhs.icon
         }
+
+        /// Content equality: `==` is deliberately identity-only (it drives
+        /// SwiftUI list diffs, pin state and detail-pane selection), so it
+        /// ignores the live pid / memory footprint. Change detection needs the
+        /// opposite: the UI *shows* both, so they must count as content.
+        func hasSameContent(as other: MenuBarItem) -> Bool {
+            self == other
+                && pid == other.pid
+                && memoryFootprint == other.memoryFootprint
+        }
     }
 
     init(settingsStore: SettingsStore) {
@@ -99,52 +109,80 @@ final class MenuBarMonitor {
     /// Rebuilds the item list from the running apps. The aggregation panel is
     /// manual-only (summoned by the user), so a changed list only fans out a
     /// layout-changed notice so a visible panel can re-fit its frame.
+    ///
+    /// Both scans are sorted by process name, so element-wise `zip` comparison
+    /// is aligned; any add/remove shifts the suffix and still reports a change.
     func refreshMenuItems() {
         let newItems = getMenuItemsFromRunningApps()
-        guard newItems != menuBarItems else { return }
+        // Content (memory / pid) is part of what the UI renders, so any content
+        // change must be published — the identity-only `==` that drives SwiftUI
+        // diffs deliberately ignores those live values.
+        let contentChanged = newItems.count != menuBarItems.count
+            || zip(newItems, menuBarItems).contains { !$0.hasSameContent(as: $1) }
+        guard contentChanged else { return }
+        // Only an add / remove / rename reshuffles the menu bar; a memory tick
+        // must not wake the resident bar or the occlusion monitor.
+        let identityChanged = newItems.count != menuBarItems.count
+            || zip(newItems, menuBarItems).contains { $0 != $1 }
         menuBarItems = newItems
-        NotificationCenter.default.post(name: .menuBarItemsChanged, object: nil)
+        if identityChanged {
+            NotificationCenter.default.post(name: .menuBarItemsChanged, object: nil)
+        }
+    }
+
+    /// System agents that own menu bar / Dock real estate but are not
+    /// user-facing apps. The app itself is excluded dynamically via
+    /// Bundle.main (the bundle ID differs per distribution channel), so only
+    /// system agents are listed here.
+    private static let systemAgentBundleIDs: Set<String> = [
+        "com.apple.Spotlight",
+        "com.apple.WindowManager",
+        "com.apple.notificationcenterui",
+        "com.apple.controlcenter",
+        "com.apple.controlcenter.helper",
+        "com.apple.dock",
+        "com.apple.dock.helper",
+        "com.apple.dock.extra",
+        "com.apple.Siri",
+        "com.apple.loginwindow",
+        "com.apple.CoreLocationAgent",
+        "com.apple.coreservices.uiagent",
+        "com.apple.backgroundtaskmanagement.agent",
+        "com.apple.SoftwareUpdateNotificationManager",
+        "com.apple.UserNotificationCenter",
+        "com.apple.Security.keychain-circle-Notification",
+        "com.apple.accessibility.universalaccessauthwarn",
+        "com.apple.LocalAuthentication.UIAgent",
+        "com.apple.talagent",
+        "com.apple.storeuid",
+        "com.apple.TextInputMenuAgent",
+        "com.apple.TextInputSwitcher",
+        "com.apple.wifi.WiFiAgent",
+        "com.apple.AirPlayUIAgent",
+        "com.apple.universalcontrol",
+        "com.apple.AccessibilityUIServer",
+        "com.apple.wallpaper.agent",
+        "com.apple.PowerChime",
+        "com.apple.WorkflowKit.ShortcutsViewService",
+        "com.apple.systemuiserver",
+    ]
+
+    /// `NSRunningApplication.icon` hits the disk on every access, and the scan
+    /// runs every 1-5 s for the lifetime of the app. Icons are therefore cached
+    /// per bundle ID; the map is bounded by the installed app set.
+    private var iconCache: [String: NSImage] = [:]
+
+    private func cachedIcon(for app: NSRunningApplication, bundleID: String) -> NSImage? {
+        if let cached = iconCache[bundleID] { return cached }
+        let icon = app.icon
+        iconCache[bundleID] = icon
+        return icon
     }
 
     private func getMenuItemsFromRunningApps() -> [MenuBarItem] {
         var items: [MenuBarItem] = []
         let runningApps = NSWorkspace.shared.runningApplications
-
-        // The app itself is excluded dynamically via Bundle.main above (the
-        // bundle ID differs per distribution channel), so only system agents
-        // are listed here.
-        let skipBundleIDs: Set<String> = [
-            "com.apple.Spotlight",
-            "com.apple.WindowManager",
-            "com.apple.notificationcenterui",
-            "com.apple.controlcenter",
-            "com.apple.controlcenter.helper",
-            "com.apple.dock",
-            "com.apple.dock.helper",
-            "com.apple.dock.extra",
-            "com.apple.Siri",
-            "com.apple.loginwindow",
-            "com.apple.CoreLocationAgent",
-            "com.apple.coreservices.uiagent",
-            "com.apple.backgroundtaskmanagement.agent",
-            "com.apple.SoftwareUpdateNotificationManager",
-            "com.apple.UserNotificationCenter",
-            "com.apple.Security.keychain-circle-Notification",
-            "com.apple.accessibility.universalAccessAuthWarn",
-            "com.apple.LocalAuthentication.UIAgent",
-            "com.apple.talagent",
-            "com.apple.storeuid",
-            "com.apple.TextInputMenuAgent",
-            "com.apple.TextInputSwitcher",
-            "com.apple.wifi.WiFiAgent",
-            "com.apple.AirPlayUIAgent",
-            "com.apple.universalcontrol",
-            "com.apple.AccessibilityUIServer",
-            "com.apple.wallpaper.agent",
-            "com.apple.PowerChime",
-            "com.apple.WorkflowKit.ShortcutsViewService",
-            "com.apple.systemuiserver",
-        ]
+        let skipBundleIDs = Self.systemAgentBundleIDs
 
         for app in runningApps {
             guard !app.isTerminated,
@@ -163,7 +201,7 @@ final class MenuBarMonitor {
                     id: bundleID,
                     bundleIdentifier: bundleID,
                     processName: name,
-                    icon: app.icon,
+                    icon: cachedIcon(for: app, bundleID: bundleID),
                     appType: .dockOnly,
                     pid: app.processIdentifier,
                     memoryFootprint: Self.physFootprint(pid: app.processIdentifier)
@@ -191,7 +229,7 @@ final class MenuBarMonitor {
                     id: bundleID,
                     bundleIdentifier: bundleID,
                     processName: name,
-                    icon: app.icon,
+                    icon: cachedIcon(for: app, bundleID: bundleID),
                     appType: .statusbarOnly,
                     pid: app.processIdentifier,
                     memoryFootprint: Self.physFootprint(pid: app.processIdentifier)

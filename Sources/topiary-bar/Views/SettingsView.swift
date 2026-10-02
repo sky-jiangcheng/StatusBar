@@ -87,8 +87,7 @@ struct SettingsView: View {
                 HStack {
                     Text(l10n.hotKeyOpenMainWindow)
                     Spacer()
-                    HotKeyRecorder(hotKey: $settings.mainWindowHotKey, l10n: l10n)
-                        .frame(minWidth: 130, minHeight: 26)
+                    HotKeyRecorderField(hotKey: $settings.mainWindowHotKey, l10n: l10n)
                 }
                 if hotKeyConflict {
                     Text(l10n.hotKeyConflict)
@@ -103,6 +102,9 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
 
                 AggregationIconSelector(selectedIcon: $settings.aggregationIcon, l10n: l10n)
+                    .onChange(of: settings.aggregationIcon) { _, _ in
+                        settings.save()
+                    }
             }
         }
         .formStyle(.grouped)
@@ -110,6 +112,7 @@ struct SettingsView: View {
             // Swap the live registration; on conflict the hotkey stays off
             // until the user records a free combination.
             hotKeyConflict = (GlobalHotKey.apply(newValue) == .conflict)
+            settings.save()
         }
     }
 }
