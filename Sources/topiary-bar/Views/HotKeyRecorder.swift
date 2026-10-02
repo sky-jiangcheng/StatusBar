@@ -5,7 +5,8 @@ import SwiftUI
 /// macOS-style hotkey recorder backed by a custom NSView: click to arm,
 /// press a combo, click elsewhere or hit Escape to cancel. First-responder
 /// based, so `keyDown` delivers real virtual key codes for any key
-/// (letters, digits, punctuation, F-keys).
+/// (letters, digits, punctuation, F-keys). A trailing clear button disables
+/// the shortcut entirely (binding becomes nil).
 struct HotKeyRecorder: NSViewRepresentable {
     @Binding var hotKey: HotKeyValue?
     let l10n: L10nTable
@@ -21,6 +22,31 @@ struct HotKeyRecorder: NSViewRepresentable {
     func updateNSView(_ nsView: HotKeyRecorderView, context: Context) {
         nsView.currentDisplay = hotKey?.display ?? l10n.hotKeyNone
         nsView.recordingText = l10n.hotKeyRecording
+    }
+}
+
+/// The recorder plus its clear affordance, laid out as one control.
+struct HotKeyRecorderField: View {
+    @Binding var hotKey: HotKeyValue?
+    let l10n: L10nTable
+
+    var body: some View {
+        HStack(spacing: 6) {
+            HotKeyRecorder(hotKey: $hotKey, l10n: l10n)
+                .frame(minWidth: 130, minHeight: 26)
+
+            if hotKey != nil {
+                Button {
+                    hotKey = nil
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help(l10n.hotKeyClear)
+                .accessibilityLabel(l10n.hotKeyClear)
+            }
+        }
     }
 }
 
@@ -53,7 +79,8 @@ final class HotKeyRecorderView: NSView {
         }
 
         // Escape cancels without changing the binding.
-        if event.keyCode == UInt16(kVK_Escape) {            isRecording = false
+        if event.keyCode == UInt16(kVK_Escape) {
+            isRecording = false
             needsDisplay = true
             return
         }

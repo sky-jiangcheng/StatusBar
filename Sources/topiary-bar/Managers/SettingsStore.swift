@@ -48,12 +48,16 @@ final class SettingsStore {
         }
     }
 
-    private let defaults = UserDefaults.standard
+    /// Backing store. Defaults to the standard domain in the app; unit tests
+    /// inject a private suite so running them never rewrites the user's
+    /// real preferences.
+    private let defaults: UserDefaults
 
     /// Current translation table; views reading this re-render on language change.
     var l10n: L10nTable { L10n.table(for: language) }
 
-    init() {
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
         load()
     }
 
@@ -85,13 +89,6 @@ final class SettingsStore {
            let value = try? JSONDecoder().decode(HotKeyValue.self, from: data) {
             mainWindowHotKey = value
         }
-    }
-
-    /// Applies the Dock-icon preference at runtime via activation policy.
-    /// The Info.plist keeps LSUIElement=1 so launch never flashes a Dock icon;
-    /// the policy is switched right after launch and on every change.
-    func applyDockPolicy() {
-        NSApp.setActivationPolicy(showDockIcon ? .regular : .accessory)
     }
 
     /// Syncs the login-item with the user's preference (best-effort: failures
