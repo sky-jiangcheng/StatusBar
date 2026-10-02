@@ -79,6 +79,8 @@ final class StatusBarManager {
     /// Must run on the main actor; safe to call multiple times.
     func teardown() {
         popover.close()
+        popover.delegate = nil
+        systemMemoryMonitor.stop()
 
         if let monitor = eventMonitor {
             NSEvent.removeMonitor(monitor)
@@ -154,6 +156,10 @@ final class StatusBarManager {
 
         popover.contentViewController = NSViewController()
         popover.contentViewController?.view = hostingView
+        // A transient popover also closes itself (outside click, Escape, focus
+        // loss) without going through `closePopover`, so the delegate is what
+        // reliably stops the memory poller.
+        popover.delegate = self
     }
 
     private func setupEventMonitor() {
@@ -264,5 +270,20 @@ final class StatusBarManager {
 
     private func closePopover() {
         popover.performClose(nil)
+    }
+}
+
+extension StatusBarManager: NSPopoverDelegate {
+    /// The memory card is only rendered inside the popover, so its polling
+    /// timer runs exactly as long as the popover is on screen — a background
+    /// agent with no window on screen should not wake every 3 s. The delegate
+    /// (not the call sites) owns this because a transient popover can also
+    /// close itself on an outside click, Escape or focus loss.
+    func popoverDidShow(_ notification: Notification) {
+        systemMemoryMonitor.start()
+    }
+
+    func popoverDidClose(_ notification: Notification) {
+        systemMemoryMonitor.stop()
     }
 }

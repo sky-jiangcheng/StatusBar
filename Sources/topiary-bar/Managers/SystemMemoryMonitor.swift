@@ -10,6 +10,10 @@ import Observation
 /// sandboxed App Store build. "Used" mirrors the memory-pressure view:
 /// wired + compressed + active pages; free, purgeable and inactive pages
 /// are reclaimable and not counted.
+///
+/// Only the popover renders these numbers, so the timer is driven by the
+/// popover's visibility (see `StatusBarManager`): a background agent with no
+/// window on screen should not keep waking every 3 s.
 @Observable
 @MainActor
 final class SystemMemoryMonitor {

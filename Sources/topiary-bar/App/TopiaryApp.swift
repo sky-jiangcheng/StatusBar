@@ -15,8 +15,6 @@ struct TopiaryApp: App {
         }
         .defaultSize(width: 760, height: 520)
     }
-
-    init() {}
 }
 
 @MainActor
@@ -62,7 +60,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
         menuBarMonitor.startMonitoring()
 
-        systemMemoryMonitor.start()
+        // systemMemoryMonitor is started/stopped by StatusBarManager's popover
+        // delegate — the numbers are only rendered inside the popover.
         GlobalHotKey.apply(settingsStore.mainWindowHotKey)
 
         // Main window / settings entry points coming from the status item's

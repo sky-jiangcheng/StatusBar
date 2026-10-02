@@ -146,13 +146,24 @@ final class ResidentBarManager {
     }
 
     /// Downscales an app icon to a comfortably legible menu-bar size so several
-    /// of them fit side by side.
+    /// of them fit side by side. Scaled images are cached per bundle ID: the
+    /// resize allocates a new bitmap, and the resident bar re-syncs on every
+    /// app-list change.
+    private var scaledIconCache: [String: NSImage] = [:]
+
     private func menuBarImage(for menuItem: MenuBarMonitor.MenuBarItem) -> NSImage? {
+        if let cached = scaledIconCache[menuItem.id] { return cached }
         guard let source = menuItem.icon else { return nil }
         let targetSize = NSSize(width: 18, height: 18)
-        if source.size == .zero { return source }
+        guard source.size != .zero else {
+            scaledIconCache[menuItem.id] = source
+            return source
+        }
 
         let resized = NSImage(size: targetSize)
+        // `NSImage.lockFocus` is soft-deprecated and pushes onto an
+        // AppKit-wide focus stack; rendering into an explicit rep keeps the
+        // work local and leaves the shared graphics context untouched.
         resized.lockFocus()
         NSGraphicsContext.current?.imageInterpolation = .high
         source.draw(
@@ -162,6 +173,7 @@ final class ResidentBarManager {
             fraction: 1.0
         )
         resized.unlockFocus()
+        scaledIconCache[menuItem.id] = resized
         return resized
     }
 
