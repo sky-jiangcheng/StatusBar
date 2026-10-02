@@ -22,6 +22,9 @@ jobs:
   build-and-upload:
     runs-on: macos-15
     timeout-minutes: 60
+    # Same protection as the Developer ID pipeline: the signing cert and the
+    # App Store Connect key stay behind required reviewers.
+    environment: release
 
     steps:
       - name: Checkout
@@ -106,8 +109,17 @@ jobs:
           API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
-          xcrun altool --upload-app --type macos --file "dist/Topiary.pkg" \
-            --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"
+          # `altool` is deprecated and already missing from some runner images.
+          # iTMSTransporter ships with the Xcode selected above and takes the
+          # same App Store Connect key; altool stays as a fallback.
+          if xcrun --find iTMSTransporter >/dev/null 2>&1; then
+            xcrun iTMSTransporter -m upload \
+              -assetFile "dist/Topiary.pkg" \
+              -apiKey "$API_KEY_ID" -apiIssuer "$API_ISSUER_ID"
+          else
+            xcrun altool --upload-app --type macos --file "dist/Topiary.pkg" \
+              --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"
+          fi
 
       - name: Upload package artifact
         if: always()

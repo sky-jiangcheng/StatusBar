@@ -22,6 +22,9 @@ jobs:
   notarize:
     runs-on: macos-15
     timeout-minutes: 60
+    # Signing secrets are only released to a protected environment with
+    # required reviewers, so a stray tag push cannot produce a signed build.
+    environment: release
 
     steps:
       - name: Checkout

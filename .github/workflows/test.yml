@@ -32,3 +32,12 @@ jobs:
 
       - name: Run unit tests
         run: swift test
+
+      # The MAS channel compiles out Quit / Force Quit behind -D MAC_APP_STORE.
+      # Without this job that branch only gets exercised when a tag is pushed,
+      # so rot would surface at release time instead of in CI.
+      - name: Build release (mas channel)
+        run: swift build -c release --scratch-path .build -Xswiftc -D -Xswiftc MAC_APP_STORE
+
+      - name: Build release (devid channel)
+        run: swift build -c release --scratch-path .build
