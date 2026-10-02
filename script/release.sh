@@ -142,6 +142,11 @@ cp -R "$APPCONSET" "$ICONSET"
 iconutil -c icns "$ICONSET" -o "$APP_RESOURCES/AppIcon.icns"
 rm -rf "$ICONSET"
 
+# Privacy manifest: App Store Connect rejects submissions without it, and the
+# reason codes it declares (UserDefaults) must match the shipped binary.
+cp "$ROOT_DIR/Sources/topiary-bar/Resources/PrivacyInfo.xcprivacy" "$APP_RESOURCES/PrivacyInfo.xcprivacy"
+plutil -lint "$APP_RESOURCES/PrivacyInfo.xcprivacy" >/dev/null
+
 if [ "$CHANNEL" = "mas" ] && [ -n "${PROVISIONING_PROFILE:-}" ] && [ -f "$PROVISIONING_PROFILE" ]; then
   cp "$PROVISIONING_PROFILE" "$APP_CONTENTS/embedded.provisionprofile"
 fi

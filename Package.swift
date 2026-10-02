@@ -13,6 +13,9 @@ let package = Package(
         .executableTarget(
             name: "topiary-bar",
             path: "Sources/topiary-bar",
+            // Resources/ is assembled into the .app by script/release.sh
+            // (entitlements, asset catalog, PrivacyInfo.xcprivacy) rather than
+            // by SwiftPM, so it is excluded here.
             exclude: [
                 "Resources"
             ]
