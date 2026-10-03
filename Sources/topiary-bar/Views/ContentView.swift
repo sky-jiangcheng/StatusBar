@@ -271,8 +271,12 @@ private struct OverviewView: View {
 
     /// Pinned apps in pin order, resolved against the live app list.
     private var pinnedItems: [MenuBarMonitor.MenuBarItem] {
+        // `uniquingKeysWith` mirrors ResidentBarManager: the inventory should
+        // hold one item per bundle ID, but a crash must not depend on that
+        // invariant holding.
         let byID = Dictionary(
-            uniqueKeysWithValues: menuBarMonitor.menuBarItems.map { ($0.id, $0) }
+            menuBarMonitor.menuBarItems.map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
         )
         return settings.pinnedAppIDs.compactMap { byID[$0] }
     }

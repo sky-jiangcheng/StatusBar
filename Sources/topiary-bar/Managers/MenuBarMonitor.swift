@@ -179,11 +179,84 @@ final class MenuBarMonitor {
         return icon
     }
 
-    private func getMenuItemsFromRunningApps() -> [MenuBarItem] {
+    /// One running process that survived the suppression filters, awaiting the
+    /// per-bundle-ID merge. Candidates carry no live data (icon, footprint) so
+    /// `assembleItems` stays a pure, unit-testable function.
+    struct ProcessCandidate {
+        let bundleIdentifier: String
+        let processName: String
+        let pid: pid_t
+        let isRegular: Bool
+    }
+
+    /// A process is not an app: several processes share one bundle ID (Docker
+    /// Desktop runs com.docker.backend and com.docker.virtualization, both
+    /// reporting bundle ID com.docker.docker and the name "Docker"). `id` is
+    /// the bundle ID and is a SwiftUI identity key across every surface, so
+    /// the inventory must hold at most one item per bundle ID — otherwise
+    /// duplicate rows appear and `Dictionary(uniqueKeysWithValues:)` consumers
+    /// crash. Where both policies run for one bundle ID, the regular process
+    /// wins (the app is Dock-visible; its accessory processes are internal).
+    static nonisolated func assembleItems(
+        from candidates: [ProcessCandidate],
+        icons: [String: NSImage]
+    ) -> [MenuBarItem] {
+        let regulars = candidates.filter { $0.isRegular }
+        let regularBundleIDs = Set(regulars.map { $0.bundleIdentifier })
+
+        var groups: [String: [ProcessCandidate]] = [:]
+        for candidate in candidates {
+            if !candidate.isRegular {
+                // Same bundle ID as a running regular app: an internal
+                // process of that app, folded into its single Dock item.
+                if regularBundleIDs.contains(candidate.bundleIdentifier) { continue }
+
+                // Heuristic: treat an accessory process as a helper of a
+                // regular app when both share the same first two bundle-ID
+                // segments (com.docker.* under com.docker). Segment-aligned
+                // equality (not prefix matching) prevents false positives such
+                // as com.docker absorbing com.dockerized.app.
+                let ownBase = Self.baseBundleID(of: candidate.bundleIdentifier)
+                let dominatedByParent = ownBase != nil && regulars.contains { regular in
+                    Self.baseBundleID(of: regular.bundleIdentifier) == ownBase
+                }
+                if dominatedByParent { continue }
+            }
+            groups[candidate.bundleIdentifier, default: []].append(candidate)
+        }
+
         var items: [MenuBarItem] = []
+        for (bundleID, group) in groups {
+            // Representative process: the first one launched. Memory sums the
+            // whole group — the item stands for the app, not one process.
+            guard let primary = group.min(by: { $0.pid < $1.pid }) else { continue }
+            let footprints = group.compactMap { Self.physFootprint(pid: $0.pid) }
+            items.append(MenuBarItem(
+                id: bundleID,
+                bundleIdentifier: bundleID,
+                processName: primary.processName,
+                icon: icons[bundleID],
+                appType: primary.isRegular ? .dockOnly : .statusbarOnly,
+                pid: primary.pid,
+                memoryFootprint: footprints.isEmpty ? nil : footprints.reduce(0, +)
+            ))
+        }
+
+        // Name sort as before; the bundle ID tie-break keeps the element-wise
+        // zip comparison in refreshMenuItems aligned when two distinct bundle
+        // IDs share a display name.
+        return items.sorted {
+            let order = $0.processName.localizedCaseInsensitiveCompare($1.processName)
+            return order == .orderedAscending
+                || (order == .orderedSame && $0.bundleIdentifier < $1.bundleIdentifier)
+        }
+    }
+
+    private func getMenuItemsFromRunningApps() -> [MenuBarItem] {
         let runningApps = NSWorkspace.shared.runningApplications
         let skipBundleIDs = Self.systemAgentBundleIDs
 
+        var candidates: [ProcessCandidate] = []
         for app in runningApps {
             guard !app.isTerminated,
                   let bundleID = app.bundleIdentifier,
@@ -197,48 +270,30 @@ final class MenuBarMonitor {
             if skipBundleIDs.contains(bundleID) { continue }
 
             if app.activationPolicy == .regular {
-                let item = MenuBarItem(
-                    id: bundleID,
+                candidates.append(ProcessCandidate(
                     bundleIdentifier: bundleID,
                     processName: name,
-                    icon: cachedIcon(for: app, bundleID: bundleID),
-                    appType: .dockOnly,
                     pid: app.processIdentifier,
-                    memoryFootprint: Self.physFootprint(pid: app.processIdentifier)
-                )
-                items.append(item)
+                    isRegular: true
+                ))
+                _ = cachedIcon(for: app, bundleID: bundleID)
             } else if app.activationPolicy == .accessory {
                 guard !bundleID.hasPrefix("com.apple.WebKit.") else { continue }
                 guard !bundleID.hasPrefix("com.apple.") else { continue }
 
-                // Heuristic: treat an accessory process as a helper of a regular app
-                // when both share the same first two bundle-ID segments (com.docker.*
-                // under com.docker). Segment-aligned equality (not prefix matching)
-                // prevents false positives such as com.docker absorbing com.dockerized.app.
-                let ownBase = Self.baseBundleID(of: bundleID)
-                let dominatedByParent = ownBase != nil && runningApps.contains { other in
-                    guard other.bundleIdentifier != bundleID,
-                          other.activationPolicy == .regular,
-                          let otherBase = Self.baseBundleID(of: other.bundleIdentifier ?? "")
-                    else { return false }
-                    return otherBase == ownBase
-                }
-                guard !dominatedByParent else { continue }
-
-                let item = MenuBarItem(
-                    id: bundleID,
+                candidates.append(ProcessCandidate(
                     bundleIdentifier: bundleID,
                     processName: name,
-                    icon: cachedIcon(for: app, bundleID: bundleID),
-                    appType: .statusbarOnly,
                     pid: app.processIdentifier,
-                    memoryFootprint: Self.physFootprint(pid: app.processIdentifier)
-                )
-                items.append(item)
+                    isRegular: false
+                ))
+                _ = cachedIcon(for: app, bundleID: bundleID)
             }
         }
 
-        return items.sorted { $0.processName.localizedCaseInsensitiveCompare($1.processName) == .orderedAscending }
+        // Every candidate warmed the cache above, so it holds an icon for each
+        // listed bundle ID.
+        return Self.assembleItems(from: candidates, icons: iconCache)
     }
 
     /// First two segments of a bundle identifier ("com.docker" from
@@ -254,7 +309,9 @@ final class MenuBarMonitor {
     /// "Memory" column reads the same `ri_phys_footprint`). nil when the
     /// lookup fails. Compiled out of the sandboxed MAS build: reading other
     /// processes' rusage is outside the App Store sandbox contract.
-    static func physFootprint(pid: pid_t) -> UInt64? {
+    /// `nonisolated` (pure syscall, no actor state) so the nonisolated
+    /// `assembleItems` can call it.
+    static nonisolated func physFootprint(pid: pid_t) -> UInt64? {
 #if MAC_APP_STORE
         return nil
 #else
@@ -274,13 +331,21 @@ final class MenuBarMonitor {
     /// automatic escalation to `forceTerminate()` if it is still alive after a
     /// short grace period. Replaces the old quit/force-quit pair, which read
     /// as two identical outcomes to the user.
+    ///
+    /// One item can stand for several processes (same bundle ID, see
+    /// `assembleItems`), so every matching process is terminated; whichever
+    /// survive the grace period are force-terminated together.
     func quitApp(_ item: MenuBarMonitor.MenuBarItem) {
-        guard let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == item.bundleIdentifier }) else { return }
-        app.terminate()
+        let matches = NSWorkspace.shared.runningApplications.filter { $0.bundleIdentifier == item.bundleIdentifier }
+        guard !matches.isEmpty else { return }
+        for app in matches {
+            app.terminate()
+        }
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(3))
-            guard !app.isTerminated else { return }
-            app.forceTerminate()
+            for app in matches where !app.isTerminated {
+                app.forceTerminate()
+            }
         }
     }
 #endif

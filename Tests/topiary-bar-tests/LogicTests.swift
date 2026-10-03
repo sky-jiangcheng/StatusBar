@@ -51,6 +51,105 @@ final class LogicTests: XCTestCase {
         XCTAssertNil(MenuBarMonitor.baseBundleID(of: ""))
     }
 
+    // MARK: - MenuBarMonitor.assembleItems
+
+    /// Dead pids: `physFootprint` must fail for them, keeping memory out of
+    /// these assertions entirely.
+    private func candidate(
+        _ bundleID: String,
+        name: String,
+        pid: pid_t,
+        regular: Bool
+    ) -> MenuBarMonitor.ProcessCandidate {
+        MenuBarMonitor.ProcessCandidate(
+            bundleIdentifier: bundleID,
+            processName: name,
+            pid: pid,
+            isRegular: regular
+        )
+    }
+
+    func testAssembleItemsMergesSameBundleAccessoryProcesses() {
+        // Docker Desktop runs com.docker.backend and com.docker.virtualization,
+        // both reporting bundle ID com.docker.docker — one menu bar app, one row.
+        let items = MenuBarMonitor.assembleItems(
+            from: [
+                candidate("com.docker.docker", name: "Docker", pid: 75851, regular: false),
+                candidate("com.docker.docker", name: "Docker", pid: 75890, regular: false)
+            ],
+            icons: [:]
+        )
+
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items.first?.appType, .statusbarOnly)
+        XCTAssertEqual(items.first?.bundleIdentifier, "com.docker.docker")
+        // The representative process is the first one launched.
+        XCTAssertEqual(items.first?.pid, 75851)
+    }
+
+    func testAssembleItemsRegularWinsOverSameBundleAccessory() {
+        let items = MenuBarMonitor.assembleItems(
+            from: [
+                candidate("com.example.app", name: "Example", pid: 90001, regular: false),
+                candidate("com.example.app", name: "Example", pid: 90002, regular: true)
+            ],
+            icons: [:]
+        )
+
+        // One item per bundle ID, and the Dock-visible regular process decides
+        // the type — otherwise the same bundle ID would collide across the two
+        // list sections. The same-bundle accessory is folded away, so the
+        // representative pid is the regular process's.
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items.first?.appType, .dockOnly)
+        XCTAssertEqual(items.first?.pid, 90002)
+    }
+
+    func testAssembleItemsKeepsDistinctBundleIDsSeparate() {
+        let items = MenuBarMonitor.assembleItems(
+            from: [
+                candidate("com.docker.docker", name: "Docker", pid: 90010, regular: false),
+                candidate("com.electron.dockerdesktop", name: "Docker Desktop", pid: 90011, regular: true)
+            ],
+            icons: [:]
+        )
+
+        XCTAssertEqual(items.count, 2)
+        XCTAssertEqual(items.first { $0.bundleIdentifier == "com.docker.docker" }?.appType, .statusbarOnly)
+        XCTAssertEqual(items.first { $0.bundleIdentifier == "com.electron.dockerdesktop" }?.appType, .dockOnly)
+    }
+
+    func testAssembleItemsDropsDominatedHelper() {
+        // com.docker.helper is a helper of the regular com.docker.docker app
+        // (same first two bundle-ID segments) and must not become its own row.
+        let items = MenuBarMonitor.assembleItems(
+            from: [
+                candidate("com.docker.docker", name: "Docker", pid: 90020, regular: true),
+                candidate("com.docker.helper", name: "Docker Helper", pid: 90021, regular: false)
+            ],
+            icons: [:]
+        )
+
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items.first?.bundleIdentifier, "com.docker.docker")
+        XCTAssertEqual(items.first?.appType, .dockOnly)
+    }
+
+    func testAssembleItemsSortTieBreaksByBundleID() {
+        // Two distinct bundle IDs sharing a display name: the bundle ID
+        // tie-break keeps the scan-to-scan element order deterministic, which
+        // refreshMenuItems' zip comparison relies on.
+        let items = MenuBarMonitor.assembleItems(
+            from: [
+                candidate("com.zeta.app", name: "Same Name", pid: 90030, regular: false),
+                candidate("com.alpha.app", name: "Same Name", pid: 90031, regular: false)
+            ],
+            icons: [:]
+        )
+
+        XCTAssertEqual(items.map { $0.bundleIdentifier }, ["com.alpha.app", "com.zeta.app"])
+    }
+
     // MARK: - Pin management
 
     func testTogglePinAddsOnesInOrderAndRemoves() {
