@@ -31,7 +31,13 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode.app
 
       - name: Run unit tests
-        run: swift test
+        run: |
+          swift --version
+          xcodebuild -version
+          swift test 2>&1 | tee /tmp/swift-test.log
+          echo "::group::test log tail"
+          tail -60 /tmp/swift-test.log
+          echo "::endgroup::"
 
       # The MAS channel compiles out Quit / Force Quit behind -D MAC_APP_STORE.
       # Without this job that branch only gets exercised when a tag is pushed,
